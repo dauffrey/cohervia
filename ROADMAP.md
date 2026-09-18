@@ -52,7 +52,7 @@ Exit criteria:
 
 - a merged preregistration exists before execution;
 - frozen implementation, data, and configuration are recorded;
-- holdouts remain untouched and separated from training or tuning data;
+- confirmatory holdouts remained inaccessible during development and tuning and were accessed only by the frozen evaluator after preregistration and implementation freeze;
 - results are recorded under the Cohervia lineage, not by renaming predecessor evidence.
 
 ## Phase 5: controlled real-agent trials

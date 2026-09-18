@@ -12,16 +12,23 @@ Cohervia is a falsification-driven research project. The policy below defines th
    - The implementation, parameters, and test harness must be fixed before confirmatory evaluation starts.
    - Any later change to data, evaluator, or configuration must be treated as a new study unless explicitly re-preregistered.
 
-3. Keep development data separate from untouched holdouts.
-   - Development or tuning data must not be mixed with untouched validation or holdout data.
-   - Holdouts must remain untouched until the confirmatory evaluation is complete.
+3. Keep development data separate from holdout data during development and tuning.
+   - Development or tuning data must not be mixed with holdout inputs or outcomes.
+   - Holdout inputs and outcomes remain inaccessible during observer construction, implementation development, training, threshold selection, tuning, debugging, and structural validation.
+   - After preregistration, review, exact implementation/configuration freeze, and authorization, only the frozen evaluator may access the holdout for confirmatory execution.
+   - Holdout outcomes may not be used for post-outcome retuning.
+   - Changes prompted by confirmatory outcomes require a new preregistration and a new eligible holdout.
 
 4. Preserve negative, null, weakening, and falsified results.
    - Weak or failed results are part of the evidence record and cannot be discarded simply because they are inconvenient.
    - Falsification is a valid scientific result, not a failure of method.
 
 5. Define endpoints independently of candidate sensors.
-   - Multi-step measurement logic must not be built around a single sensor to avoid redefining success after seeing the outcome.
+   - Evaluation endpoints are defined before confirmatory evaluation begins.
+   - Endpoints must be externally auditable and based on the task contract, environment state, or another independent outcome source.
+   - Endpoints must not depend on candidate sensor values, candidate alerts or predictions, warning thresholds, governor decisions, or interventions.
+   - Endpoints must not be altered after outcome exposure.
+   - This is a requirement of independence from the candidate predictor, not a prohibition against using independently defined operational measurements in the outcome definition.
 
 6. Compare at matched false-alarm budgets when evaluating early warning.
    - Early-warning evaluation must be matched to false-alarm budgets to avoid over-optimistic interpretation.
@@ -30,8 +37,9 @@ Cohervia is a falsification-driven research project. The policy below defines th
    - No labels, thresholds, or evaluation rules may be altered based on the outcome of confirmatory testing.
 
 8. Distinguish instrumentation tests from evidentiary experiments.
-   - A synthetic harness, logging probe, or instrumentation check is not proof of predictive or control value.
-   - Only preregistered, frozen, and confirmatory studies provide evidentiary weight.
+   - Instrumentation evidence establishes that a pipeline, control, detector, evaluator, or recording mechanism operates as intended; it does not establish predictive or governance value.
+   - Exploratory evidence may provide bounded, hypothesis-generating evidence but must be labeled exploratory and cannot be presented as confirmatory support.
+   - Confirmatory evidence requires preregistration, frozen implementation and evaluation rules, untouched holdout outcomes during development, and execution by the frozen evaluator; it may support only the claims defined in the preregistration.
 
 9. Record commit hashes, configuration hashes, data hashes, and artifact hashes.
    - Every experimental record must capture the implementation version and relevant artifacts used for the evaluation.

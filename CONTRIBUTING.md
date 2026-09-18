@@ -14,7 +14,7 @@ Cohervia is a research project, not a production assurance product. Contribution
 ## Implementation expectations
 
 - Changes to implementations, configurations, evaluators, or data pipelines must include tests or documentation validation, as appropriate.
-- Keep development artifacts separate from untouched holdouts.
+- Keep development artifacts separated from holdout inputs and outcomes until preregistration, freeze, and evaluator authorization; after authorization, only the frozen evaluator may access the holdout for confirmatory execution.
 - Do not silently convert missing evidence into zero or default values.
 - Do not hide uncertainty and evidence quality behind a single score.
 

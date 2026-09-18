@@ -18,12 +18,15 @@ Key design expectations:
 
 ### 2. Viability dynamics
 
-This layer converts measurements into viability-related state estimates, such as disturbance load, reserve, recovery, and viability margin. The goal is to model how an agent or system is moving toward or away from a safe operating envelope, not to assume that any observed margin implies a particular authority decision.
+This layer converts measurements into viability-related state estimates, such as disturbance load, reserve, recovery, and viability margin. The goal is to model how an agent or system is moving toward or away from a defined viable operating region, not to assume that any observed margin implies a particular authority decision.
+
+Viability is an operational state estimate, not a normative safety judgment. A system may remain highly viable while taking prohibited, misaligned, or harmful actions. High viability therefore does not imply safety, policy compliance, or authorization.
 
 This layer is responsible for:
 
 - estimating margin over time;
 - tracking rate of change in viability;
+- distinguishing state viability from action authorization;
 - distinguishing observed failure from predicted future failure;
 - preserving uncertainty and evidence quality.
 
