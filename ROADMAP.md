@@ -17,6 +17,14 @@ Exit criteria:
 
 Purpose: inventory candidate constructs and establish migration boundaries without moving implementation code.
 
+Artifacts for this phase are intentionally documentation-only and include:
+
+- [MIGRATION_INVENTORY.md](MIGRATION_INVENTORY.md)
+- [OBSERVATION_CONTRACT.md](OBSERVATION_CONTRACT.md)
+- [TRAJECTORY_STATE_CONTRACT.md](TRAJECTORY_STATE_CONTRACT.md)
+- [AUTHORITY_AUDIT_CONTRACT.md](AUTHORITY_AUDIT_CONTRACT.md)
+- [PHASE_2_PLAN.md](PHASE_2_PLAN.md)
+
 Exit criteria:
 
 - each candidate construct is mapped to a predecessor source and evidence status;

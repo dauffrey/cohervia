@@ -97,6 +97,18 @@ The system must log:
 
 Uncertainty should be maintained as an explicit variable rather than treated as a hidden confidence discount. The architecture is designed for shadow-mode-first deployment, where governance observations can be compared against operational outcomes without immediately exerting authority.
 
+## Phase 1 specification contracts
+
+The Phase 1 work is intentionally documentation-only and is recorded in the following specification artifacts:
+
+- [MIGRATION_INVENTORY.md](../../MIGRATION_INVENTORY.md) — source-grounded migration inventory and adoption boundaries
+- [OBSERVATION_CONTRACT.md](../../OBSERVATION_CONTRACT.md) — explicit semantics for measurements and observation status
+- [TRAJECTORY_STATE_CONTRACT.md](../../TRAJECTORY_STATE_CONTRACT.md) — viability-state definitions and trajectory-state invariants
+- [AUTHORITY_AUDIT_CONTRACT.md](../../AUTHORITY_AUDIT_CONTRACT.md) — separation of signal, authority, and audit obligations
+- [PHASE_2_PLAN.md](../../PHASE_2_PLAN.md) — minimal observation-and-audit implementation plan
+
+These contracts define the specification boundary for Cohervia's first implementation-oriented milestone without creating a runtime governance implementation.
+
 ## Deployment posture
 
 The current intended deployment posture is shadow-mode-first. In this posture, the governor evaluates trajectories and emits advisory state without acting as the final authority. Only after controlled evidence and explicit review should intervention logic be advanced beyond observation and audit.

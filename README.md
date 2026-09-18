@@ -62,6 +62,11 @@ See the provenance documentation for the full lineage and constraints: [docs/pro
 - [docs/provenance/CONSTRUCT_STATUS.md](docs/provenance/CONSTRUCT_STATUS.md) — conservative construct status table
 - [docs/provenance/LINEAGE.md](docs/provenance/LINEAGE.md) — predecessor lineages and authoritative snapshot record
 - [docs/research/EVIDENCE_POLICY.md](docs/research/EVIDENCE_POLICY.md) — preregistration, freeze, and evidence rules
+- [MIGRATION_INVENTORY.md](MIGRATION_INVENTORY.md) — source-grounded migration inventory and adoption boundaries
+- [OBSERVATION_CONTRACT.md](OBSERVATION_CONTRACT.md) — explicit observation semantics for Cohervia measurements
+- [TRAJECTORY_STATE_CONTRACT.md](TRAJECTORY_STATE_CONTRACT.md) — viability-state and metric boundary for trajectory assessment
+- [AUTHORITY_AUDIT_CONTRACT.md](AUTHORITY_AUDIT_CONTRACT.md) — separation of governor signal from authority and audit boundary
+- [PHASE_2_PLAN.md](PHASE_2_PLAN.md) — implementation plan for the minimal observation-and-audit core
 - [ROADMAP.md](ROADMAP.md) — phased research roadmap
 - [CONTRIBUTING.md](CONTRIBUTING.md) — scientific and implementation expectations
 - [SECURITY.md](SECURITY.md) — security reporting policy
@@ -69,4 +74,4 @@ See the provenance documentation for the full lineage and constraints: [docs/pro
 
 ## Status
 
-Cohervia is in foundation/consolidation status. It contains no validated production governor, no validated general safety capability, and no claim that inherited constructs are validated simply because they were selected for a successor project.
+Cohervia is in Phase 1 specification status: the migration inventory and interface contracts have been documented, but no runtime implementation, workflow, or authority logic has been introduced. The project remains foundation-only and does not claim validated production or real-agent safety performance.
