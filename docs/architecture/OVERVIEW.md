@@ -101,13 +101,13 @@ Uncertainty should be maintained as an explicit variable rather than treated as 
 
 The Phase 1 work is intentionally documentation-only and is recorded in the following specification artifacts:
 
-- [MIGRATION_INVENTORY.md](../../MIGRATION_INVENTORY.md) — source-grounded migration inventory and adoption boundaries
-- [OBSERVATION_CONTRACT.md](../../OBSERVATION_CONTRACT.md) — explicit semantics for measurements and observation status
-- [TRAJECTORY_STATE_CONTRACT.md](../../TRAJECTORY_STATE_CONTRACT.md) — viability-state definitions and trajectory-state invariants
-- [AUTHORITY_AUDIT_CONTRACT.md](../../AUTHORITY_AUDIT_CONTRACT.md) — separation of signal, authority, and audit obligations
-- [PHASE_2_PLAN.md](../../PHASE_2_PLAN.md) — minimal observation-and-audit implementation plan
+- [MIGRATION_INVENTORY.md](../provenance/MIGRATION_INVENTORY.md) — source-grounded migration inventory and adoption boundaries
+- [OBSERVATION_CONTRACT.md](../contracts/OBSERVATION_CONTRACT.md) — explicit semantics for measurements and observation status
+- [TRAJECTORY_STATE_CONTRACT.md](../contracts/TRAJECTORY_STATE_CONTRACT.md) — viability-state definitions and trajectory-state invariants
+- [AUTHORITY_AUDIT_CONTRACT.md](../contracts/AUTHORITY_AUDIT_CONTRACT.md) — separation of signal, authority, and audit obligations
+- [PHASE_2_PLAN.md](../implementation/PHASE_2_PLAN.md) — minimal observation-and-audit implementation plan
 
-These contracts define the specification boundary for Cohervia's first implementation-oriented milestone without creating a runtime governance implementation.
+These proposed contracts remain pending Phase 1 review. Phase 2 implements only observation validation, provenance, canonical hashing, audit records and replay. State estimation, recommendation generation and authority enforcement remain later work. Phase 0 is merged; Phase 2 implementation has not begun.
 
 ## Deployment posture
 

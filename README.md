@@ -62,11 +62,11 @@ See the provenance documentation for the full lineage and constraints: [docs/pro
 - [docs/provenance/CONSTRUCT_STATUS.md](docs/provenance/CONSTRUCT_STATUS.md) — conservative construct status table
 - [docs/provenance/LINEAGE.md](docs/provenance/LINEAGE.md) — predecessor lineages and authoritative snapshot record
 - [docs/research/EVIDENCE_POLICY.md](docs/research/EVIDENCE_POLICY.md) — preregistration, freeze, and evidence rules
-- [MIGRATION_INVENTORY.md](MIGRATION_INVENTORY.md) — source-grounded migration inventory and adoption boundaries
-- [OBSERVATION_CONTRACT.md](OBSERVATION_CONTRACT.md) — explicit observation semantics for Cohervia measurements
-- [TRAJECTORY_STATE_CONTRACT.md](TRAJECTORY_STATE_CONTRACT.md) — viability-state and metric boundary for trajectory assessment
-- [AUTHORITY_AUDIT_CONTRACT.md](AUTHORITY_AUDIT_CONTRACT.md) — separation of governor signal from authority and audit boundary
-- [PHASE_2_PLAN.md](PHASE_2_PLAN.md) — implementation plan for the minimal observation-and-audit core
+- [MIGRATION_INVENTORY.md](docs/provenance/MIGRATION_INVENTORY.md) — source-grounded migration inventory and adoption boundaries
+- [OBSERVATION_CONTRACT.md](docs/contracts/OBSERVATION_CONTRACT.md) — explicit observation semantics for Cohervia measurements
+- [TRAJECTORY_STATE_CONTRACT.md](docs/contracts/TRAJECTORY_STATE_CONTRACT.md) — viability-state and metric boundary for trajectory assessment
+- [AUTHORITY_AUDIT_CONTRACT.md](docs/contracts/AUTHORITY_AUDIT_CONTRACT.md) — separation of governor signal from authority and audit boundary
+- [PHASE_2_PLAN.md](docs/implementation/PHASE_2_PLAN.md) — implementation plan for the minimal observation-and-audit core
 - [ROADMAP.md](ROADMAP.md) — phased research roadmap
 - [CONTRIBUTING.md](CONTRIBUTING.md) — scientific and implementation expectations
 - [SECURITY.md](SECURITY.md) — security reporting policy
@@ -74,4 +74,4 @@ See the provenance documentation for the full lineage and constraints: [docs/pro
 
 ## Status
 
-Cohervia is in Phase 1 specification status: the migration inventory and interface contracts have been documented, but no runtime implementation, workflow, or authority logic has been introduced. The project remains foundation-only and does not claim validated production or real-agent safety performance.
+Phase 0 is merged. Phase 1 migration inventory and contracts are proposed and pending review; Phase 2 implementation has not begun. No runtime implementation, workflow, or authority logic is introduced. The project does not claim validated production or real-agent safety performance.
