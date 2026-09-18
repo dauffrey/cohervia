@@ -4,6 +4,8 @@ The roadmap below is intentionally staged and does not imply completed evidence.
 
 ## Phase 0: canonical foundation and provenance
 
+Status: merged in PR #1 at `50b287eca5e7a30e09d10b7dd873f818cb131041`.
+
 Purpose: establish the project identity, lineage record, and scientific guardrails.
 
 Exit criteria:
@@ -15,7 +17,17 @@ Exit criteria:
 
 ## Phase 1: migration inventory and interface contracts
 
+Status: proposed in PR #2; pending review and merge.
+
 Purpose: inventory candidate constructs and establish migration boundaries without moving implementation code.
+
+Artifacts for this phase are intentionally documentation-only and include:
+
+- [MIGRATION_INVENTORY.md](docs/provenance/MIGRATION_INVENTORY.md)
+- [OBSERVATION_CONTRACT.md](docs/contracts/OBSERVATION_CONTRACT.md)
+- [TRAJECTORY_STATE_CONTRACT.md](docs/contracts/TRAJECTORY_STATE_CONTRACT.md)
+- [AUTHORITY_AUDIT_CONTRACT.md](docs/contracts/AUTHORITY_AUDIT_CONTRACT.md)
+- [PHASE_2_PLAN.md](docs/implementation/PHASE_2_PLAN.md)
 
 Exit criteria:
 
@@ -25,13 +37,17 @@ Exit criteria:
 
 ## Phase 2: minimal observation and audit core
 
+Status: implementation has not begun. Scope is observation validation, provenance,
+canonical serialization/hashing, atomic audit recording, and deterministic replay.
+Estimator computation, enforcement and shadow-mode evaluation belong to later phases.
+
 Purpose: define the minimal measurement, provenance, and audit layer required for disciplined evidence capture.
 
 Exit criteria:
 
 - explicit observation states are available and documented;
 - provenance and artifact hashing are part of the core record;
-- audit trails exist for telemetry, configuration, and decisions; 
+- observation validation dispositions are auditable and replayable;
 - missing evidence is retained as missing rather than silently converted.
 
 ## Phase 3: shadow-mode governor and baseline evaluation

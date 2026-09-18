@@ -97,6 +97,18 @@ The system must log:
 
 Uncertainty should be maintained as an explicit variable rather than treated as a hidden confidence discount. The architecture is designed for shadow-mode-first deployment, where governance observations can be compared against operational outcomes without immediately exerting authority.
 
+## Phase 1 specification contracts
+
+The Phase 1 work is intentionally documentation-only and is recorded in the following specification artifacts:
+
+- [MIGRATION_INVENTORY.md](../provenance/MIGRATION_INVENTORY.md) — source-grounded migration inventory and adoption boundaries
+- [OBSERVATION_CONTRACT.md](../contracts/OBSERVATION_CONTRACT.md) — explicit semantics for measurements and observation status
+- [TRAJECTORY_STATE_CONTRACT.md](../contracts/TRAJECTORY_STATE_CONTRACT.md) — viability-state definitions and trajectory-state invariants
+- [AUTHORITY_AUDIT_CONTRACT.md](../contracts/AUTHORITY_AUDIT_CONTRACT.md) — separation of signal, authority, and audit obligations
+- [PHASE_2_PLAN.md](../implementation/PHASE_2_PLAN.md) — minimal observation-and-audit implementation plan
+
+These proposed contracts remain pending Phase 1 review. Phase 2 implements only observation validation, provenance, canonical hashing, audit records and replay. State estimation, recommendation generation and authority enforcement remain later work. Phase 0 is merged; Phase 2 implementation has not begun.
+
 ## Deployment posture
 
 The current intended deployment posture is shadow-mode-first. In this posture, the governor evaluates trajectories and emits advisory state without acting as the final authority. Only after controlled evidence and explicit review should intervention logic be advanced beyond observation and audit.
