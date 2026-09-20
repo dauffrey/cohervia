@@ -7,14 +7,14 @@ factors:
     - 1
     - 2
   code_tool:
-    - off
-    - on
+    - "off"
+    - "on"
   verifier_feedback:
-    - off
-    - on
+    - "off"
+    - "on"
   structured_memory:
-    - off
-    - on
+    - "off"
+    - "on"
 
 task_families:
   - algorithmic_verifiable
