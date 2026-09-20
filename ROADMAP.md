@@ -31,8 +31,29 @@ Exit criteria:
 
 - explicit observation states are available and documented;
 - provenance and artifact hashing are part of the core record;
-- audit trails exist for telemetry, configuration, and decisions; 
+- audit trails exist for telemetry, configuration, and decisions;
 - missing evidence is retained as missing rather than silently converted.
+
+## Cross-cutting capability-discovery track
+
+Purpose: prepare a controlled way to measure system-level capability composition without weakening Cohervia's evidence rules or accelerating authority claims.
+
+This track studies whether capability changes emerge from interactions among models, tools, memory, verification, multiple agents, and environments, and whether associated trajectory changes can be observed before final outcomes.
+
+Current planned artifact:
+
+- `COH-EXP-0001` — proposed preregistration for low-risk system-level capability emergence using machine-verifiable tasks.
+
+This track does **not** bypass the roadmap. A preregistration may exist before Phase 4, but confirmatory execution requires the applicable observation/audit core, frozen implementation, independent evaluator, holdout separation, and authorization required by the evidence policy.
+
+Exit criteria before confirmatory execution:
+
+- capability endpoint and baseline estimator are frozen;
+- candidate trajectory events are externally observable and provenance-bound;
+- memory writes are treated as governed state transitions;
+- safety tier and automatic pause conditions are implemented;
+- development and holdout manifests are separated and hashed;
+- the acting agent cannot modify evaluator, monitor, permissions, stop controller, or audit records.
 
 ## Phase 3: shadow-mode governor and baseline evaluation
 
