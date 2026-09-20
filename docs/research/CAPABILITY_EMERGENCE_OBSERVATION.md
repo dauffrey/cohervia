@@ -51,8 +51,9 @@ It records:
 - Holdout A manifest hash;
 - capability-evaluator hash;
 - baseline-estimator hash;
-- trial count;
-- baseline prediction;
+- comparator-definition hash;
+- target and comparator trial counts;
+- baseline prediction derived from designated Holdout A comparator evidence;
 - mean observed capability;
 - `Delta_emergent`;
 - frozen `delta_min`;
@@ -62,7 +63,8 @@ It records:
 - independent verifier result;
 - protocol validity;
 - emergence classification;
-- supporting trial-observation IDs;
+- supporting target trial-observation IDs;
+- supporting comparator trial-observation IDs;
 - provenance hash.
 
 Only this record may classify a configuration as:
