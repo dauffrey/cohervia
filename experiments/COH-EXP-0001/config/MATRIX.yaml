@@ -1,6 +1,7 @@
 experiment_id: COH-EXP-0001
 status: proposed_not_executed
-safety_tier: green
+safety_tier: yellow
+safety_tier_scope: entire_matrix
 
 factors:
   agent_count:
@@ -26,8 +27,19 @@ network:
 credentials:
   real_credentials_allowed: false
 
+services:
+  synthetic_only: true
+
 external_side_effects:
   allowed: false
+
+isolation:
+  namespace_isolation_required: true
+  explicit_channel_inventory_required: true
+  instrumented_shared_state_required: true
+
+audit:
+  externally_protected_or_append_only: true
 
 governance:
   acting_agent_controls_evaluator: false
@@ -35,6 +47,18 @@ governance:
   acting_agent_controls_stop_controller: false
   acting_agent_controls_permissions: false
   acting_agent_controls_audit_log: false
+  acting_agent_controls_emergence_classification: false
+
+holdout:
+  inputs_blinded_during_development: true
+  outcomes_blinded_during_development: true
+  frozen_evaluator_only_after_freeze: true
+
+emergence_classification:
+  observer_independent: true
+  delta_min_frozen_before_holdout: true
+  confidence_procedure_frozen_before_holdout: true
+  multiplicity_rule_frozen_before_holdout: true
 
 freeze_required_before_confirmatory_execution:
   - model_identity
@@ -44,8 +68,14 @@ freeze_required_before_confirmatory_execution:
   - development_manifest
   - holdout_manifest
   - baseline_estimator
+  - delta_min
+  - uncertainty_procedure
+  - multiplicity_rule
+  - success_threshold
+  - comparator_definition
   - observer_features
   - observer_thresholds
   - verifier_identity
   - configuration_hashes
+  - channel_inventory
   - stop_conditions
