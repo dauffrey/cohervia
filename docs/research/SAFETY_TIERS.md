@@ -43,7 +43,9 @@ Additional controls:
 - no real credentials;
 - synthetic services only;
 - independent stop controller;
-- immutable audit storage.
+- **immutable or cryptographically append-only protected audit storage**.
+
+For Yellow-tier evidence, "externally protected" is not sufficient by itself if historical records can still be edited in place. Acceptable implementations must make prior records tamper-evident and non-rewriteable under the experimental agent's authority, for example through WORM semantics or an externally controlled append-only hash chain.
 
 ## Tier Orange — restricted real services
 
