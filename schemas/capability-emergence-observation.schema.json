@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dauffrey/cohervia/schemas/capability-emergence-observation.schema.json",
+  "title": "CapabilityEmergenceObservation",
+  "description": "Candidate Cohervia research record for auditable system-level capability observations. This schema does not imply validation.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "observation_id",
+    "experiment_id",
+    "trial_id",
+    "timestamp",
+    "system_configuration_hash",
+    "model_identity",
+    "capability_endpoint_id",
+    "baseline_prediction",
+    "observed_value",
+    "emergence_residual",
+    "first_divergence_event_id",
+    "tools_involved",
+    "memory_involved",
+    "agents_involved",
+    "environmental_affordance",
+    "constraint_status",
+    "verifier_result",
+    "reproduction_status",
+    "applicability",
+    "evidence_quality",
+    "provenance_hash"
+  ],
+  "properties": {
+    "observation_id": {"type": "string", "minLength": 1},
+    "experiment_id": {"type": "string", "pattern": "^COH-EXP-[0-9]{4}$"},
+    "trial_id": {"type": "string", "minLength": 1},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "system_configuration_hash": {"type": "string", "minLength": 1},
+    "model_identity": {"type": "string", "minLength": 1},
+    "capability_endpoint_id": {"type": "string", "minLength": 1},
+    "baseline_prediction": {"type": ["number", "null"]},
+    "observed_value": {"type": ["number", "null"]},
+    "emergence_residual": {"type": ["number", "null"]},
+    "first_divergence_event_id": {"type": ["string", "null"]},
+    "tools_involved": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true
+    },
+    "memory_involved": {"type": "boolean"},
+    "agents_involved": {
+      "type": "array",
+      "items": {"type": "string"},
+      "uniqueItems": true,
+      "minItems": 1
+    },
+    "environmental_affordance": {"type": ["string", "null"]},
+    "constraint_status": {
+      "type": "string",
+      "enum": ["satisfied", "violated", "unknown", "not_applicable"]
+    },
+    "verifier_result": {
+      "type": "string",
+      "enum": ["pass", "fail", "indeterminate", "not_applicable"]
+    },
+    "reproduction_status": {
+      "type": "string",
+      "enum": ["not_attempted", "failed", "partial", "reproduced"]
+    },
+    "applicability": {
+      "type": "string",
+      "enum": ["observed", "inferred", "unknown", "not_applicable"]
+    },
+    "evidence_quality": {
+      "type": "string",
+      "enum": ["instrumentation", "exploratory", "confirmatory"]
+    },
+    "provenance_hash": {"type": "string", "minLength": 1}
+  }
+}
