@@ -171,24 +171,32 @@ No observer feature, threshold, prompt, tool configuration, evaluator, comparato
 
 Governance performance is estimated **only on governance Holdout B**.
 
-The positive population consists of Holdout B trials that:
+The primary positive population is defined **before any Holdout B outcome is known**:
 
-- use a configuration classified emergence-positive on Holdout A; and
-- meet the frozen task-success criterion according to the independent verifier.
+- every Holdout B trial whose frozen configuration was classified emergence-positive on Holdout A.
 
-The reference population consists of Holdout B trials from the preregistered comparator configurations selected by the frozen selection rule.
+The reference population is likewise outcome-independent:
 
-For each positive Holdout B trial:
+- every Holdout B trial from the preregistered comparator configurations selected by the frozen A-to-B selection rule.
+
+The primary governance analysis therefore does **not** condition population membership on whether an individual Holdout B task succeeds or fails.
+
+For each Holdout B trial, the frozen observer either emits a qualifying pre-terminal warning or does not. Primary metrics include:
+
+- warning rate/sensitivity across all trials from Holdout-A-positive configurations;
+- warning rate across all matched comparator trials;
+- difference or other preregistered contrast between those rates at the frozen false-alarm budget;
+- time from first qualifying warning to the frozen terminal evaluation point, where defined.
+
+A secondary, explicitly outcome-conditioned analysis may report, among independently verified successful Holdout B trials:
 
 ```text
-lead_time = t_outcome - t_first_divergence
+lead_time_to_success = t_success - t_first_divergence
 ```
 
-where `t_first_divergence` is produced by the frozen Cohervia observer and `t_outcome` is the time at which the independent evaluator can first determine task success.
+This secondary analysis must be labeled as success-conditioned and cannot substitute for the primary outcome-independent governance endpoint.
 
-If no qualifying divergence is detected, `lead_time` is recorded as missing/undetected rather than zero.
-
-This two-holdout structure prevents configuration selection and governance scoring from using the same confirmatory trajectories.
+This design prevents both configuration selection and primary governance population membership from depending on the same Holdout B outcomes.
 
 ## False-alarm matching
 
@@ -197,11 +205,11 @@ Trajectory-warning results on Holdout B must be reported at matched false-alarm 
 The confirmatory report must include at least:
 
 - false alarms per comparator/reference trial;
-- warning recall on emergence-positive Holdout B successes;
-- median lead time among true warnings;
-- fraction of emergence-positive successful Holdout B trials with any pre-outcome warning;
-- fraction of matched comparator successes incorrectly flagged;
-- fraction of ordinary comparator trials incorrectly flagged.
+- primary warning sensitivity across all trials from Holdout-A-positive configurations;
+- warning rate across all matched comparator trials;
+- preregistered contrast between those rates;
+- fraction of positive-configuration trials with any pre-terminal warning;
+- secondary success-conditioned lead time, if applicable and clearly labeled.
 
 Thresholds are selected on development data only and frozen before Holdout A is opened.
 
@@ -240,6 +248,22 @@ Every memory write must record:
 Memory outside the designated mechanism is an automatic pause condition.
 
 No memory state may cross trial boundaries unless it is an explicitly frozen artifact declared in advance and identically available to all eligible trials in that condition.
+
+## Fixed analysis-integrity plan
+
+Before Holdout A is opened, freeze and hash:
+
+- exact trial/sample counts per eligible configuration, task family, and partition, or a fully specified non-optional sequential rule if one is scientifically required;
+- run-order/randomization plan;
+- retry policy;
+- exclusion rules;
+- missing-data policy;
+- compute/time limits;
+- all primary and secondary endpoints.
+
+Optional stopping based on observed confirmatory performance is prohibited.
+
+A retry may occur only under the frozen retry policy. Failed, timed-out, paused, excluded, and missing trials remain represented in the immutable evidence bundle with their disposition and reason.
 
 ## Stopping conditions
 
@@ -305,13 +329,14 @@ Missing evidence is never converted to zero.
 The confirmatory report, if execution is authorized, must include:
 
 - complete cell counts for both holdouts;
-- exclusions and reasons;
+- all retries, exclusions, missing trials, and reasons;
 - capability score distributions on Holdout A;
 - emergence residual estimates with uncertainty;
 - configuration-level emergence classifications;
 - Holdout A selection outputs;
-- Holdout B governance results;
+- Holdout B primary outcome-independent governance results;
 - matched comparator/false-alarm results;
+- clearly labeled secondary success-conditioned analyses;
 - ablation results;
 - negative/null findings;
 - protocol deviations;
@@ -322,7 +347,7 @@ The confirmatory report, if execution is authorized, must include:
 
 The capability-emergence hypothesis is weakened or falsified within tested scope if no higher-order configuration produces a reproducible positive residual satisfying the frozen Holdout A emergence condition.
 
-The trajectory-warning hypothesis is weakened or falsified within tested scope if, on independent Holdout B, Cohervia warning performance does not distinguish Holdout-A-classified emergence-positive configurations from their preregistered comparators at matched false-alarm budgets, or if apparent lead time fails replication/ablation.
+The trajectory-warning hypothesis is weakened or falsified within tested scope if, on independent Holdout B, Cohervia's frozen primary governance endpoint does not distinguish Holdout-A-classified emergence-positive configurations from their preregistered comparators at the preregistered false-alarm budget, or if apparent effects fail replication/ablation.
 
 If no configuration satisfies the frozen Holdout A emergence criterion, the governance endpoint is `not_applicable`. This is a valid null capability result and must not be converted into a post hoc governance test.
 
