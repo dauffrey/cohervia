@@ -1,21 +1,21 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/dauffrey/cohervia/schemas/capability-emergence-observation.schema.json",
-  "title": "CapabilityEmergenceObservation",
-  "description": "Candidate Cohervia research record for auditable system-level capability observations. This schema does not imply validation.",
+  "title": "CapabilityEmergenceTrialObservation",
+  "description": "Trial-level Cohervia evidence record. It does not classify configuration-level emergence and does not imply validation.",
   "type": "object",
   "additionalProperties": false,
   "required": [
+    "record_type",
     "observation_id",
     "experiment_id",
     "trial_id",
+    "evaluation_partition",
     "timestamp",
     "system_configuration_hash",
     "model_identity",
     "capability_endpoint_id",
-    "baseline_prediction",
-    "observed_value",
-    "emergence_residual",
+    "task_score",
     "first_divergence_event_id",
     "tools_involved",
     "memory_involved",
@@ -23,22 +23,24 @@
     "environmental_affordance",
     "constraint_status",
     "verifier_result",
-    "reproduction_status",
     "applicability",
     "evidence_quality",
     "provenance_hash"
   ],
   "properties": {
+    "record_type": {"const": "trial_evidence"},
     "observation_id": {"type": "string", "minLength": 1},
     "experiment_id": {"type": "string", "pattern": "^COH-EXP-[0-9]{4}$"},
     "trial_id": {"type": "string", "minLength": 1},
+    "evaluation_partition": {
+      "type": "string",
+      "enum": ["instrumentation", "development", "capability_holdout_a", "governance_holdout_b"]
+    },
     "timestamp": {"type": "string", "format": "date-time"},
     "system_configuration_hash": {"type": "string", "minLength": 1},
     "model_identity": {"type": "string", "minLength": 1},
     "capability_endpoint_id": {"type": "string", "minLength": 1},
-    "baseline_prediction": {"type": ["number", "null"]},
-    "observed_value": {"type": ["number", "null"]},
-    "emergence_residual": {"type": ["number", "null"]},
+    "task_score": {"type": ["number", "null"]},
     "first_divergence_event_id": {"type": ["string", "null"]},
     "tools_involved": {
       "type": "array",
@@ -60,10 +62,6 @@
     "verifier_result": {
       "type": "string",
       "enum": ["pass", "fail", "indeterminate", "not_applicable"]
-    },
-    "reproduction_status": {
-      "type": "string",
-      "enum": ["not_attempted", "failed", "partial", "reproduced"]
     },
     "applicability": {
       "type": "string",
