@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/dauffrey/cohervia/schemas/capability-emergence-observation.schema.json",
   "title": "CapabilityEmergenceTrialObservation",
-  "description": "Trial-level Cohervia evidence record. It does not classify configuration-level emergence and does not imply validation.",
+  "description": "Trial-level Cohervia evidence record. It does not classify configuration-level emergence or capability transfer and does not imply validation.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -28,49 +28,177 @@
     "provenance_hash"
   ],
   "properties": {
-    "record_type": {"const": "trial_evidence"},
-    "observation_id": {"type": "string", "minLength": 1},
-    "experiment_id": {"type": "string", "pattern": "^COH-EXP-[0-9]{4}$"},
-    "trial_id": {"type": "string", "minLength": 1},
+    "record_type": {
+      "const": "trial_evidence"
+    },
+    "observation_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "experiment_id": {
+      "type": "string",
+      "pattern": "^COH-EXP-[0-9]{4}$"
+    },
+    "trial_id": {
+      "type": "string",
+      "minLength": 1
+    },
     "evaluation_partition": {
       "type": "string",
-      "enum": ["instrumentation", "development", "capability_holdout_a", "governance_holdout_b"]
+      "enum": [
+        "instrumentation",
+        "development",
+        "capability_holdout_a",
+        "transfer_holdout_b",
+        "governance_holdout_c"
+      ]
     },
-    "timestamp": {"type": "string", "format": "date-time"},
-    "system_configuration_hash": {"type": "string", "minLength": 1},
-    "model_identity": {"type": "string", "minLength": 1},
-    "capability_endpoint_id": {"type": "string", "minLength": 1},
-    "task_score": {"type": ["number", "null"]},
-    "first_divergence_event_id": {"type": ["string", "null"]},
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "system_configuration_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "model_identity": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capability_endpoint_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_score": {
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "first_divergence_event_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "tools_involved": {
       "type": "array",
-      "items": {"type": "string"},
+      "items": {
+        "type": "string"
+      },
       "uniqueItems": true
     },
-    "memory_involved": {"type": "boolean"},
+    "memory_involved": {
+      "type": "boolean"
+    },
     "agents_involved": {
       "type": "array",
-      "items": {"type": "string"},
+      "items": {
+        "type": "string"
+      },
       "uniqueItems": true,
       "minItems": 1
     },
-    "environmental_affordance": {"type": ["string", "null"]},
+    "environmental_affordance": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "constraint_status": {
       "type": "string",
-      "enum": ["satisfied", "violated", "unknown", "not_applicable"]
+      "enum": [
+        "satisfied",
+        "violated",
+        "unknown",
+        "not_applicable"
+      ]
     },
     "verifier_result": {
       "type": "string",
-      "enum": ["pass", "fail", "indeterminate", "not_applicable"]
+      "enum": [
+        "pass",
+        "fail",
+        "indeterminate",
+        "not_applicable"
+      ]
     },
     "applicability": {
       "type": "string",
-      "enum": ["observed", "inferred", "unknown", "not_applicable"]
+      "enum": [
+        "observed",
+        "inferred",
+        "unknown",
+        "not_applicable"
+      ]
     },
     "evidence_quality": {
       "type": "string",
-      "enum": ["instrumentation", "exploratory", "confirmatory"]
+      "enum": [
+        "instrumentation",
+        "exploratory",
+        "confirmatory"
+      ]
     },
-    "provenance_hash": {"type": "string", "minLength": 1}
-  }
+    "provenance_hash": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "evaluation_partition": {
+            "enum": [
+              "instrumentation",
+              "development"
+            ]
+          }
+        },
+        "required": [
+          "evaluation_partition"
+        ]
+      },
+      "then": {
+        "properties": {
+          "evidence_quality": {
+            "enum": [
+              "instrumentation",
+              "exploratory"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "evaluation_partition": {
+            "enum": [
+              "capability_holdout_a",
+              "transfer_holdout_b",
+              "governance_holdout_c"
+            ]
+          }
+        },
+        "required": [
+          "evaluation_partition"
+        ]
+      },
+      "then": {
+        "properties": {
+          "evidence_quality": {
+            "const": "confirmatory"
+          }
+        }
+      }
+    }
+  ]
 }
