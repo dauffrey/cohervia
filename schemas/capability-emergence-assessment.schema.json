@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/dauffrey/cohervia/schemas/capability-emergence-assessment.schema.json",
   "title": "CapabilityEmergenceConfigurationAssessment",
-  "description": "Configuration × task-family-stratum Cohervia assessment produced from capability Holdout A by the frozen capability evaluator.",
+  "description": "Configuration × task-family-stratum Cohervia assessment produced from capability Holdout A by the frozen capability evaluator. Positive labels are discrete-gate constrained; downstream selectors must independently recompute the numeric minimum-effect gates from the recorded values.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -171,5 +171,54 @@
       "type": "string",
       "minLength": 1
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "emergence_classification": {
+            "const": "positive"
+          }
+        },
+        "required": [
+          "emergence_classification"
+        ]
+      },
+      "then": {
+        "properties": {
+          "protocol_valid": {
+            "const": true
+          },
+          "verifier_result": {
+            "const": "pass"
+          },
+          "multiplicity_result": {
+            "enum": [
+              "pass",
+              "not_applicable"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "emergence_classification": {
+            "const": "invalid"
+          }
+        },
+        "required": [
+          "emergence_classification"
+        ]
+      },
+      "then": {
+        "properties": {
+          "protocol_valid": {
+            "const": false
+          }
+        }
+      }
+    }
+  ]
 }
