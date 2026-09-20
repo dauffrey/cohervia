@@ -14,7 +14,7 @@ MANIFEST = (
 class FreezeContractTests(unittest.TestCase):
     def test_all_matrix_requirements_map_to_manifest(self):
         requirements = matrix_freeze_requirements(MATRIX)
-        self.assertEqual(len(requirements), 42)
+        self.assertEqual(len(requirements), 43)
         self.assertEqual(verify_freeze_contract(
             matrix_path=MATRIX,
             manifest_path=MANIFEST,
