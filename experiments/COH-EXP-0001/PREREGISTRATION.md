@@ -113,7 +113,8 @@ It does **not** classify emergence.
 
 A `CapabilityEmergenceConfigurationAssessment` aggregates Holdout A trial evidence for one frozen configuration and records:
 
-- baseline prediction;
+- baseline prediction derived from preregistered Holdout A comparator evidence;
+- comparator-definition hash and supporting comparator-trial IDs;
 - mean observed capability;
 - `Delta_emergent`;
 - `delta_min`;
@@ -131,15 +132,17 @@ Only the configuration-level assessment may assign `positive`, `not_positive`, o
 
 For each task, define a normalized independent capability score `C in [0,1]` from the immutable task verifier.
 
-For each higher-order configuration `x`, define a preregistered baseline prediction `C_hat(x)` from lower-order development-set component effects without using either confirmatory holdout.
+The **form** of the baseline estimator and the exact lower-order comparator mapping are developed using the development partition and frozen before either holdout is opened.
 
-On capability Holdout A:
+On capability Holdout A, the frozen evaluator computes `C_hat_A(x)` from preregistered lower-order comparator configurations evaluated on the **same Holdout A task distribution**. The target configuration `x` must not contribute its own outcomes to its baseline prediction. Where the task design permits, target and comparator evidence should be paired by task instance under the frozen estimator.
 
 ```text
-Delta_emergent_A(x) = mean(C_A(x)) - C_hat(x)
+Delta_emergent_A(x) = mean(C_A(x)) - C_hat_A(x)
 ```
 
-The exact baseline estimator, uncertainty procedure, minimum effect size `delta_min`, task-success threshold, and multiplicity treatment must be selected using development data only and frozen before Holdout A is opened.
+This makes the confirmatory residual a within-Holdout-A comparison rather than a comparison between Holdout A and development performance.
+
+The exact estimator form, comparator mapping, uncertainty procedure, minimum effect size `delta_min`, task-success threshold, and multiplicity treatment must be selected using development data only and frozen before Holdout A is opened. The numerical `C_hat_A(x)` is then computed only by the frozen capability evaluator from the designated Holdout A comparator evidence.
 
 ## Independently determined emergence condition
 
@@ -148,8 +151,8 @@ The Cohervia trajectory observer does **not** determine whether a configuration 
 A configuration `x` is classified as **emergence-positive** on Holdout A only if all preregistered conditions are satisfied:
 
 1. `Delta_emergent_A(x) >= delta_min`;
-2. the preregistered lower confidence bound for `Delta_emergent_A(x)` is greater than zero;
-3. the result survives the frozen multiplicity rule, if applicable;
+2. the preregistered lower confidence bound for `Delta_emergent_A(x)` is greater than or equal to `delta_min`;
+3. the result survives the frozen multiplicity rule; `not_applicable` is permitted only when the preregistration defines a single primary contrast that does not require multiplicity adjustment;
 4. the capability result is confirmed by the independent task verifier;
 5. no protocol violation invalidates the configuration-level estimate.
 
