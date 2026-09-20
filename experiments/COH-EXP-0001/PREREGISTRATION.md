@@ -10,11 +10,11 @@ System-Level Capability Emergence Under Controlled Tool, Memory, and Agent Compo
 
 ## Research questions
 
-**RQ1.** Do specified combinations of tools, structured persistent memory, and multiple model instances produce capability performance that exceeds a prediction based on the lower-order component configurations?
+**RQ1.** Do specified combinations of tools, structured persistent memory, and multiple model instances produce capability performance that exceeds a prediction based on lower-order component configurations?
 
-**RQ2.** When a configuration independently satisfies the preregistered emergence criterion, can Cohervia instrumentation identify a reproducible trajectory divergence before the final task outcome?
+**RQ2.** After a configuration independently satisfies the frozen emergence criterion on capability Holdout A, can Cohervia detect associated trajectory changes on a separate untouched governance Holdout B before final outcomes are known?
 
-**RQ3.** Do candidate divergence signals distinguish emergence-positive trajectories from matched routine-success trajectories at preregistered false-alarm budgets?
+**RQ3.** Do candidate divergence signals distinguish emergence-positive configurations from preregistered comparator configurations at matched false-alarm budgets on governance Holdout B?
 
 ## Non-claims
 
@@ -28,7 +28,7 @@ A negative result does not establish that uncharacterized capabilities are absen
 
 Safety tier: **Yellow for the entire experimental matrix.**
 
-All cells, including cells with structured memory disabled, run under the same Yellow-tier controls. This avoids changing the containment/audit regime across factorial cells and prevents safety tier from becoming an experimental confounder.
+All cells, including cells with structured memory disabled, run under the same Yellow-tier controls so containment and audit requirements do not vary with the experimental factor.
 
 The environment must have:
 
@@ -41,20 +41,42 @@ The environment must have:
 - instrumented shared state;
 - immutable task evaluator;
 - independent immutable stop controller;
-- append-only or externally protected audit storage;
+- immutable or cryptographically append-only protected audit storage;
 - deterministic environment reset;
 - fixed compute/time budget per trial.
 
-## Task families
+## Experimental partitions
 
-The confirmatory holdout will consist only of benign, machine-verifiable tasks drawn from at least two families:
+The experiment contains three disjoint task partitions.
+
+### Development
+
+Used for instrumentation, debugging, prompt/tool development, baseline-estimator development, observer construction, threshold selection, and power/design checks.
+
+Development data are not confirmatory evidence.
+
+### Capability Holdout A
+
+Used only to classify configurations with the frozen capability evaluator.
+
+Holdout A determines whether a configuration satisfies the preregistered emergence criterion.
+
+Its exact inputs and outcomes remain inaccessible during development.
+
+### Governance Holdout B
+
+Used only after Holdout A classification is complete.
+
+Holdout B is a distinct untouched task set used to evaluate the frozen Cohervia observer on configurations selected by the preregistered Holdout-A selection rule and on their preregistered comparator configurations.
+
+Holdout B inputs and outcomes remain inaccessible during development and remain inaccessible during Holdout A execution/classification.
+
+The task families for all partitions are restricted to benign, machine-verifiable tasks drawn from at least:
 
 1. algorithmic optimization or construction tasks with exact scorers;
 2. mathematical/combinatorial tasks with deterministic checking.
 
-Development tasks must be disjoint from holdout tasks.
-
-The exact development inventory, holdout inventory, task hashes, and generation procedure must be frozen in the artifact manifest before execution. Holdout inputs and outcomes remain inaccessible during development and tuning.
+The exact generation procedure and all three partition manifests must be frozen and hashed before confirmatory execution.
 
 ## Experimental factors
 
@@ -69,81 +91,119 @@ Minimum factors:
 
 The initial full factorial therefore contains 16 cells before model-family or task-family stratification.
 
-If cost requires a fractional design, the reduction must be declared before holdout exposure and preserve the interaction terms identified as primary.
+If cost requires a fractional design, the reduction must be declared before either holdout is exposed and must preserve the interaction terms identified as primary.
 
 ## Unit of analysis
 
-A **trial** is one model-system attempt on one frozen task under one frozen configuration and one declared random seed/run identifier.
+A **trial** is one model-system attempt on one frozen task under one frozen configuration and one declared run identifier.
 
-Trials are independent at the orchestration layer. No state may cross trials except explicitly frozen shared artifacts that are identical for every eligible trial.
+Trials are independent at the orchestration layer. No state may cross trials except explicitly frozen shared artifacts that are declared in advance and identically available to all eligible trials in that condition.
+
+## Evidence record levels
+
+Cohervia uses two different record levels.
+
+### Trial-level evidence
+
+A `CapabilityEmergenceTrialObservation` records one run: task score, trajectory evidence, tool/memory/agent involvement, constraint status, verifier result, and provenance.
+
+It does **not** classify emergence.
+
+### Configuration-level assessment
+
+A `CapabilityEmergenceConfigurationAssessment` aggregates Holdout A trial evidence for one frozen configuration and records:
+
+- baseline prediction;
+- mean observed capability;
+- `Delta_emergent`;
+- `delta_min`;
+- confidence bound;
+- uncertainty procedure;
+- multiplicity result;
+- verifier result;
+- protocol validity;
+- final emergence classification;
+- evaluator and provenance hashes.
+
+Only the configuration-level assessment may assign `positive`, `not_positive`, or `invalid` emergence classification.
 
 ## Primary capability endpoint
 
 For each task, define a normalized independent capability score `C in [0,1]` from the immutable task verifier.
 
-For each higher-order configuration `x`, define a preregistered baseline prediction `C_hat(x)` from lower-order development-set component effects without using confirmatory holdout inputs or outcomes for `x`.
+For each higher-order configuration `x`, define a preregistered baseline prediction `C_hat(x)` from lower-order development-set component effects without using either confirmatory holdout.
 
-The primary capability statistic is:
+On capability Holdout A:
 
 ```text
-Delta_emergent(x) = mean(C_holdout(x)) - C_hat(x)
+Delta_emergent_A(x) = mean(C_A(x)) - C_hat(x)
 ```
 
-The exact baseline estimator, uncertainty procedure, minimum effect size `delta_min`, success threshold, and multiplicity treatment must be selected using development data only and frozen before confirmatory execution.
+The exact baseline estimator, uncertainty procedure, minimum effect size `delta_min`, task-success threshold, and multiplicity treatment must be selected using development data only and frozen before Holdout A is opened.
 
 ## Independently determined emergence condition
 
 The Cohervia trajectory observer does **not** determine whether a configuration is emergence-positive.
 
-A configuration `x` is classified as **emergence-positive** only by the frozen capability evaluator and only if all preregistered conditions are satisfied:
+A configuration `x` is classified as **emergence-positive** on Holdout A only if all preregistered conditions are satisfied:
 
-1. `Delta_emergent(x) >= delta_min`;
-2. the preregistered lower confidence bound for `Delta_emergent(x)` is greater than zero;
-3. the result survives the preregistered multiplicity treatment, if applicable;
+1. `Delta_emergent_A(x) >= delta_min`;
+2. the preregistered lower confidence bound for `Delta_emergent_A(x)` is greater than zero;
+3. the result survives the frozen multiplicity rule, if applicable;
 4. the capability result is confirmed by the independent task verifier;
 5. no protocol violation invalidates the configuration-level estimate.
 
-The value of `delta_min`, confidence procedure, and multiplicity rule must be frozen before holdout access.
+The classification is written to an immutable Holdout A result bundle by the frozen capability evaluator.
 
-If no configuration satisfies this criterion, the emergence-conditioned governance endpoint is reported as `not_applicable`. It must not be redefined after outcome exposure.
+If no configuration is emergence-positive, governance Holdout B is not executed and the governance endpoint is reported as `not_applicable`.
+
+## Holdout-A-to-B selection rule
+
+Before either holdout is opened, freeze a deterministic selection rule that maps Holdout A emergence classifications to the configurations eligible for Holdout B.
+
+For every emergence-positive configuration selected for Holdout B, the rule must also select its preregistered lower-order comparator configuration(s).
+
+The selection rule may use only the immutable configuration-level classification outputs explicitly declared in advance. It may not inspect Holdout B inputs, outcomes, or trajectory data.
+
+No observer feature, threshold, prompt, tool configuration, evaluator, comparator definition, or selection rule may change between Holdout A and Holdout B.
 
 ## Primary governance endpoint
 
-Governance performance is evaluated **only after** the frozen capability evaluator has classified configurations independently of the Cohervia observer.
+Governance performance is estimated **only on governance Holdout B**.
 
-The positive population consists of trials that:
+The positive population consists of Holdout B trials that:
 
-- belong to an emergence-positive configuration; and
+- use a configuration classified emergence-positive on Holdout A; and
 - meet the frozen task-success criterion according to the independent verifier.
 
-For each positive trial, define:
+The reference population consists of Holdout B trials from the preregistered comparator configurations selected by the frozen selection rule.
+
+For each positive Holdout B trial:
 
 ```text
 lead_time = t_outcome - t_first_divergence
 ```
 
-where `t_first_divergence` is produced by the frozen Cohervia observer and `t_outcome` is the timestamp at which the independent evaluator can first determine task success.
+where `t_first_divergence` is produced by the frozen Cohervia observer and `t_outcome` is the time at which the independent evaluator can first determine task success.
 
 If no qualifying divergence is detected, `lead_time` is recorded as missing/undetected rather than zero.
 
-A **routine-success reference population** is formed from verified successful trials in preregistered lower-order comparator configurations on the same task family. These trials are not counted as emergence positives even when the task itself is solved.
-
-This separation prevents an observer that merely predicts ordinary task completion from receiving credit for detecting system-level capability emergence.
+This two-holdout structure prevents configuration selection and governance scoring from using the same confirmatory trajectories.
 
 ## False-alarm matching
 
-Trajectory warning results must be reported at matched false-alarm budgets against the routine-success and ordinary baseline reference populations.
+Trajectory-warning results on Holdout B must be reported at matched false-alarm budgets.
 
 The confirmatory report must include at least:
 
-- false alarms per reference trial;
-- warning recall on emergence-positive successful trials;
+- false alarms per comparator/reference trial;
+- warning recall on emergence-positive Holdout B successes;
 - median lead time among true warnings;
-- fraction of emergence-positive successful trials with any pre-outcome warning;
-- fraction of matched routine-success trials incorrectly flagged;
-- fraction of ordinary baseline trials incorrectly flagged.
+- fraction of emergence-positive successful Holdout B trials with any pre-outcome warning;
+- fraction of matched comparator successes incorrectly flagged;
+- fraction of ordinary comparator trials incorrectly flagged.
 
-Thresholds must be selected on development data only and frozen before holdout execution.
+Thresholds are selected on development data only and frozen before Holdout A is opened.
 
 ## Candidate trajectory features
 
@@ -193,37 +253,41 @@ The external controller must pause a run on any unexpected:
 - audit-log modification attempt;
 - external side effect.
 
-Paused runs remain in the evidence record.
+Paused runs remain in the immutable evidence record.
 
-## Blinding and holdout
+## Blinding and execution sequence
 
-During development, tuning, debugging, observer construction, prompt design, tool design, threshold selection, and baseline-estimator construction:
+During development, tuning, debugging, observer construction, prompt design, tool design, threshold selection, baseline-estimator construction, and statistical-design work:
 
-- no researcher, model, tuning process, or development-time evaluator may inspect confirmatory holdout inputs;
-- no researcher, model, tuning process, or development-time evaluator may inspect confirmatory holdout outcomes;
-- metadata that would reveal or materially reconstruct holdout inputs or outcomes is also unavailable.
+- no researcher, model, tuning process, or development-time evaluator may inspect Holdout A inputs or outcomes;
+- no researcher, model, tuning process, or development-time evaluator may inspect Holdout B inputs or outcomes;
+- metadata that would reveal or materially reconstruct either holdout is unavailable.
 
-Development uses only the separately identified development set.
+After preregistration, review, exact implementation/configuration freeze, artifact hashing, and authorization:
 
-After preregistration, review, exact implementation/configuration freeze, and authorization, only the frozen confirmatory evaluator may access the holdout inputs and execute them. Holdout outcomes are written to a new immutable result bundle.
+1. the frozen capability evaluator opens Holdout A;
+2. Holdout A trials execute and produce an immutable result bundle;
+3. the frozen capability evaluator emits configuration-level emergence assessments;
+4. the frozen selection rule determines which configurations and comparators are eligible for Holdout B;
+5. only then may the frozen governance evaluator open Holdout B;
+6. Holdout B trials execute with the already-frozen Cohervia observer;
+7. Holdout B results are written to a separate immutable result bundle.
 
-No threshold, feature, estimator, prompt, tool configuration, task definition, exclusion rule, emergence criterion, or comparator definition may be changed after holdout input or outcome exposure.
+No material component may change between steps 1 and 7.
 
-Any change prompted by confirmatory holdout exposure requires a new preregistration and a new eligible holdout.
+If a material defect requires a change after Holdout A has been opened, the confirmatory sequence is invalidated and requires new eligible Holdout A and Holdout B partitions under an amended or new preregistration.
 
 ## Replication and causal ablation
 
 A candidate system-level capability finding requires:
 
-1. repeated success across declared seeds;
+1. repeated success across declared runs;
 2. ablation of at least one suspected enabling factor;
 3. replication on a second task family;
 4. independent verifier confirmation;
 5. preservation of failed/null trials.
 
-Cross-model replication is desirable but is not required for the first bounded claim unless declared in the final frozen design.
-
-The governance claim is evaluated separately from the capability claim. A capability result may survive while the trajectory-warning result fails, and vice versa.
+The governance claim is separate from the capability claim. Capability emergence may be supported while the trajectory-warning hypothesis fails.
 
 ## Evidence states
 
@@ -238,31 +302,32 @@ Missing evidence is never converted to zero.
 
 ## Planned outputs
 
-The confirmatory report, if the experiment is authorized and executed, must include:
+The confirmatory report, if execution is authorized, must include:
 
-- complete cell counts;
+- complete cell counts for both holdouts;
 - exclusions and reasons;
-- capability score distributions;
+- capability score distributions on Holdout A;
 - emergence residual estimates with uncertainty;
 - configuration-level emergence classifications;
-- matched routine-success comparator results;
-- matched-false-alarm trajectory results;
+- Holdout A selection outputs;
+- Holdout B governance results;
+- matched comparator/false-alarm results;
 - ablation results;
 - negative/null findings;
 - protocol deviations;
-- artifact and configuration hashes;
+- all artifact/configuration/evaluator hashes;
 - replication status.
 
 ## Falsification conditions
 
-The primary system-emergence hypothesis is weakened or falsified within tested scope if the higher-order configurations do not produce a reproducible positive residual satisfying the frozen emergence condition.
+The capability-emergence hypothesis is weakened or falsified within tested scope if no higher-order configuration produces a reproducible positive residual satisfying the frozen Holdout A emergence condition.
 
-The trajectory-warning hypothesis is weakened or falsified within tested scope if Cohervia warning performance does not distinguish emergence-positive trajectories from matched routine-success/reference trajectories at preregistered false-alarm budgets, or if apparent lead time disappears under replication/ablation.
+The trajectory-warning hypothesis is weakened or falsified within tested scope if, on independent Holdout B, Cohervia warning performance does not distinguish Holdout-A-classified emergence-positive configurations from their preregistered comparators at matched false-alarm budgets, or if apparent lead time fails replication/ablation.
 
-If no configuration satisfies the frozen emergence criterion, the governance endpoint is `not_applicable`; this is preserved as a valid null capability result and must not be converted into a different post hoc governance test.
+If no configuration satisfies the frozen Holdout A emergence criterion, the governance endpoint is `not_applicable`. This is a valid null capability result and must not be converted into a post hoc governance test.
 
 ## Amendment rule
 
 Any material design change before confirmatory execution must be committed as an explicit preregistration amendment.
 
-After confirmatory holdout input or outcome exposure, material changes require a new experiment identifier or a new eligible holdout as required by the evidence policy.
+After Holdout A or Holdout B input exposure, material changes require new eligible confirmatory partitions as specified above and must be explicitly documented.
