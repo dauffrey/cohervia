@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/dauffrey/cohervia/schemas/capability-transfer-assessment.schema.json",
   "title": "CapabilityTransferConfigurationAssessment",
-  "description": "Configuration-level Cohervia capability-transfer assessment produced from transfer Holdout B by the frozen transfer evaluator, independently of Cohervia observer outputs.",
+  "description": "Configuration × task-family-stratum capability-transfer assessment produced from Holdout B by the frozen transfer evaluator. Confirmed labels are discrete-gate constrained; downstream selectors must independently recompute numeric transfer gates from the recorded values.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -171,5 +171,54 @@
       "type": "string",
       "minLength": 1
     }
-  }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "transfer_classification": {
+            "const": "confirmed"
+          }
+        },
+        "required": [
+          "transfer_classification"
+        ]
+      },
+      "then": {
+        "properties": {
+          "protocol_valid": {
+            "const": true
+          },
+          "verifier_result": {
+            "const": "pass"
+          },
+          "multiplicity_result": {
+            "enum": [
+              "pass",
+              "not_applicable"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "transfer_classification": {
+            "const": "invalid"
+          }
+        },
+        "required": [
+          "transfer_classification"
+        ]
+      },
+      "then": {
+        "properties": {
+          "protocol_valid": {
+            "const": false
+          }
+        }
+      }
+    }
+  ]
 }
