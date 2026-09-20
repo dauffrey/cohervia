@@ -100,7 +100,7 @@ to a concrete field in:
 
 CI fails if a declared freeze requirement is unmapped or its manifest field is absent.
 
-At the current preregistration revision, the expected count is **42 freeze requirements**.
+At the current preregistration revision, the expected count is **43 freeze requirements**.
 
 ## Development tasks
 
