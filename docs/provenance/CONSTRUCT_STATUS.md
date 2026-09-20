@@ -1,6 +1,6 @@
 # Construct status
 
-This table is intentionally conservative. Every status entry should be traceable to a predecessor record or formal design constraint and should not be elevated by mere selection into Cohervia.
+This table is intentionally conservative. Every status entry should be traceable to a predecessor record, a current preregistration, or a formal design constraint and should not be elevated by mere selection into Cohervia.
 
 | Construct or result | Status | Traceability and note |
 | --- | --- | --- |
@@ -19,6 +19,11 @@ This table is intentionally conservative. Every status entry should be traceable
 | `STABLE`, `RECOVERED`, `FAILED`, and `tau_escape` measurement | survived a specific preregistered test | These outcomes are supported by the relevant predecessor preregistration and recorded result in the synthetic environment. |
 | `AH-EXP-0012` pre-escape warning hypothesis | preregistered but unexecuted | Confirmatory outcomes remain unobserved. |
 | CGS `H_t`, `M_t`, `dM_t/dt`, and `U_t` | candidate hypothesis | These are coherent candidate constructs for a compact governing state but are not yet a validated production governor representation. |
+| system-level capability decomposition `C_system = f(M,P,T,S,E,V,N)` | candidate research frame | A decomposition for experimental design. It is not an empirical law and does not assert that all interactions are measurable or independent. |
+| capability emergence residual `Delta_emergent` | candidate hypothesis | Proposed statistic comparing observed higher-order configuration performance with a preregistered lower-order prediction. A positive value alone is insufficient to establish qualitative emergence. |
+| `CapabilityEmergenceObservation` | evidence/provenance infrastructure | Candidate auditable record contract for system-configuration, endpoint, trajectory-divergence, verification, reproduction, and provenance data. It is not a validated sensor or authority signal. |
+| capability-discovery safety tiers | architectural constraint | Environment-access tiers and external stop conditions for research governance. Tier assignment is not evidence that an agent is safe or aligned. |
+| `COH-EXP-0001` system-level capability-emergence hypothesis | preregistered but unexecuted | Proposed Cohervia preregistration. No confirmatory execution or outcome has occurred. |
 | real-agent generalization | not established | The predecessor evidence is synthetic, and no valid generalization to real autonomous agents is established. |
 | production safety | not established | No production governor claim is established in this foundation review. |
 
@@ -32,6 +37,7 @@ This table is intentionally conservative. Every status entry should be traceable
 - falsified: evidence indicates the construct is not reliable under the tested conditions.
 - preregistered but unexecuted: a hypothesis exists with a preregistration but no confirmatory evidence yet.
 - candidate hypothesis: a proposed construct requiring independent evidence.
+- candidate research frame: a proposed decomposition or analytical frame that organizes research without yet constituting an empirical finding.
 - not established: no valid evidence or inference currently supports it for the intended general claim.
 
 The status labels above are intentionally conservative and should be treated as evidence-limited commitments rather than platform-wide endorsements.
