@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cohervia-harness"
+version = "0.1.0"
+description = "Instrumentation-only harness for COH-EXP-0001"
+requires-python = ">=3.11"
+dependencies = [
+  "jsonschema>=4.23,<5",
+  "PyYAML>=6.0,<7"
+]
+
+[project.scripts]
+cohervia-harness = "cohervia_harness.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
