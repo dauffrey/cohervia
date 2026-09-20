@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Iterable, Mapping, Any
+from typing import Any, Iterable, Mapping
 
 
 @dataclass(frozen=True, slots=True)
@@ -75,15 +75,26 @@ def recompute_transfer_gate(record: Mapping[str, Any]) -> GateResult:
 
 
 def cross_family_eligible_configurations(
-    records: Iterable[Mapping[str, Any]],
+    emergence_records: Iterable[Mapping[str, Any]],
+    transfer_records: Iterable[Mapping[str, Any]],
     *,
     minimum_families: int = 2,
 ) -> frozenset[str]:
+    """Return configs that independently pass A and B in enough task families."""
     if minimum_families < 2:
         raise ValueError("system-level cross-family gate must require at least 2 families")
 
+    a_positive: set[tuple[str, str]] = set()
+    for record in emergence_records:
+        if not recompute_emergence_gate(record).passed:
+            continue
+        config_id = record.get("configuration_id")
+        family_id = record.get("task_family_id")
+        if isinstance(config_id, str) and config_id and isinstance(family_id, str) and family_id:
+            a_positive.add((config_id, family_id))
+
     families_by_config: dict[str, set[str]] = {}
-    for record in records:
+    for record in transfer_records:
         if not recompute_transfer_gate(record).passed:
             continue
         config_id = record.get("configuration_id")
@@ -91,6 +102,8 @@ def cross_family_eligible_configurations(
         if not isinstance(config_id, str) or not config_id:
             continue
         if not isinstance(family_id, str) or not family_id:
+            continue
+        if (config_id, family_id) not in a_positive:
             continue
         families_by_config.setdefault(config_id, set()).add(family_id)
 
