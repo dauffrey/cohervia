@@ -8,10 +8,10 @@ from cohervia_harness.selectors import (
 )
 
 
-def emergence_record():
+def emergence_record(family="algorithmic_verifiable"):
     return {
         "configuration_id": "cfg-1",
-        "task_family_id": "algorithmic_verifiable",
+        "task_family_id": family,
         "delta_emergent": 0.3,
         "delta_min": 0.1,
         "lower_confidence_bound": 0.2,
@@ -53,36 +53,66 @@ class SelectorTests(unittest.TestCase):
         self.assertFalse(result.passed)
         self.assertIn("delta_below_minimum", result.reasons)
 
-    def test_cross_family_gate_requires_same_config_in_two_families(self):
-        records = [
+    def test_cross_family_gate_requires_same_config_pass_a_and_b_in_two_families(self):
+        emergence = [
+            emergence_record("algorithmic_verifiable"),
+            emergence_record("mathematical_verifiable"),
+        ]
+        transfer = [
             transfer_record("algorithmic_verifiable"),
             transfer_record("mathematical_verifiable"),
         ]
         self.assertEqual(
-            cross_family_eligible_configurations(records),
+            cross_family_eligible_configurations(emergence, transfer),
             frozenset({"cfg-1"}),
+        )
+
+    def test_transfer_without_matching_emergence_does_not_count(self):
+        emergence = [emergence_record("algorithmic_verifiable")]
+        transfer = [
+            transfer_record("algorithmic_verifiable"),
+            transfer_record("mathematical_verifiable"),
+        ]
+        self.assertEqual(
+            cross_family_eligible_configurations(emergence, transfer),
+            frozenset(),
         )
 
     def test_single_family_candidate_is_not_system_level_eligible(self):
         self.assertEqual(
             cross_family_eligible_configurations(
-                [transfer_record("algorithmic_verifiable")]
+                [emergence_record("algorithmic_verifiable")],
+                [transfer_record("algorithmic_verifiable")],
             ),
             frozenset(),
         )
 
     def test_duplicate_family_does_not_count_twice(self):
-        records = [
+        emergence = [
+            emergence_record("algorithmic_verifiable"),
+            emergence_record("algorithmic_verifiable"),
+        ]
+        transfer = [
             transfer_record("algorithmic_verifiable"),
             transfer_record("algorithmic_verifiable"),
         ]
-        self.assertEqual(cross_family_eligible_configurations(records), frozenset())
+        self.assertEqual(
+            cross_family_eligible_configurations(emergence, transfer),
+            frozenset(),
+        )
 
     def test_failed_transfer_does_not_count_toward_cross_family_gate(self):
         failed = transfer_record("mathematical_verifiable")
         failed["lower_confidence_bound"] = 0.01
-        records = [transfer_record("algorithmic_verifiable"), failed]
-        self.assertEqual(cross_family_eligible_configurations(records), frozenset())
+        emergence = [
+            emergence_record("algorithmic_verifiable"),
+            emergence_record("mathematical_verifiable"),
+        ]
+        transfer = [transfer_record("algorithmic_verifiable"), failed]
+        self.assertEqual(
+            cross_family_eligible_configurations(emergence, transfer),
+            frozenset(),
+        )
 
 
 if __name__ == "__main__":
