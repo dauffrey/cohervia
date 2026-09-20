@@ -99,7 +99,7 @@ Minimum factors:
 
 The initial full factorial therefore contains 16 cells before model-family or task-family stratification.
 
-If cost requires a fractional design, the reduction must be declared before either holdout is exposed and must preserve the interaction terms identified as primary.
+If cost requires a fractional design, the reduction must be declared before any confirmatory holdout is exposed and must preserve the interaction terms identified as primary.
 
 ## Unit of analysis
 
@@ -119,9 +119,10 @@ It does **not** classify emergence.
 
 ### Configuration-level assessment
 
-A `CapabilityEmergenceConfigurationAssessment` aggregates Holdout A trial evidence for one frozen configuration and records:
+A `CapabilityEmergenceConfigurationAssessment` aggregates Holdout A trial evidence for one frozen **configuration × task-family stratum** and records:
 
 - baseline prediction derived from preregistered Holdout A comparator evidence;
+- task-family identifier;
 - comparator-definition hash and supporting comparator-trial IDs;
 - mean observed capability;
 - `Delta_emergent`;
@@ -146,7 +147,7 @@ Only this Holdout B record may assign `confirmed`, `not_confirmed`, or `invalid`
 
 For each task, define a normalized independent capability score `C in [0,1]` from the immutable task verifier.
 
-The **form** of the baseline estimator and the exact lower-order comparator mapping are developed using the development partition and frozen before either holdout is opened.
+The **form** of the baseline estimator and the exact lower-order comparator mapping are developed using the development partition and frozen before any confirmatory holdout is opened.
 
 On capability Holdout A, the frozen evaluator computes `C_hat_A(x)` from preregistered lower-order comparator configurations evaluated on the **same Holdout A task distribution**. The target configuration `x` must not contribute its own outcomes to its baseline prediction. Where the task design permits, target and comparator evidence should be paired by task instance under the frozen estimator.
 
@@ -162,7 +163,7 @@ The exact estimator form, comparator mapping, uncertainty procedure, minimum eff
 
 The Cohervia trajectory observer does **not** determine whether a configuration is emergence-positive.
 
-A configuration `x` is classified as **emergence-positive** on Holdout A only if all preregistered conditions are satisfied:
+A configuration × task-family stratum `(x,f)` is classified as **emergence-positive** on Holdout A only if all preregistered conditions are satisfied:
 
 1. `Delta_emergent_A(x) >= delta_min`;
 2. the preregistered lower confidence bound for `Delta_emergent_A(x)` is greater than or equal to `delta_min`;
@@ -176,9 +177,9 @@ If no configuration is emergence-positive, transfer Holdout B and governance Hol
 
 ## Holdout-A-to-B transfer rule
 
-Before Holdout A is opened, freeze a deterministic A-to-B rule that maps Holdout A emergence classifications to configurations eligible for the transfer test.
+Before Holdout A is opened, freeze a deterministic A-to-B rule that maps Holdout A emergence classifications to configuration × task-family strata eligible for the transfer test.
 
-For every emergence-positive configuration selected for Holdout B, the rule must select the same frozen lower-order capability comparator mapping used for Holdout A and the same task-family stratum. Holdout B uses new task instances but the same preregistered task-family definition.
+For every emergence-positive configuration × task-family stratum selected for Holdout B, the rule must select the same frozen lower-order capability comparator mapping used for Holdout A and the identical task-family stratum. Holdout B uses new task instances but the same preregistered task-family definition.
 
 The transfer evaluator computes:
 
@@ -203,7 +204,7 @@ If no configuration passes the Holdout B transfer gate, governance Holdout C is 
 
 ## Holdout-B-to-C governance selection rule
 
-Before Holdout A is opened, freeze a deterministic B-to-C rule that maps successful Holdout B transfer assessments to configurations eligible for Holdout C.
+Before Holdout A is opened, freeze a deterministic B-to-C rule that maps successful Holdout B transfer assessments to configuration × task-family strata eligible for Holdout C.
 
 For every transfer-confirmed configuration selected for Holdout C, the rule must also select its preregistered topology-matched governance sham control(s).
 
@@ -217,7 +218,7 @@ Governance performance is estimated **only on governance Holdout C**.
 
 The primary positive population is defined before any Holdout C input or outcome is exposed:
 
-- every Holdout C trial whose frozen configuration was emergence-positive on Holdout A **and** independently transfer-confirmed on Holdout B.
+- every Holdout C trial whose frozen configuration × task-family stratum was emergence-positive on Holdout A **and** independently transfer-confirmed on Holdout B.
 
 The reference population is likewise outcome-independent:
 
@@ -264,7 +265,7 @@ Trajectory-warning results on Holdout C must be reported at matched false-alarm 
 The confirmatory report must include at least:
 
 - false alarms per topology-matched sham-control trial;
-- primary warning sensitivity across all trials from Holdout-A-positive configurations;
+- primary warning sensitivity across all trials from configuration × task-family strata that are Holdout-A-positive and Holdout-B-transfer-confirmed;
 - warning rate across all topology-matched sham-control trials;
 - preregistered contrast between those rates;
 - fraction of positive-configuration trials with any pre-terminal warning;
@@ -413,7 +414,7 @@ The confirmatory report, if execution is authorized, must include:
 
 The capability-emergence hypothesis is weakened or falsified within tested scope if no higher-order configuration produces a reproducible positive residual satisfying the frozen Holdout A emergence condition.
 
-The capability-transfer hypothesis is weakened or falsified within tested scope when a Holdout-A-positive configuration fails the frozen Holdout B transfer criterion.
+The capability-transfer hypothesis is weakened or falsified within tested scope when a Holdout-A-positive configuration × task-family stratum fails the frozen Holdout B transfer criterion.
 
 The trajectory-warning hypothesis is weakened or falsified within tested scope if, on independent Holdout C, Cohervia's frozen primary governance endpoint does not distinguish transfer-confirmed configurations from their preregistered topology-matched sham controls at the preregistered false-alarm budget, or if apparent effects disappear after configuration-identifying features are masked, or fail replication/ablation.
 
