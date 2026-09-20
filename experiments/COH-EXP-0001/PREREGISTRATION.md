@@ -173,6 +173,16 @@ A configuration × task-family stratum `(x,f)` is classified as **emergence-posi
 
 The classification is written to an immutable Holdout A result bundle by the frozen capability evaluator.
 
+The frozen A-to-B selector must **independently recompute** every emergence prerequisite from the recorded assessment rather than trusting the classification label alone. At minimum it must verify:
+
+- `protocol_valid = true`;
+- `verifier_result = pass`;
+- the frozen multiplicity rule is satisfied;
+- `Delta_emergent_A(x,f) >= delta_min`;
+- the recorded lower confidence bound is greater than or equal to `delta_min`.
+
+Any disagreement between the label and recomputed gates makes the assessment ineligible and is preserved as a protocol anomaly.
+
 If no configuration is emergence-positive, transfer Holdout B and governance Holdout C are not executed and the transfer and governance endpoints are reported as `not_applicable`.
 
 ## Holdout-A-to-B transfer rule
@@ -200,13 +210,27 @@ A configuration passes the **transfer gate** only if all frozen conditions hold:
 
 The `transfer_delta_min`, transfer estimator, uncertainty procedure, task-family matching rule, and all comparator mappings are frozen before Holdout A. The transfer evaluator cannot read Cohervia observer outputs.
 
+The frozen B-to-C selector must **independently recompute** every transfer prerequisite from the recorded assessment rather than trusting the transfer label alone. At minimum it must verify:
+
+- `protocol_valid = true`;
+- `verifier_result = pass`;
+- the frozen multiplicity rule is satisfied;
+- `Delta_transfer_B(x,f) >= transfer_delta_min`;
+- the recorded lower confidence bound is greater than or equal to `transfer_delta_min`.
+
+Any disagreement between the label and recomputed gates makes the assessment ineligible and is preserved as a protocol anomaly.
+
 If no configuration passes the Holdout B transfer gate, governance Holdout C is not executed and the governance endpoint is `not_applicable`.
 
 ## Holdout-B-to-C governance selection rule
 
-Before Holdout A is opened, freeze a deterministic B-to-C rule that maps successful Holdout B transfer assessments to configuration × task-family strata eligible for Holdout C.
+Before Holdout A is opened, freeze a deterministic B-to-C rule that maps successful Holdout B transfer assessments to configurations eligible for Holdout C.
 
-For every transfer-confirmed configuration selected for Holdout C, the rule must also select its preregistered topology-matched governance sham control(s).
+A configuration is eligible for the **primary system-level governance claim** only if the same frozen configuration is transfer-confirmed on **at least two distinct preregistered task-family strata**. The minimum family count and the aggregation/eligibility rule are frozen as the cross-family gate definition.
+
+A configuration transfer-confirmed on only one task family remains a **single-family capability candidate**. Its evidence is retained, but it is not eligible for the primary system-level governance claim and cannot be described as a replicated system-level capability finding.
+
+For every cross-family-eligible configuration selected for Holdout C, the rule must select the transfer-confirmed task-family strata and their preregistered topology-matched governance sham control(s).
 
 The governance-control definition must be frozen before Holdout A. It must preserve the nominal observable topology while neutralizing only the designated capability-critical coupling or interaction being controlled. If a scientifically adequate topology-matched control cannot be specified for a target configuration, that configuration is ineligible for the primary governance claim.
 
@@ -218,7 +242,7 @@ Governance performance is estimated **only on governance Holdout C**.
 
 The primary positive population is defined before any Holdout C input or outcome is exposed:
 
-- every Holdout C trial whose frozen configuration × task-family stratum was emergence-positive on Holdout A **and** independently transfer-confirmed on Holdout B.
+- every Holdout C trial belonging to a frozen configuration that passed the cross-family gate, restricted to task-family strata independently emergence-positive on Holdout A and transfer-confirmed on Holdout B.
 
 The reference population is likewise outcome-independent:
 
@@ -369,13 +393,15 @@ If a material defect requires a change after Holdout A has been opened, the conf
 
 ## Replication and causal ablation
 
-A candidate system-level capability finding requires:
+A candidate **system-level capability finding** requires:
 
 1. repeated success across declared runs;
 2. ablation of at least one suspected enabling factor;
-3. replication on a second task family;
+3. the same frozen configuration to satisfy the Holdout A emergence gate and Holdout B transfer gate on at least two distinct preregistered task families;
 4. independent verifier confirmation;
 5. preservation of failed/null trials.
+
+A result satisfying only one task-family stratum may be reported only as a bounded single-family capability candidate.
 
 The governance claim is separate from the capability claim. Capability emergence may be supported while the trajectory-warning hypothesis fails.
 
@@ -415,6 +441,8 @@ The confirmatory report, if execution is authorized, must include:
 The capability-emergence hypothesis is weakened or falsified within tested scope if no higher-order configuration produces a reproducible positive residual satisfying the frozen Holdout A emergence condition.
 
 The capability-transfer hypothesis is weakened or falsified within tested scope when a Holdout-A-positive configuration × task-family stratum fails the frozen Holdout B transfer criterion.
+
+The system-level replication hypothesis is weakened or falsified for a configuration when fewer than two distinct preregistered task-family strata pass both the Holdout A emergence and Holdout B transfer gates.
 
 The trajectory-warning hypothesis is weakened or falsified within tested scope if, on independent Holdout C, Cohervia's frozen primary governance endpoint does not distinguish transfer-confirmed configurations from their preregistered topology-matched sham controls at the preregistered false-alarm budget, or if apparent effects disappear after configuration-identifying features are masked, or fail replication/ablation.
 
