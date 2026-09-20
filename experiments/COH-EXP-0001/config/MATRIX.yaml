@@ -21,6 +21,18 @@ task_families:
   - algorithmic_verifiable
   - mathematical_verifiable
 
+partitions:
+  development:
+    purpose: tuning_and_instrumentation
+    holdout: false
+  capability_holdout_a:
+    purpose: capability_emergence_classification
+    holdout: true
+  governance_holdout_b:
+    purpose: independent_governance_evaluation
+    holdout: true
+    opened_only_after_capability_holdout_a_classification: true
+
 network:
   public_access: false
 
@@ -39,7 +51,8 @@ isolation:
   instrumented_shared_state_required: true
 
 audit:
-  externally_protected_or_append_only: true
+  immutable_or_cryptographically_append_only_required: true
+  acting_agent_write_path_to_historical_records: false
 
 governance:
   acting_agent_controls_evaluator: false
@@ -50,32 +63,53 @@ governance:
   acting_agent_controls_emergence_classification: false
 
 holdout:
-  inputs_blinded_during_development: true
-  outcomes_blinded_during_development: true
-  frozen_evaluator_only_after_freeze: true
+  capability_a_inputs_blinded_during_development: true
+  capability_a_outcomes_blinded_during_development: true
+  governance_b_inputs_blinded_during_development: true
+  governance_b_outcomes_blinded_during_development: true
+  governance_b_inputs_blinded_until_a_classification_complete: true
+  frozen_evaluators_only_after_freeze: true
 
 emergence_classification:
+  source_partition: capability_holdout_a
   observer_independent: true
   delta_min_frozen_before_holdout: true
   confidence_procedure_frozen_before_holdout: true
   multiplicity_rule_frozen_before_holdout: true
 
+governance_evaluation:
+  source_partition: governance_holdout_b
+  configuration_selection_source: capability_holdout_a
+  selection_rule_frozen_before_holdout_a: true
+  comparator_definition_frozen_before_holdout_a: true
+  observer_frozen_before_holdout_a: true
+  thresholds_frozen_before_holdout_a: true
+
 freeze_required_before_confirmatory_execution:
   - model_identity
+  - orchestrator_identity
   - orchestrator_version
   - tool_versions
-  - task_manifest
+  - task_generation_procedure
   - development_manifest
-  - holdout_manifest
+  - capability_holdout_a_manifest
+  - governance_holdout_b_manifest
   - baseline_estimator
   - delta_min
   - uncertainty_procedure
   - multiplicity_rule
   - success_threshold
   - comparator_definition
+  - holdout_selection_rule
+  - observer
   - observer_features
   - observer_thresholds
+  - capability_evaluator
+  - governance_evaluator
   - verifier_identity
   - configuration_hashes
+  - environment_image
   - channel_inventory
   - stop_conditions
+  - stop_controller
+  - audit_immutability_configuration
