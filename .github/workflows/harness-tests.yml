@@ -1,0 +1,38 @@
+name: Harness Tests
+
+on:
+  pull_request:
+    paths:
+      - "src/**"
+      - "tests/**"
+      - "schemas/**"
+      - "experiments/COH-EXP-0001/**"
+      - "pyproject.toml"
+      - ".github/workflows/harness-tests.yml"
+  push:
+    branches:
+      - "experiment/coh-exp-0001-harness"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install harness
+        run: python -m pip install --disable-pip-version-check -e .
+
+      - name: Run unit tests
+        run: python -m unittest discover -s tests -v
+
+      - name: Run instrumentation self-test
+        run: cohervia-harness --self-test
