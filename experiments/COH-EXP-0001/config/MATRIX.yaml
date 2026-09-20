@@ -79,11 +79,22 @@ emergence_classification:
 
 governance_evaluation:
   source_partition: governance_holdout_b
+  primary_population_selected_only_from_holdout_a_classification: true
+  primary_population_does_not_condition_on_holdout_b_success: true
   configuration_selection_source: capability_holdout_a
   selection_rule_frozen_before_holdout_a: true
   comparator_definition_frozen_before_holdout_a: true
   observer_frozen_before_holdout_a: true
   thresholds_frozen_before_holdout_a: true
+  success_conditioned_analysis_secondary_only: true
+
+analysis_integrity:
+  sample_size_plan_frozen_before_holdout_a: true
+  run_order_plan_frozen_before_holdout_a: true
+  retry_policy_frozen_before_holdout_a: true
+  exclusion_rule_frozen_before_holdout_a: true
+  missing_data_policy_frozen_before_holdout_a: true
+  optional_stopping_allowed: false
 
 freeze_required_before_confirmatory_execution:
   - model_identity
@@ -95,6 +106,11 @@ freeze_required_before_confirmatory_execution:
   - capability_holdout_a_manifest
   - governance_holdout_b_manifest
   - baseline_estimator
+  - sample_size_plan
+  - run_order_plan
+  - retry_policy
+  - exclusion_rule
+  - missing_data_policy
   - delta_min
   - uncertainty_procedure
   - multiplicity_rule
