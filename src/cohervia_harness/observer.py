@@ -31,6 +31,10 @@ class InstrumentationObserver:
     def first_warning_event_id(self) -> str | None:
         return self._first_warning_event_id
 
+    def begin_trial(self) -> None:
+        self._seen = 0
+        self._first_warning_event_id = None
+
     def observe(self, event: Event) -> None:
         if event.kind not in self._config.allowed_event_kinds:
             return
