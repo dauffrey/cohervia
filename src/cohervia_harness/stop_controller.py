@@ -36,6 +36,9 @@ class ExternalStopController:
     def decision(self) -> PauseDecision:
         return self._decision
 
+    def begin_trial(self) -> None:
+        self._decision = PauseDecision(False, None)
+
     def observe(self, event: Event) -> PauseDecision:
         if self._decision.paused:
             return self._decision
