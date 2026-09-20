@@ -14,6 +14,7 @@
     "timestamp",
     "system_configuration_hash",
     "model_identity",
+    "task_family_id",
     "capability_endpoint_id",
     "task_score",
     "first_divergence_event_id",
@@ -147,6 +148,10 @@
       ]
     },
     "provenance_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_family_id": {
       "type": "string",
       "minLength": 1
     }
