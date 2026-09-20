@@ -33,6 +33,8 @@ class InstrumentationRunner:
         agent: Agent,
     ) -> TrialResult:
         config.validate_for_harness(allow_confirmatory=False)
+        if config.task_family_id != task.task_family_id:
+            raise ValueError("trial config task_family_id does not match task")
         self._observer.begin_trial()
         self._stop.begin_trial()
         if config.partition not in {
