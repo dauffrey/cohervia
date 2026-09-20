@@ -33,6 +33,8 @@ class InstrumentationRunner:
         agent: Agent,
     ) -> TrialResult:
         config.validate_for_harness(allow_confirmatory=False)
+        self._observer.begin_trial()
+        self._stop.begin_trial()
         if config.partition not in {
             Partition.INSTRUMENTATION,
             Partition.DEVELOPMENT,
