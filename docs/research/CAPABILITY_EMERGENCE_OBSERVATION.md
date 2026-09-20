@@ -33,6 +33,7 @@ Machine-readable schema:
 It records:
 
 - frozen configuration identity/hash;
+- task-family stratum;
 - Holdout A manifest hash;
 - capability-evaluator hash;
 - baseline-estimator hash;
