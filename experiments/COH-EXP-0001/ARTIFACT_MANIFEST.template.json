@@ -45,5 +45,8 @@
   "governance_holdout_b_completed_at": null,
   "governance_holdout_b_result_bundle_hash": null,
   "final_report_hash": null,
-  "notes": "All null freeze or execution fields must remain null until the corresponding frozen artifact or authorized event exists. Holdout A and Holdout B are distinct immutable partitions."
+  "notes": "All null freeze or execution fields must remain null until the corresponding frozen artifact or authorized event exists. Holdout A and Holdout B are distinct immutable partitions.",
+  "governance_control_definition_hash": null,
+  "observer_feature_mask_hash": null,
+  "observer_normalization_policy_hash": null
 }
