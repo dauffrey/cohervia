@@ -12,9 +12,9 @@ System-Level Capability Emergence Under Controlled Tool, Memory, and Agent Compo
 
 **RQ1.** Do specified combinations of tools, structured persistent memory, and multiple model instances produce capability performance that exceeds a prediction based on lower-order component configurations?
 
-**RQ2.** After a configuration independently satisfies the frozen emergence criterion on capability Holdout A, can Cohervia detect associated trajectory changes on a separate untouched governance Holdout B before final outcomes are known?
+**RQ2.** Does a configuration that independently satisfies the frozen emergence criterion on capability Holdout A reproduce a preregistered capability gain on a separate untouched transfer Holdout B under the same task-family stratum and frozen comparator mapping?
 
-**RQ3.** Do candidate divergence signals distinguish emergence-positive configurations from preregistered topology-matched sham controls at matched false-alarm budgets on governance Holdout B, without relying on configuration-identifying features?
+**RQ3.** For configurations that pass both Holdout A and the independent Holdout B transfer gate, can Cohervia distinguish their trajectories from preregistered topology-matched sham controls on a third untouched governance Holdout C at matched false-alarm budgets, without relying on configuration-identifying features?
 
 ## Non-claims
 
@@ -47,7 +47,7 @@ The environment must have:
 
 ## Experimental partitions
 
-The experiment contains three disjoint task partitions.
+The experiment contains four disjoint task partitions: one development partition and three confirmatory holdouts.
 
 ### Development
 
@@ -63,20 +63,28 @@ Holdout A determines whether a configuration satisfies the preregistered emergen
 
 Its exact inputs and outcomes remain inaccessible during development.
 
-### Governance Holdout B
+### Transfer Holdout B
 
 Used only after Holdout A classification is complete.
 
-Holdout B is a distinct untouched task set used to evaluate the frozen Cohervia observer on configurations selected by the preregistered Holdout-A selection rule and on preregistered **topology-matched sham controls**. A governance sham control preserves the target configuration's nominal agent count, tool/memory interfaces, channel inventory, event vocabulary, and resource envelope while neutralizing the designated capability-critical coupling under a frozen control definition.
+Holdout B is a distinct untouched task set used to test whether the capability gain found on Holdout A **transfers**. For each Holdout-A-positive configuration, the frozen transfer evaluator compares the target configuration with its preregistered lower-order capability comparators on the same Holdout B task-family stratum and task distribution.
 
-Holdout B inputs and outcomes remain inaccessible during development and remain inaccessible during Holdout A execution/classification.
+Holdout B inputs and outcomes remain inaccessible during development and during Holdout A execution/classification. Cohervia observer outputs are not inputs to the transfer evaluator and cannot affect transfer eligibility.
+
+### Governance Holdout C
+
+Used only after Holdout B transfer confirmation is complete.
+
+Holdout C is a third distinct untouched task set used solely to evaluate the frozen Cohervia observer for configurations that passed both Holdout A and Holdout B. The primary reference population uses preregistered **topology-matched sham controls**. A governance sham control preserves the target configuration's nominal agent count, tool/memory interfaces, channel inventory, event vocabulary, and resource envelope while neutralizing the designated capability-critical coupling under a frozen control definition.
+
+Holdout C inputs and outcomes remain inaccessible during development, Holdout A, and Holdout B.
 
 The task families for all partitions are restricted to benign, machine-verifiable tasks drawn from at least:
 
 1. algorithmic optimization or construction tasks with exact scorers;
 2. mathematical/combinatorial tasks with deterministic checking.
 
-The exact generation procedure and all three partition manifests must be frozen and hashed before confirmatory execution.
+The exact generation procedure and all four partition manifests must be frozen and hashed before confirmatory execution. Holdouts A, B, and C must be mutually disjoint at the task-instance level.
 
 ## Experimental factors
 
@@ -160,40 +168,65 @@ The classification is written to an immutable Holdout A result bundle by the fro
 
 If no configuration is emergence-positive, governance Holdout B is not executed and the governance endpoint is reported as `not_applicable`.
 
-## Holdout-A-to-B selection rule
+## Holdout-A-to-B transfer rule
 
-Before either holdout is opened, freeze a deterministic selection rule that maps Holdout A emergence classifications to the configurations eligible for Holdout B.
+Before Holdout A is opened, freeze a deterministic A-to-B rule that maps Holdout A emergence classifications to configurations eligible for the transfer test.
 
-For every emergence-positive configuration selected for Holdout B, the rule must also select its preregistered topology-matched governance sham control(s). Lower-order capability comparators used in Holdout A remain part of the capability analysis but are not the primary governance reference population.
+For every emergence-positive configuration selected for Holdout B, the rule must select the same frozen lower-order capability comparator mapping used for Holdout A and the same task-family stratum. Holdout B uses new task instances but the same preregistered task-family definition.
 
-The selection rule may use only the immutable configuration-level classification outputs explicitly declared in advance. It may not inspect Holdout B inputs, outcomes, or trajectory data.
+The transfer evaluator computes:
+
+```text
+Delta_transfer_B(x) = mean(C_B(x)) - C_hat_B(x)
+```
+
+where `C_hat_B(x)` is calculated from preregistered lower-order comparator runs on the same Holdout B task distribution. The target configuration does not contribute its own outcomes to its comparator baseline.
+
+A configuration passes the **transfer gate** only if all frozen conditions hold:
+
+1. it was emergence-positive on Holdout A;
+2. `Delta_transfer_B(x) >= transfer_delta_min`;
+3. the preregistered lower confidence bound for `Delta_transfer_B(x)` is greater than or equal to `transfer_delta_min`;
+4. the frozen multiplicity rule is satisfied where applicable;
+5. the independent verifier confirms the capability endpoint;
+6. the configuration-level Holdout B assessment is protocol-valid.
+
+The `transfer_delta_min`, transfer estimator, uncertainty procedure, task-family matching rule, and all comparator mappings are frozen before Holdout A. The transfer evaluator cannot read Cohervia observer outputs.
+
+If no configuration passes the Holdout B transfer gate, governance Holdout C is not executed and the governance endpoint is `not_applicable`.
+
+## Holdout-B-to-C governance selection rule
+
+Before Holdout A is opened, freeze a deterministic B-to-C rule that maps successful Holdout B transfer assessments to configurations eligible for Holdout C.
+
+For every transfer-confirmed configuration selected for Holdout C, the rule must also select its preregistered topology-matched governance sham control(s).
 
 The governance-control definition must be frozen before Holdout A. It must preserve the nominal observable topology while neutralizing only the designated capability-critical coupling or interaction being controlled. If a scientifically adequate topology-matched control cannot be specified for a target configuration, that configuration is ineligible for the primary governance claim.
 
-No observer feature, threshold, prompt, tool configuration, evaluator, capability-comparator definition, governance-control definition, or selection rule may change between Holdout A and Holdout B.
+No observer feature, threshold, prompt, tool configuration, evaluator, capability-comparator definition, governance-control definition, transfer rule, or governance-selection rule may change after Holdout A is opened.
 
 ## Primary governance endpoint
 
-Governance performance is estimated **only on governance Holdout B**.
+Governance performance is estimated **only on governance Holdout C**.
 
-The primary positive population is defined **before any Holdout B outcome is known**:
+The primary positive population is defined before any Holdout C input or outcome is exposed:
 
-- every Holdout B trial whose frozen configuration was classified emergence-positive on Holdout A.
+- every Holdout C trial whose frozen configuration was emergence-positive on Holdout A **and** independently transfer-confirmed on Holdout B.
 
 The reference population is likewise outcome-independent:
 
-- every Holdout B trial from the preregistered topology-matched sham control(s) selected by the frozen A-to-B selection rule.
+- every Holdout C trial from the preregistered topology-matched sham control(s) selected by the frozen B-to-C selection rule.
 
-The primary governance analysis therefore does **not** condition population membership on whether an individual Holdout B task succeeds or fails.
+The primary governance analysis therefore does **not** condition population membership on whether an individual Holdout C task succeeds or fails.
 
-For each Holdout B trial, the frozen observer either emits a qualifying pre-terminal warning or does not. Primary metrics include:
+For each Holdout C trial, the frozen observer either emits a qualifying pre-terminal warning or does not. Primary metrics include:
 
 - warning rate/sensitivity across all trials from Holdout-A-positive configurations;
 - warning rate across all matched comparator trials;
 - difference or other preregistered contrast between those rates at the frozen false-alarm budget;
 - time from first qualifying warning to the frozen terminal evaluation point, where defined.
 
-A secondary, explicitly outcome-conditioned analysis may report, among independently verified successful Holdout B trials:
+A secondary, explicitly outcome-conditioned analysis may report, among independently verified successful Holdout C trials:
 
 ```text
 lead_time_to_success = t_success - t_first_divergence
@@ -201,7 +234,7 @@ lead_time_to_success = t_success - t_first_divergence
 
 This secondary analysis must be labeled as success-conditioned and cannot substitute for the primary outcome-independent governance endpoint.
 
-This design prevents both configuration selection and primary governance population membership from depending on the same Holdout B outcomes.
+This design separates discovery, transfer, and governance evidence: Holdout A identifies candidate emergence, Holdout B independently verifies capability transfer without observer input, and Holdout C independently evaluates governance.
 
 ## Observer anti-confounding controls
 
@@ -220,7 +253,7 @@ Secondary exploratory analyses may inspect treatment-identifying features only a
 
 ## False-alarm matching
 
-Trajectory-warning results on Holdout B must be reported at matched false-alarm budgets.
+Trajectory-warning results on Holdout C must be reported at matched false-alarm budgets.
 
 The confirmatory report must include at least:
 
@@ -279,7 +312,8 @@ Before Holdout A is opened, freeze and hash:
 - exclusion rules;
 - missing-data policy;
 - compute/time limits;
-- all primary and secondary endpoints.
+- all primary endpoint definitions;
+- all secondary endpoint definitions.
 
 Optional stopping based on observed confirmatory performance is prohibited.
 
@@ -305,7 +339,8 @@ During development, tuning, debugging, observer construction, prompt design, too
 
 - no researcher, model, tuning process, or development-time evaluator may inspect Holdout A inputs or outcomes;
 - no researcher, model, tuning process, or development-time evaluator may inspect Holdout B inputs or outcomes;
-- metadata that would reveal or materially reconstruct either holdout is unavailable.
+- no researcher, model, tuning process, or development-time evaluator may inspect Holdout C inputs or outcomes;
+- metadata that would reveal or materially reconstruct any confirmatory holdout is unavailable.
 
 After preregistration, review, exact implementation/configuration freeze, artifact hashing, and authorization:
 
@@ -314,7 +349,7 @@ After preregistration, review, exact implementation/configuration freeze, artifa
 3. the frozen capability evaluator emits configuration-level emergence assessments;
 4. the frozen selection rule determines which configurations and comparators are eligible for Holdout B;
 5. only then may the frozen governance evaluator open Holdout B;
-6. Holdout B trials execute with the already-frozen Cohervia observer;
+6. Holdout C trials execute with the already-frozen Cohervia observer;
 7. Holdout B results are written to a separate immutable result bundle.
 
 No material component may change between steps 1 and 7.
@@ -348,13 +383,14 @@ Missing evidence is never converted to zero.
 
 The confirmatory report, if execution is authorized, must include:
 
-- complete cell counts for both holdouts;
+- complete cell counts for all three confirmatory holdouts;
 - all retries, exclusions, missing trials, and reasons;
 - capability score distributions on Holdout A;
 - emergence residual estimates with uncertainty;
 - configuration-level emergence classifications;
-- Holdout A selection outputs;
-- Holdout B primary outcome-independent governance results;
+- Holdout A emergence-classification outputs;
+- Holdout B capability-transfer results and transfer-gate decisions;
+- Holdout C primary outcome-independent governance results;
 - matched comparator/false-alarm results;
 - clearly labeled secondary success-conditioned analyses;
 - ablation results;
@@ -367,12 +403,14 @@ The confirmatory report, if execution is authorized, must include:
 
 The capability-emergence hypothesis is weakened or falsified within tested scope if no higher-order configuration produces a reproducible positive residual satisfying the frozen Holdout A emergence condition.
 
-The trajectory-warning hypothesis is weakened or falsified within tested scope if, on independent Holdout B, Cohervia's frozen primary governance endpoint does not distinguish Holdout-A-classified emergence-positive configurations from their preregistered topology-matched sham controls at the preregistered false-alarm budget, or if apparent effects disappear after configuration-identifying features are masked, or fail replication/ablation.
+The capability-transfer hypothesis is weakened or falsified within tested scope when a Holdout-A-positive configuration fails the frozen Holdout B transfer criterion.
 
-If no configuration satisfies the frozen Holdout A emergence criterion, the governance endpoint is `not_applicable`. This is a valid null capability result and must not be converted into a post hoc governance test.
+The trajectory-warning hypothesis is weakened or falsified within tested scope if, on independent Holdout C, Cohervia's frozen primary governance endpoint does not distinguish transfer-confirmed configurations from their preregistered topology-matched sham controls at the preregistered false-alarm budget, or if apparent effects disappear after configuration-identifying features are masked, or fail replication/ablation.
+
+If no configuration satisfies the frozen Holdout A emergence criterion, or no Holdout-A-positive configuration passes the independent Holdout B transfer gate, the governance endpoint is `not_applicable`. These are valid null results and must not be converted into post hoc governance tests.
 
 ## Amendment rule
 
 Any material design change before confirmatory execution must be committed as an explicit preregistration amendment.
 
-After Holdout A or Holdout B input exposure, material changes require new eligible confirmatory partitions as specified above and must be explicitly documented.
+After any Holdout A, B, or C input exposure, material changes require new eligible confirmatory partitions as specified above and must be explicitly documented.
