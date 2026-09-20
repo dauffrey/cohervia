@@ -36,6 +36,7 @@ FREEZE_FIELD_MAP: dict[str, str] = {
     "success_threshold": "success_threshold_spec_hash",
     "comparator_definition": "comparator_definition_hash",
     "governance_control_definition": "governance_control_definition_hash",
+    "cross_family_gate_definition": "cross_family_gate_definition_hash",
     "holdout_selection_rule": "holdout_selection_rule_hash",
     "observer": "observer_hash",
     "observer_features": "observer_feature_spec_hash",
