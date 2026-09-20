@@ -58,5 +58,6 @@
   "governance_holdout_c_completed_at": null,
   "governance_holdout_c_result_bundle_hash": null,
   "final_report_hash": null,
-  "notes": "All null freeze or execution fields must remain null until the corresponding frozen artifact or authorized event exists. Holdout A, transfer Holdout B, and governance Holdout C are distinct immutable partitions."
+  "notes": "All null freeze or execution fields must remain null until the corresponding frozen artifact or authorized event exists. Holdout A, transfer Holdout B, and governance Holdout C are distinct immutable partitions.",
+  "cross_family_gate_definition_hash": null
 }
