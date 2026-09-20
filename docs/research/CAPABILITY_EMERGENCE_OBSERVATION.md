@@ -1,76 +1,102 @@
-# Capability Emergence Observation
+# Capability Emergence Evidence Records
 
 ## Status
 
-`CapabilityEmergenceObservation` is a **candidate research record**. It is not a validated sensor and must not be used as an authority signal without separate evidence.
+The records in this document are **candidate research evidence contracts**. They are not validated sensors and must not be used as authority signals without separate evidence.
 
-Its purpose is to make capability-discovery claims auditable.
+Cohervia deliberately separates per-trial evidence from configuration-level emergence classification.
 
-## Record contract
+## 1. Trial-level record
 
-A record should answer:
+`CapabilityEmergenceTrialObservation` answers:
 
-1. What system configuration was tested?
-2. What capability endpoint was measured?
-3. What baseline predicted performance?
-4. Was there a residual capability gain?
-5. Where did the trajectory first materially differ?
-6. Which tools, memory operations, agents, or environmental affordances were involved?
-7. Were all actions authorized?
-8. Was the result independently verified and reproduced?
+1. What frozen configuration was run?
+2. Which partition did the run belong to?
+3. What task score did the independent verifier record?
+4. Where, if anywhere, did the frozen observer first flag a material trajectory divergence?
+5. Which tools, memory operations, agents, or environmental affordances were involved?
+6. Were deterministic constraints satisfied?
+7. What provenance bundle binds the observation to the run?
 
-## Required fields
+A trial record **does not contain or imply a configuration-level emergence classification**.
 
-| Field | Meaning |
-|---|---|
-| `observation_id` | Unique immutable observation identifier |
-| `experiment_id` | Cohervia experiment identifier |
-| `trial_id` | Unique trial/run identifier |
-| `timestamp` | Observation timestamp |
-| `system_configuration_hash` | Hash of the frozen system configuration |
-| `model_identity` | Declared model/version identity when available |
-| `capability_endpoint_id` | Frozen endpoint identifier |
-| `baseline_prediction` | Predicted endpoint value before holdout exposure |
-| `observed_value` | Observed endpoint value |
-| `emergence_residual` | Observed minus preregistered prediction |
-| `first_divergence_event_id` | Earliest event linked to the candidate change, or `unknown` |
-| `tools_involved` | Tool identifiers involved |
-| `memory_involved` | Whether persistent state materially participated |
-| `agents_involved` | Number/identifiers of agents involved |
-| `environmental_affordance` | Shared state or environmental primitive implicated, if any |
-| `constraint_status` | Whether deterministic constraints remained satisfied |
-| `verifier_result` | Independent verifier outcome |
-| `reproduction_status` | `not_attempted`, `failed`, `partial`, `reproduced` |
-| `applicability` | `observed`, `inferred`, `unknown`, `not_applicable` |
-| `evidence_quality` | Bounded quality descriptor |
-| `provenance_hash` | Hash binding the record to its evidence bundle |
+Key fields include:
+
+- `record_type = trial_evidence`
+- `observation_id`
+- `experiment_id`
+- `trial_id`
+- `evaluation_partition`
+- `system_configuration_hash`
+- `capability_endpoint_id`
+- `task_score`
+- `first_divergence_event_id`
+- tool/memory/agent fields
+- `constraint_status`
+- `verifier_result`
+- `evidence_quality`
+- `provenance_hash`
+
+Machine-readable schema:
+
+[`schemas/capability-emergence-observation.schema.json`](../../schemas/capability-emergence-observation.schema.json)
+
+## 2. Configuration-level record
+
+`CapabilityEmergenceConfigurationAssessment` is produced by the frozen capability evaluator from **capability Holdout A only**.
+
+It records:
+
+- frozen configuration identity/hash;
+- Holdout A manifest hash;
+- capability-evaluator hash;
+- baseline-estimator hash;
+- trial count;
+- baseline prediction;
+- mean observed capability;
+- `Delta_emergent`;
+- frozen `delta_min`;
+- lower confidence bound;
+- uncertainty-procedure hash;
+- multiplicity-rule hash/result;
+- independent verifier result;
+- protocol validity;
+- emergence classification;
+- supporting trial-observation IDs;
+- provenance hash.
+
+Only this record may classify a configuration as:
+
+- `positive`
+- `not_positive`
+- `invalid`
+
+Machine-readable schema:
+
+[`schemas/capability-emergence-assessment.schema.json`](../../schemas/capability-emergence-assessment.schema.json)
 
 ## Interpretation rules
 
-- A large `emergence_residual` is not sufficient to claim emergence.
-- `first_divergence_event_id = unknown` must remain unknown; it must not be imputed.
+- A trial success is not system-level emergence.
+- A large single-run score is not system-level emergence.
+- A positive per-trial difference must not be substituted for the configuration-level `Delta_emergent`.
+- A configuration is emergence-positive only when the frozen Holdout A evaluator applies the preregistered criterion.
+- Holdout B is for governance evaluation and does not reclassify emergence.
+- `first_divergence_event_id = null` or unknown must remain absent/unknown; it must not be imputed.
 - `constraint_status` is independent of task success.
-- A reproduced capability may still be unsafe.
-- A safe trajectory may still fail the capability task.
-- Model statements about their own motives or internal state are not privileged evidence.
+- Model statements about motives or internal state are not privileged evidence.
 - Inferences about intent require separate methodology and must never be silently encoded as observations.
 
-## Minimal lifecycle
+## Lifecycle
 
 ```mermaid
 flowchart LR
-    C[Frozen configuration] --> T[Trial]
-    T --> E[Event log]
-    T --> O[Independent endpoint]
-    E --> D[Divergence analysis]
-    O --> R[Residual calculation]
-    D --> CEO[CapabilityEmergenceObservation]
-    R --> CEO
-    CEO --> REP[Replication / ablation]
+    C[Frozen configuration] --> A[Holdout A trials]
+    A --> TE[Trial evidence]
+    TE --> CA[Configuration assessment]
+    CA --> SEL[Frozen A-to-B selection rule]
+    SEL --> B[Untouched Holdout B]
+    B --> GE[Governance evaluation]
 ```
 
-## Schema
-
-A machine-readable schema is maintained at:
-
-[`schemas/capability-emergence-observation.schema.json`](../../schemas/capability-emergence-observation.schema.json)
+This separation prevents a per-trial observation from silently becoming the configuration-level phenomenon that the observer is supposed to detect.
