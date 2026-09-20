@@ -37,12 +37,12 @@ class TrialConfig:
     model_identity: str
     compute_step_limit: int = 100
 
-    def validate_for_harness(self, *, allow_confirmatory: bool = False) -> None:
+    def validate_for_harness(self) -> None:
         if not self.experiment_id.startswith("COH-EXP-"):
             raise ValueError("experiment_id must use the COH-EXP namespace")
         if self.compute_step_limit < 1:
             raise ValueError("compute_step_limit must be positive")
-        if self.partition.is_confirmatory and not allow_confirmatory:
+        if self.partition.is_confirmatory:
             raise PermissionError(
                 "confirmatory partitions are disabled in the instrumentation harness"
             )
