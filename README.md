@@ -16,6 +16,8 @@ Autonomous systems can continue operating even when the evidence of their future
 
 This project focuses on the separation of measurement, viability estimation, trajectory warning, and authority decisions. It does not assume that a candidate governor signal is sufficient to authorize action on its own.
 
+A related research track studies **system-level capability emergence**: whether combinations of tools, persistent state, verification, multiple agents, and environments produce reproducible capability gains, and whether trajectory changes associated with those gains can be observed before the final outcome. This track remains subject to the same falsification, provenance, holdout, and authority-separation rules as the rest of Cohervia.
+
 ## Compact architecture
 
 ```mermaid
@@ -62,11 +64,15 @@ See the provenance documentation for the full lineage and constraints: [docs/pro
 - [docs/provenance/CONSTRUCT_STATUS.md](docs/provenance/CONSTRUCT_STATUS.md) — conservative construct status table
 - [docs/provenance/LINEAGE.md](docs/provenance/LINEAGE.md) — predecessor lineages and authoritative snapshot record
 - [docs/research/EVIDENCE_POLICY.md](docs/research/EVIDENCE_POLICY.md) — preregistration, freeze, and evidence rules
+- [docs/research/CAPABILITY_DISCOVERY.md](docs/research/CAPABILITY_DISCOVERY.md) — system-level capability discovery research track
+- [docs/research/CAPABILITY_EMERGENCE_OBSERVATION.md](docs/research/CAPABILITY_EMERGENCE_OBSERVATION.md) — candidate observation contract
+- [docs/research/SAFETY_TIERS.md](docs/research/SAFETY_TIERS.md) — environment tiers and automatic pause conditions
 - [ROADMAP.md](ROADMAP.md) — phased research roadmap
 - [CONTRIBUTING.md](CONTRIBUTING.md) — scientific and implementation expectations
 - [SECURITY.md](SECURITY.md) — security reporting policy
 - [experiments/README.md](experiments/README.md) — Cohervia experiment namespace and rules
+- [experiments/COH-EXP-0001/README.md](experiments/COH-EXP-0001/README.md) — proposed first Cohervia preregistration package
 
 ## Status
 
-Cohervia is in foundation/consolidation status. It contains no validated production governor, no validated general safety capability, and no claim that inherited constructs are validated simply because they were selected for a successor project.
+Cohervia is in foundation/consolidation status. It contains no validated production governor, no validated general safety capability, and no claim that inherited constructs or proposed capability-emergence constructs are validated simply because they are included in the successor project.
