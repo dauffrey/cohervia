@@ -52,7 +52,7 @@ High-consequence physical, biological, chemical, cyber, financial, or critical-i
 
 ## Emergence residual
 
-For an experimental configuration `x`, let `C(x)` be a preregistered capability metric. Let `C_hat(x)` be the capability predicted from lower-order component results without using the held-out result for `x`.
+For an experimental configuration `x`, let `C(x)` be a preregistered capability metric. Let `C_hat(x)` be the capability predicted from preregistered lower-order comparator evidence without using the target configuration's own outcomes to construct its baseline. In confirmatory work, the estimator form and comparator mapping are frozen in advance; the numerical prediction may then use designated target-independent comparator runs from the same holdout task distribution.
 
 Define the candidate emergence residual:
 
@@ -60,7 +60,7 @@ Define the candidate emergence residual:
 Delta_emergent(x) = C(x) - C_hat(x)
 ```
 
-A positive residual is not, by itself, evidence of a qualitatively new capability. It is a trigger for causal investigation.
+A positive residual is not, by itself, evidence of a qualitatively new capability. It is a trigger for causal investigation. Comparisons should avoid conflating capability interaction with task-distribution shift; where possible, target and comparator configurations should be evaluated on the same frozen task distribution.
 
 The claim "system-level emergence" requires:
 
