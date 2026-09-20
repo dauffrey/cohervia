@@ -1,0 +1,51 @@
+experiment_id: COH-EXP-0001
+status: proposed_not_executed
+safety_tier: green
+
+factors:
+  agent_count:
+    - 1
+    - 2
+  code_tool:
+    - off
+    - on
+  verifier_feedback:
+    - off
+    - on
+  structured_memory:
+    - off
+    - on
+
+task_families:
+  - algorithmic_verifiable
+  - mathematical_verifiable
+
+network:
+  public_access: false
+
+credentials:
+  real_credentials_allowed: false
+
+external_side_effects:
+  allowed: false
+
+governance:
+  acting_agent_controls_evaluator: false
+  acting_agent_controls_monitor: false
+  acting_agent_controls_stop_controller: false
+  acting_agent_controls_permissions: false
+  acting_agent_controls_audit_log: false
+
+freeze_required_before_confirmatory_execution:
+  - model_identity
+  - orchestrator_version
+  - tool_versions
+  - task_manifest
+  - development_manifest
+  - holdout_manifest
+  - baseline_estimator
+  - observer_features
+  - observer_thresholds
+  - verifier_identity
+  - configuration_hashes
+  - stop_conditions
