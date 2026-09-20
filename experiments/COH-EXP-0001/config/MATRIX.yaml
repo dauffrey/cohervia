@@ -82,9 +82,15 @@ governance_evaluation:
   primary_population_selected_only_from_holdout_a_classification: true
   primary_population_does_not_condition_on_holdout_b_success: true
   configuration_selection_source: capability_holdout_a
+  primary_reference_type: topology_matched_sham_control
+  governance_control_definition_frozen_before_holdout_a: true
   selection_rule_frozen_before_holdout_a: true
-  comparator_definition_frozen_before_holdout_a: true
+  capability_comparator_definition_frozen_before_holdout_a: true
   observer_frozen_before_holdout_a: true
+  observer_receives_configuration_identity: false
+  raw_static_treatment_markers_allowed: false
+  feature_mask_frozen_before_holdout_a: true
+  feature_normalization_policy_frozen_before_holdout_a: true
   thresholds_frozen_before_holdout_a: true
   success_conditioned_analysis_secondary_only: true
 
@@ -116,9 +122,12 @@ freeze_required_before_confirmatory_execution:
   - multiplicity_rule
   - success_threshold
   - comparator_definition
+  - governance_control_definition
   - holdout_selection_rule
   - observer
   - observer_features
+  - observer_feature_mask
+  - observer_normalization_policy
   - observer_thresholds
   - capability_evaluator
   - governance_evaluator
