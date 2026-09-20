@@ -14,7 +14,7 @@ System-Level Capability Emergence Under Controlled Tool, Memory, and Agent Compo
 
 **RQ2.** After a configuration independently satisfies the frozen emergence criterion on capability Holdout A, can Cohervia detect associated trajectory changes on a separate untouched governance Holdout B before final outcomes are known?
 
-**RQ3.** Do candidate divergence signals distinguish emergence-positive configurations from preregistered comparator configurations at matched false-alarm budgets on governance Holdout B?
+**RQ3.** Do candidate divergence signals distinguish emergence-positive configurations from preregistered topology-matched sham controls at matched false-alarm budgets on governance Holdout B, without relying on configuration-identifying features?
 
 ## Non-claims
 
@@ -67,7 +67,7 @@ Its exact inputs and outcomes remain inaccessible during development.
 
 Used only after Holdout A classification is complete.
 
-Holdout B is a distinct untouched task set used to evaluate the frozen Cohervia observer on configurations selected by the preregistered Holdout-A selection rule and on their preregistered comparator configurations.
+Holdout B is a distinct untouched task set used to evaluate the frozen Cohervia observer on configurations selected by the preregistered Holdout-A selection rule and on preregistered **topology-matched sham controls**. A governance sham control preserves the target configuration's nominal agent count, tool/memory interfaces, channel inventory, event vocabulary, and resource envelope while neutralizing the designated capability-critical coupling under a frozen control definition.
 
 Holdout B inputs and outcomes remain inaccessible during development and remain inaccessible during Holdout A execution/classification.
 
@@ -164,11 +164,13 @@ If no configuration is emergence-positive, governance Holdout B is not executed 
 
 Before either holdout is opened, freeze a deterministic selection rule that maps Holdout A emergence classifications to the configurations eligible for Holdout B.
 
-For every emergence-positive configuration selected for Holdout B, the rule must also select its preregistered lower-order comparator configuration(s).
+For every emergence-positive configuration selected for Holdout B, the rule must also select its preregistered topology-matched governance sham control(s). Lower-order capability comparators used in Holdout A remain part of the capability analysis but are not the primary governance reference population.
 
 The selection rule may use only the immutable configuration-level classification outputs explicitly declared in advance. It may not inspect Holdout B inputs, outcomes, or trajectory data.
 
-No observer feature, threshold, prompt, tool configuration, evaluator, comparator definition, or selection rule may change between Holdout A and Holdout B.
+The governance-control definition must be frozen before Holdout A. It must preserve the nominal observable topology while neutralizing only the designated capability-critical coupling or interaction being controlled. If a scientifically adequate topology-matched control cannot be specified for a target configuration, that configuration is ineligible for the primary governance claim.
+
+No observer feature, threshold, prompt, tool configuration, evaluator, capability-comparator definition, governance-control definition, or selection rule may change between Holdout A and Holdout B.
 
 ## Primary governance endpoint
 
@@ -180,7 +182,7 @@ The primary positive population is defined **before any Holdout B outcome is kno
 
 The reference population is likewise outcome-independent:
 
-- every Holdout B trial from the preregistered comparator configurations selected by the frozen A-to-B selection rule.
+- every Holdout B trial from the preregistered topology-matched sham control(s) selected by the frozen A-to-B selection rule.
 
 The primary governance analysis therefore does **not** condition population membership on whether an individual Holdout B task succeeds or fails.
 
@@ -201,15 +203,30 @@ This secondary analysis must be labeled as success-conditioned and cannot substi
 
 This design prevents both configuration selection and primary governance population membership from depending on the same Holdout B outcomes.
 
+## Observer anti-confounding controls
+
+The confirmatory Cohervia observer must not be able to earn governance credit merely by identifying which factorial cell is running.
+
+Before Holdout A is opened, freeze an observer feature-mask and normalization policy with these requirements:
+
+- the observer receives no explicit configuration ID, factor vector, agent count, tool-availability flag, memory-enabled flag, or sham/target label;
+- events whose **mere presence** deterministically identifies a treatment condition may not be used as raw confirmatory predictors;
+- such events must either be excluded or converted into preregistered within-topology temporal/statistical deviations using normalization parameters learned only from development data;
+- topology-matched sham controls must expose the same event categories and nominal interfaces as their target configurations wherever scientifically possible;
+- feature preprocessing and normalization parameters are frozen before Holdout A and cannot be updated from Holdout A or Holdout B trajectories;
+- any feature that cannot be separated from configuration identity is excluded from the primary confirmatory observer.
+
+Secondary exploratory analyses may inspect treatment-identifying features only after confirmatory analysis is complete and must be labeled exploratory.
+
 ## False-alarm matching
 
 Trajectory-warning results on Holdout B must be reported at matched false-alarm budgets.
 
 The confirmatory report must include at least:
 
-- false alarms per comparator/reference trial;
+- false alarms per topology-matched sham-control trial;
 - primary warning sensitivity across all trials from Holdout-A-positive configurations;
-- warning rate across all matched comparator trials;
+- warning rate across all topology-matched sham-control trials;
 - preregistered contrast between those rates;
 - fraction of positive-configuration trials with any pre-terminal warning;
 - secondary success-conditioned lead time, if applicable and clearly labeled.
@@ -350,7 +367,7 @@ The confirmatory report, if execution is authorized, must include:
 
 The capability-emergence hypothesis is weakened or falsified within tested scope if no higher-order configuration produces a reproducible positive residual satisfying the frozen Holdout A emergence condition.
 
-The trajectory-warning hypothesis is weakened or falsified within tested scope if, on independent Holdout B, Cohervia's frozen primary governance endpoint does not distinguish Holdout-A-classified emergence-positive configurations from their preregistered comparators at the preregistered false-alarm budget, or if apparent effects fail replication/ablation.
+The trajectory-warning hypothesis is weakened or falsified within tested scope if, on independent Holdout B, Cohervia's frozen primary governance endpoint does not distinguish Holdout-A-classified emergence-positive configurations from their preregistered topology-matched sham controls at the preregistered false-alarm budget, or if apparent effects disappear after configuration-identifying features are masked, or fail replication/ablation.
 
 If no configuration satisfies the frozen Holdout A emergence criterion, the governance endpoint is `not_applicable`. This is a valid null capability result and must not be converted into a post hoc governance test.
 
