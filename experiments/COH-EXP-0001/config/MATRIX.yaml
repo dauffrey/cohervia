@@ -26,12 +26,16 @@ partitions:
     purpose: tuning_and_instrumentation
     holdout: false
   capability_holdout_a:
-    purpose: capability_emergence_classification
+    purpose: initial_capability_emergence_classification
     holdout: true
-  governance_holdout_b:
-    purpose: independent_governance_evaluation
+  transfer_holdout_b:
+    purpose: independent_capability_transfer_confirmation
     holdout: true
     opened_only_after_capability_holdout_a_classification: true
+  governance_holdout_c:
+    purpose: independent_governance_evaluation
+    holdout: true
+    opened_only_after_transfer_holdout_b_confirmation: true
 
 network:
   public_access: false
@@ -61,13 +65,17 @@ governance:
   acting_agent_controls_permissions: false
   acting_agent_controls_audit_log: false
   acting_agent_controls_emergence_classification: false
+  acting_agent_controls_transfer_confirmation: false
 
 holdout:
   capability_a_inputs_blinded_during_development: true
   capability_a_outcomes_blinded_during_development: true
-  governance_b_inputs_blinded_during_development: true
-  governance_b_outcomes_blinded_during_development: true
-  governance_b_inputs_blinded_until_a_classification_complete: true
+  transfer_b_inputs_blinded_during_development: true
+  transfer_b_outcomes_blinded_during_development: true
+  governance_c_inputs_blinded_during_development: true
+  governance_c_outcomes_blinded_during_development: true
+  transfer_b_inputs_blinded_until_a_classification_complete: true
+  governance_c_inputs_blinded_until_b_transfer_confirmation_complete: true
   frozen_evaluators_only_after_freeze: true
 
 emergence_classification:
@@ -77,11 +85,20 @@ emergence_classification:
   confidence_procedure_frozen_before_holdout: true
   multiplicity_rule_frozen_before_holdout: true
 
+capability_transfer:
+  source_partition: transfer_holdout_b
+  classification_source: capability_holdout_a
+  observer_independent: true
+  task_family_matched_to_a: true
+  same_frozen_capability_comparator_mapping: true
+  transfer_delta_min_frozen_before_holdout_a: true
+  confidence_procedure_frozen_before_holdout_a: true
+  configurations_must_pass_b_before_c: true
+
 governance_evaluation:
-  source_partition: governance_holdout_b
-  primary_population_selected_only_from_holdout_a_classification: true
-  primary_population_does_not_condition_on_holdout_b_success: true
-  configuration_selection_source: capability_holdout_a
+  source_partition: governance_holdout_c
+  eligibility_source: transfer_holdout_b
+  primary_population_does_not_condition_on_holdout_c_success: true
   primary_reference_type: topology_matched_sham_control
   governance_control_definition_frozen_before_holdout_a: true
   selection_rule_frozen_before_holdout_a: true
@@ -100,6 +117,9 @@ analysis_integrity:
   retry_policy_frozen_before_holdout_a: true
   exclusion_rule_frozen_before_holdout_a: true
   missing_data_policy_frozen_before_holdout_a: true
+  compute_time_limits_frozen_before_holdout_a: true
+  primary_endpoints_frozen_before_holdout_a: true
+  secondary_endpoints_frozen_before_holdout_a: true
   optional_stopping_allowed: false
 
 freeze_required_before_confirmatory_execution:
@@ -110,14 +130,20 @@ freeze_required_before_confirmatory_execution:
   - task_generation_procedure
   - development_manifest
   - capability_holdout_a_manifest
-  - governance_holdout_b_manifest
+  - transfer_holdout_b_manifest
+  - governance_holdout_c_manifest
   - baseline_estimator
+  - transfer_estimator
   - sample_size_plan
   - run_order_plan
   - retry_policy
   - exclusion_rule
   - missing_data_policy
+  - compute_time_limits
+  - primary_endpoint_definitions
+  - secondary_endpoint_definitions
   - delta_min
+  - transfer_delta_min
   - uncertainty_procedure
   - multiplicity_rule
   - success_threshold
@@ -130,6 +156,7 @@ freeze_required_before_confirmatory_execution:
   - observer_normalization_policy
   - observer_thresholds
   - capability_evaluator
+  - transfer_evaluator
   - governance_evaluator
   - verifier_identity
   - configuration_hashes
