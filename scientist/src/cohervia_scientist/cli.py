@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 import json
-from datetime import datetime, timezone
 from pathlib import Path
 
 from .ledger import AppendOnlyLedger
@@ -13,11 +12,11 @@ from .theory import TheoryGraph
 
 
 def root_from_args(args: argparse.Namespace) -> Path:
-    return Path(args.root).resolve()
+    return Path(args.root).absolute()
 
 
 def repo_root_from_scientist(scientist_root: Path) -> Path:
-    return scientist_root.parent.resolve()
+    return scientist_root.parent.absolute()
 
 
 def cmd_status(args: argparse.Namespace) -> int:
@@ -105,18 +104,23 @@ def cmd_reason(args: argparse.Namespace) -> int:
     )
     packet = reasoner.run(question_override=args.question)
 
-    if args.output:
-        output = Path(args.output).resolve()
-    else:
-        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-        output = scientist_root / "runs" / f"{stamp}-research-packet.json"
-
-    write_packet(packet, output)
+    output = write_packet(packet, Path(args.output) if args.output else None,
+                          scientist_root=scientist_root)
     print(str(output))
-    print(
-        f"integrity_disposition={packet.integrity_review.disposition}"
-    )
-    return 0
+    print(f"status={packet.status}")
+    return 0 if packet.status == "candidate_reasoning" else 2
+
+
+def bounded_integer(minimum: int, maximum: int):
+    def parse(value: str) -> int:
+        try:
+            parsed = int(value)
+        except ValueError as exc:
+            raise argparse.ArgumentTypeError("expected an integer") from exc
+        if not minimum <= parsed <= maximum:
+            raise argparse.ArgumentTypeError(f"must be between {minimum} and {maximum}")
+        return parsed
+    return parse
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -171,15 +175,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     reason = sub.add_parser("reason")
     reason.add_argument("--provider", choices=["openai"], default="openai")
-    reason.add_argument("--model", default="gpt-5.6-sol")
+    reason.add_argument("--model", required=True, help="API model identifier available to your account")
     reason.add_argument(
         "--reasoning-effort",
         choices=["low", "medium", "high", "xhigh"],
         default="high",
     )
     reason.add_argument("--question")
-    reason.add_argument("--hypothesis-count", type=int, default=4)
-    reason.add_argument("--memory-limit", type=int, default=6)
+    reason.add_argument("--hypothesis-count", type=bounded_integer(2, 8), default=4)
+    reason.add_argument("--memory-limit", type=bounded_integer(1, 20), default=6)
     reason.add_argument("--output")
     reason.set_defaults(func=cmd_reason)
 

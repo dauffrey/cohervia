@@ -124,6 +124,8 @@ class ReasonerTests(unittest.TestCase):
         scientist = repo / "scientist"
         (scientist / "config").mkdir(parents=True)
         (scientist / "state").mkdir(parents=True)
+        (repo / "docs/research").mkdir(parents=True)
+        (repo / "docs/research/EVIDENCE_POLICY.md").write_text("evidence policy", encoding="utf-8")
         (repo / "README.md").write_text("Cohervia test context", encoding="utf-8")
         (scientist / "SCIENTIFIC_CONSTITUTION.md").write_text(
             "constitution", encoding="utf-8"

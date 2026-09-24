@@ -20,7 +20,7 @@ v0.2 adds a bounded scientific reasoning loop:
 2. identify or frame one important unresolved research question;
 3. retrieve relevant prior failures and anomalies;
 4. generate falsifiable hypotheses;
-5. subject all hypotheses to an independent critic role;
+5. subject all hypotheses to an adversarial critic role;
 6. select a candidate for exploratory work;
 7. design an explicitly exploratory experiment;
 8. run a final scientific-integrity review;
@@ -39,19 +39,26 @@ cohervia-scientist status
 To run the reasoning engine with an OpenAI API key:
 
 ```bash
+python -m pip install -e ".[openai]"
 export OPENAI_API_KEY="..."
-cohervia-scientist reason --provider openai --model gpt-5.6-sol
+cohervia-scientist reason --provider openai --model YOUR_API_MODEL_ID
 ```
 
 Or supply a specific research question:
 
 ```bash
 cohervia-scientist reason \
-  --provider openai \
+  --provider openai --model YOUR_API_MODEL_ID \
   --question "Does trajectory curvature add useful pre-boundary warning beyond margin slope?"
 ```
 
-The generated packet is written under `scientist/runs/` unless `--output` is supplied.
+Run on Linux/POSIX with Python 3.11 or newer. Supply an API model identifier available to your account; the package does not infer one from a ChatGPT model name.
+
+Packets are created exclusively under `scientist/runs/`, with unique IDs and no overwrite. An explicit `--output` must also name a new JSON file directly in that directory. Blocked or rejected reasoning is preserved with its disposition; the CLI exits 2 when it does not produce an acceptable candidate. No disposition authorizes execution.
+
+`--memory-limit` accepts 1–20 records and `--hypothesis-count` accepts 2–8. The default counts are 6 and 4. Provider requests have no tools, a 60-second timeout, zero automatic retries, and an 8,000-token output cap. A run makes at most six calls. No API calls occur in the tests.
+
+See [the reasoning engine contract](docs/REASONING_ENGINE.md) for enforced boundaries, provenance, and deployment assumptions.
 
 ## Safety and evidence posture
 

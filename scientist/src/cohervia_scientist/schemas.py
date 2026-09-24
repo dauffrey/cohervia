@@ -1,7 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, fields
 from typing import Any
+
+
+def _keys(data, cls):
+    if not isinstance(data, dict) or set(data) != {f.name for f in fields(cls)}:
+        raise ValueError(f"{cls.__name__} requires exactly its declared fields")
 
 
 def _require_text(data: dict[str, Any], key: str) -> str:
@@ -12,10 +17,17 @@ def _require_text(data: dict[str, Any], key: str) -> str:
 
 
 def _strings(data: dict[str, Any], key: str) -> list[str]:
-    value = data.get(key, [])
-    if not isinstance(value, list) or not all(isinstance(x, str) for x in value):
+    value = data.get(key)
+    if not isinstance(value, list) or not all(isinstance(x, str) and x.strip() for x in value):
         raise ValueError(f"{key} must be a list of strings")
     return [x.strip() for x in value if x.strip()]
+
+
+def _nonempty_strings(data: dict[str, Any], key: str) -> list[str]:
+    values = _strings(data, key)
+    if not values:
+        raise ValueError(f"{key} must not be empty")
+    return values
 
 
 @dataclass(frozen=True)
@@ -29,6 +41,7 @@ class ResearchQuestion:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ResearchQuestion":
+        _keys(data, cls)
         return cls(
             question=_require_text(data, "question"),
             importance=_require_text(data, "importance"),
@@ -55,6 +68,7 @@ class Hypothesis:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Hypothesis":
+        _keys(data, cls)
         return cls(
             id=_require_text(data, "id"),
             statement=_require_text(data, "statement"),
@@ -82,6 +96,7 @@ class Critique:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Critique":
+        _keys(data, cls)
         recommendation = _require_text(data, "recommendation")
         allowed = {"reject", "revise", "advance_exploratory"}
         if recommendation not in allowed:
@@ -104,15 +119,17 @@ class Critique:
 
 @dataclass(frozen=True)
 class CandidateSelection:
-    hypothesis_id: str
+    hypothesis_id: str | None
     rationale: str
     revisions_applied: list[str]
     residual_uncertainties: list[str]
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "CandidateSelection":
+        _keys(data, cls)
         return cls(
-            hypothesis_id=_require_text(data, "hypothesis_id"),
+            hypothesis_id=(None if "hypothesis_id" in data and data["hypothesis_id"] is None
+                           else _require_text(data, "hypothesis_id")),
             rationale=_require_text(data, "rationale"),
             revisions_applied=_strings(data, "revisions_applied"),
             residual_uncertainties=_strings(data, "residual_uncertainties"),
@@ -143,6 +160,7 @@ class ExperimentPlan:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "ExperimentPlan":
+        _keys(data, cls)
         evidence_class = _require_text(data, "evidence_class")
         if evidence_class != "exploratory":
             raise ValueError("v0.2 experiment plans must be exploratory")
@@ -157,15 +175,15 @@ class ExperimentPlan:
             hypothesis_id=_require_text(data, "hypothesis_id"),
             purpose=_require_text(data, "purpose"),
             environment=_require_text(data, "environment"),
-            independent_variables=_strings(data, "independent_variables"),
-            dependent_variables=_strings(data, "dependent_variables"),
-            controls=_strings(data, "controls"),
-            baselines=_strings(data, "baselines"),
-            procedure=_strings(data, "procedure"),
-            analysis_plan=_strings(data, "analysis_plan"),
-            failure_criteria=_strings(data, "failure_criteria"),
-            stopping_conditions=_strings(data, "stopping_conditions"),
-            provenance_requirements=_strings(data, "provenance_requirements"),
+            independent_variables=_nonempty_strings(data, "independent_variables"),
+            dependent_variables=_nonempty_strings(data, "dependent_variables"),
+            controls=_nonempty_strings(data, "controls"),
+            baselines=_nonempty_strings(data, "baselines"),
+            procedure=_nonempty_strings(data, "procedure"),
+            analysis_plan=_nonempty_strings(data, "analysis_plan"),
+            failure_criteria=_nonempty_strings(data, "failure_criteria"),
+            stopping_conditions=_nonempty_strings(data, "stopping_conditions"),
+            provenance_requirements=_nonempty_strings(data, "provenance_requirements"),
             evidence_class=evidence_class,
             requires_holdout=requires_holdout,
             authority_effect=authority_effect,
@@ -185,6 +203,7 @@ class IntegrityReview:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "IntegrityReview":
+        _keys(data, cls)
         disposition = _require_text(data, "disposition")
         allowed = {"acceptable_exploratory", "revise", "reject"}
         if disposition not in allowed:

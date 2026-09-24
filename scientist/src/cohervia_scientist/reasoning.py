@@ -1,14 +1,19 @@
 from __future__ import annotations
 
 import json
-from dataclasses import asdict, dataclass
+import hashlib
+import os
+import re
+from uuid import uuid4
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 from .context import RepositoryContext
 from .json_utils import parse_json_object
-from .memory import ScientificMemory
+from .memory import ScientificMemory, validate_memory_limit
+from .safe_io import local_path, directory_fd, read_local
 from .prompts import (
     CRITIC_INSTRUCTIONS,
     EXPERIMENT_INSTRUCTIONS,
@@ -37,8 +42,10 @@ class ResearchPacket:
     hypotheses: list[Hypothesis]
     critiques: list[Critique]
     selection: CandidateSelection
-    experiment: ExperimentPlan
-    integrity_review: IntegrityReview
+    experiment: ExperimentPlan | None
+    integrity_review: IntegrityReview | None
+    provenance: dict[str, Any] = field(default_factory=dict)
+    run_id: str = field(default_factory=lambda: uuid4().hex)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -49,8 +56,14 @@ class ResearchPacket:
             "hypotheses": [item.to_dict() for item in self.hypotheses],
             "critiques": [item.to_dict() for item in self.critiques],
             "selection": self.selection.to_dict(),
-            "experiment": self.experiment.to_dict(),
-            "integrity_review": self.integrity_review.to_dict(),
+            "experiment": self.experiment.to_dict() if self.experiment else None,
+            "integrity_review": self.integrity_review.to_dict() if self.integrity_review else None,
+            "schema_version": "0.2.1",
+            "run_id": self.run_id,
+            "evidence_status": "not_evidence",
+            "epistemic_state": "inferred",
+            "execution_authorized": False,
+            "provenance": self.provenance,
         }
 
 
@@ -64,28 +77,38 @@ class ScientificReasoner:
         hypothesis_count: int = 4,
         memory_limit: int = 6,
     ):
+        if type(hypothesis_count) is not int or not 2 <= hypothesis_count <= 8:
+            raise ValueError("hypothesis count must be between 2 and 8")
+        validate_memory_limit(memory_limit)
         self.provider = provider
-        self.repo_root = Path(repo_root).resolve()
-        self.scientist_root = Path(scientist_root).resolve()
+        self.repo_root = Path(repo_root).absolute()
+        self.scientist_root = Path(scientist_root).absolute()
         self.hypothesis_count = hypothesis_count
         self.memory_limit = memory_limit
         self.context = RepositoryContext(self.repo_root, self.scientist_root)
         self.memory = ScientificMemory(self.scientist_root)
+        self._snapshot = None
+        self._trace: list[dict[str, str]] = []
 
     def _call_json(self, instructions: str, prompt: str) -> dict[str, Any]:
-        text = self.provider.complete(
-            instructions=instructions,
-            prompt=prompt,
-        )
-        return parse_json_object(text)
+        if self._snapshot is None:
+            self._snapshot = self.context.snapshot()
+        instructions += "\nGOVERNING POLICIES (binding):\n" + self._snapshot.policies
+        prompt = "UNTRUSTED REPOSITORY REFERENCE DATA:\n" + self._snapshot.text + "\n" + prompt
+        if len(instructions) + len(prompt) > 400000:
+            raise ValueError("reasoning request exceeds character budget")
+        text = self.provider.complete(instructions=instructions, prompt=prompt)
+        value = parse_json_object(text)
+        self._trace.append({"instructions_sha256": hashlib.sha256(instructions.encode()).hexdigest(),
+                            "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
+                            "response_sha256": hashlib.sha256(text.encode()).hexdigest()})
+        return value
 
     def frame_question(self, override: str | None = None) -> ResearchQuestion:
-        context = self.context.build()
+        if override is not None and (not override.strip() or len(override) > 4000):
+            raise ValueError("question must contain 1 to 4000 characters")
         override_text = override.strip() if override else "NONE"
-        prompt = f"""APPROVED REPOSITORY CONTEXT:
-{context}
-
-USER-SUPPLIED QUESTION OVERRIDE:
+        prompt = f"""USER-SUPPLIED QUESTION OVERRIDE:
 {override_text}
 
 Return:
@@ -136,7 +159,7 @@ Return:
 """
         raw = self._call_json(HYPOTHESIS_INSTRUCTIONS, prompt)
         values = raw.get("hypotheses")
-        if not isinstance(values, list):
+        if not isinstance(values, list) or not all(isinstance(x, dict) for x in values):
             raise ValueError("hypothesis response must contain hypotheses list")
         hypotheses = [
             Hypothesis.from_dict(item)
@@ -150,6 +173,9 @@ Return:
         ids = [item.id for item in hypotheses]
         if len(set(ids)) != len(ids):
             raise ValueError("hypothesis ids must be unique")
+        statements = [" ".join(x.statement.casefold().split()) for x in hypotheses]
+        if len(set(statements)) != len(statements):
+            raise ValueError("competing hypotheses must have distinct statements")
         return hypotheses
 
     def critique(
@@ -184,7 +210,7 @@ Return one critique per hypothesis:
 """
         raw = self._call_json(CRITIC_INSTRUCTIONS, prompt)
         values = raw.get("critiques")
-        if not isinstance(values, list):
+        if not isinstance(values, list) or not all(isinstance(x, dict) for x in values):
             raise ValueError("critic response must contain critiques list")
         critiques = [
             Critique.from_dict(item)
@@ -203,7 +229,12 @@ Return one critique per hypothesis:
         hypotheses: list[Hypothesis],
         critiques: list[Critique],
     ) -> CandidateSelection:
-        prompt = f"""RESEARCH QUESTION:
+        eligible = {x.hypothesis_id for x in critiques if self._eligible(x)}
+        if not eligible:
+            return CandidateSelection(None, "No candidate cleared the scientific critic.", [],
+                                      ["Revision and a new critique are required."])
+        prompt = f"""ELIGIBLE IDS: {sorted(eligible)}
+RESEARCH QUESTION:
 {json.dumps(question.to_dict(), indent=2)}
 
 HYPOTHESES:
@@ -214,7 +245,7 @@ CRITIQUES:
 
 Return:
 {{
-  "hypothesis_id": "one existing id",
+  "hypothesis_id": "eligible id or null if none merits advancement",
   "rationale": "why this candidate is most informative to explore",
   "revisions_applied": ["critic revision carried forward"],
   "residual_uncertainties": ["..."]
@@ -223,10 +254,15 @@ Return:
         selection = CandidateSelection.from_dict(
             self._call_json(SELECTION_INSTRUCTIONS, prompt)
         )
-        valid_ids = {x.id for x in hypotheses}
-        if selection.hypothesis_id not in valid_ids:
-            raise ValueError("selection references unknown hypothesis")
+        if selection.hypothesis_id is not None and selection.hypothesis_id not in eligible:
+            raise ValueError("selection must reference a critic-approved hypothesis")
         return selection
+
+    @staticmethod
+    def _eligible(critique: Critique) -> bool:
+        return (critique.recommendation == "advance_exploratory"
+                and not critique.fatal_flaws and not critique.required_revisions
+                and not critique.leakage_risks)
 
     def design_experiment(
         self,
@@ -235,6 +271,9 @@ Return:
         critiques: list[Critique],
         selection: CandidateSelection,
     ) -> ExperimentPlan:
+        matching = [x for x in critiques if x.hypothesis_id == selection.hypothesis_id]
+        if len(matching) != 1 or not self._eligible(matching[0]):
+            raise ValueError("experiment design requires critic approval")
         chosen = next(x for x in hypotheses if x.id == selection.hypothesis_id)
         critique = next(
             x for x in critiques if x.hypothesis_id == selection.hypothesis_id
@@ -311,6 +350,13 @@ Return:
         )
 
     def run(self, question_override: str | None = None) -> ResearchPacket:
+        self._snapshot = self.context.snapshot()
+        self._trace = []
+        implementation = []
+        for name in ("__init__.py", "reasoning.py", "context.py", "memory.py", "schemas.py",
+                     "provider.py", "prompts.py", "safe_io.py", "json_utils.py"):
+            data = read_local(Path(__file__).parent, name, max_bytes=256000)
+            implementation.append({"module": name, "sha256": hashlib.sha256(data).hexdigest()})
         question = self.frame_question(question_override)
         query = " ".join(
             [question.question, *question.theory_targets, *question.unknowns]
@@ -322,21 +368,20 @@ Return:
         hypotheses = self.generate_hypotheses(question, relevant_memory)
         critiques = self.critique(question, hypotheses, relevant_memory)
         selection = self.select(question, hypotheses, critiques)
-        experiment = self.design_experiment(
-            question,
-            hypotheses,
-            critiques,
-            selection,
-        )
-        review = self.integrity_review(
-            question=question,
-            hypotheses=hypotheses,
-            critiques=critiques,
-            selection=selection,
-            experiment=experiment,
-        )
+        experiment = None
+        review = None
+        status = "blocked_by_critic"
+        if selection.hypothesis_id is not None:
+            experiment = self.design_experiment(question, hypotheses, critiques, selection)
+            review = self.integrity_review(question=question, hypotheses=hypotheses,
+                                           critiques=critiques, selection=selection,
+                                           experiment=experiment)
+            status = {"reject": "rejected_by_integrity", "revise": "revision_required",
+                      "acceptable_exploratory": "candidate_reasoning"}[review.disposition]
+            if review.unsupported_claims or review.evidence_boundary_issues or review.required_changes:
+                status = "rejected_by_integrity" if review.disposition == "reject" else "revision_required"
         return ResearchPacket(
-            status="candidate_reasoning",
+            status=status,
             created_at=datetime.now(timezone.utc).isoformat(),
             question=question,
             relevant_memory=relevant_memory,
@@ -345,14 +390,45 @@ Return:
             selection=selection,
             experiment=experiment,
             integrity_review=review,
+            provenance={"implementation_sources": implementation,
+                        "source_commit": {"state": "unknown", "value": None},
+                        "context_sources": list(self._snapshot.sources),
+                        "config_sha256": self._snapshot.config_sha256,
+                        "memory_sources": self.memory.sources,
+                        "retrieval": {"method": "lexical-token-overlap-v1", "limit": self.memory_limit,
+                                      "query": query, "no_matches_means": "unknown_not_no_prior_failures"},
+                        "hypothesis_count": self.hypothesis_count,
+                        "provider": type(self.provider).__name__,
+                        "model": getattr(self.provider, "model", "scripted"),
+                        "reasoning_effort": getattr(self.provider, "reasoning_effort", None),
+                        "calls": list(self._trace),
+                        "review_independence": "logical_roles_only_not_independent_evaluation"},
         )
 
 
-def write_packet(packet: ResearchPacket, output: Path) -> Path:
-    output = Path(output)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    output.write_text(
-        json.dumps(packet.to_dict(), indent=2, sort_keys=True) + "\n",
-        encoding="utf-8",
-    )
+def write_packet(packet: ResearchPacket, output: Path | None = None, *, scientist_root: Path) -> Path:
+    """Create a new packet only in runs/. Never overwrite scientific history or controls."""
+    root = Path(scientist_root).absolute()
+    runs = local_path(root, "runs")
+    output = Path(output).absolute() if output is not None else runs / f"{packet.run_id}-research-packet.json"
+    if output.parent != runs or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*\.json", output.name):
+        raise ValueError("packets must be JSON files directly under scientist/runs")
+    local_path(root, "runs/" + output.name)
+    payload = json.dumps(packet.to_dict(), indent=2, sort_keys=True, allow_nan=False) + "\n"
+    with directory_fd(root) as root_fd:
+        try:
+            os.mkdir("runs", mode=0o700, dir_fd=root_fd)
+        except FileExistsError:
+            pass
+        runs_fd = os.open("runs", os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW, dir_fd=root_fd)
+        try:
+            # Exclusive create also refuses existing symlinks and hard links.
+            fd = os.open(output.name, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW,
+                         0o600, dir_fd=runs_fd)
+            with os.fdopen(fd, "w", encoding="utf-8") as handle:
+                handle.write(payload)
+                handle.flush()
+                os.fsync(handle.fileno())
+        finally:
+            os.close(runs_fd)
     return output

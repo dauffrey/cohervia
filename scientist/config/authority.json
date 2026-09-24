@@ -1,10 +1,8 @@
 {
-  "version": 2,
-  "default_mode": "reasoning",
+  "version": 1,
+  "default_mode": "foundation",
   "permissions": {
     "read_repository": true,
-    "invoke_reasoning_provider": true,
-    "external_literature_search": false,
     "write_research_branch": false,
     "open_pull_request": false,
     "push_main": false,
@@ -17,9 +15,8 @@
     "modify_sandbox_policy": false
   },
   "notes": [
-    "v0.2 permits calls to a configured reasoning-model provider using approved repository context.",
-    "Model output is candidate reasoning and never evidence by itself.",
-    "External literature retrieval, experiment execution, GitHub writes, and holdout access remain disabled.",
+    "v0.1 starts with local research-state management only.",
+    "External orchestration may later grant narrowly scoped branch and sandbox capabilities.",
     "No autonomous component may grant itself additional authority."
   ]
 }

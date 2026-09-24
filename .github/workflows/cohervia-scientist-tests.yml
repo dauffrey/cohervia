@@ -4,12 +4,17 @@ on:
   pull_request:
     paths:
       - "scientist/**"
+      - "docs/**"
+      - "*.md"
       - ".github/workflows/cohervia-scientist-tests.yml"
   push:
     branches:
       - "scientist/**"
+      - "main"
     paths:
       - "scientist/**"
+      - "docs/**"
+      - "*.md"
       - ".github/workflows/cohervia-scientist-tests.yml"
 
 permissions:
@@ -18,17 +23,27 @@ permissions:
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        python: ["3.11", "3.12", "3.13"]
     defaults:
       run:
         working-directory: scientist
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-      - name: Install
+          python-version: ${{ matrix.python }}
+      - name: Install offline core
         run: python -m pip install -e .
-      - name: Test
+      - name: Test (scripted and mocked providers; no API credentials)
         run: python -m unittest discover -s tests -v
       - name: CLI smoke test
         run: cohervia-scientist status
+      - name: Approved repository context smoke test
+        run: python -c "from pathlib import Path; from cohervia_scientist.context import RepositoryContext; s = RepositoryContext(Path('..').resolve(), Path('.').resolve()).snapshot(); assert len(s.sources) == 11; assert all(not x['truncated'] for x in s.sources)"
+      - name: Whitespace check
+        run: git diff --check

@@ -4,35 +4,33 @@ import json
 from typing import Any
 
 
-def parse_json_object(text: str) -> dict[str, Any]:
-    """Parse one JSON object from model output.
+def _unique(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError(f"duplicate JSON key: {key}")
+        result[key] = value
+    return result
 
-    The parser accepts a plain object or a fenced JSON block, but never evaluates
-    code and never attempts permissive Python-literal parsing.
-    """
+
+def _invalid_constant(value):
+    raise ValueError(f"non-finite JSON value: {value}")
+
+
+def parse_json_object(text: str) -> dict[str, Any]:
+    """Accept one object or a complete JSON fence; never salvage surrounding prose."""
+    if not isinstance(text, str) or len(text) > 100000:
+        raise ValueError("model response exceeds character budget or is not text")
     value = text.strip()
     if value.startswith("```"):
         lines = value.splitlines()
-        if lines and lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].strip() == "```":
-            lines = lines[:-1]
-        value = "\n".join(lines).strip()
-        if value.lower().startswith("json\n"):
-            value = value[5:].lstrip()
-
+        if len(lines) < 3 or lines[0] not in {"```", "```json"} or lines[-1] != "```":
+            raise ValueError("invalid JSON fence")
+        value = "\n".join(lines[1:-1])
     try:
-        parsed = json.loads(value)
-    except json.JSONDecodeError:
-        start = value.find("{")
-        end = value.rfind("}")
-        if start < 0 or end <= start:
-            raise ValueError("model response did not contain a JSON object")
-        try:
-            parsed = json.loads(value[start : end + 1])
-        except json.JSONDecodeError as exc:
-            raise ValueError("model response contained invalid JSON") from exc
-
+        parsed = json.loads(value, object_pairs_hook=_unique, parse_constant=_invalid_constant)
+    except (json.JSONDecodeError, RecursionError) as exc:
+        raise ValueError("model response contained invalid JSON") from exc
     if not isinstance(parsed, dict):
         raise ValueError("model response must be a JSON object")
     return parsed
