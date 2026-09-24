@@ -1,0 +1,224 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/dauffrey/cohervia/schemas/capability-emergence-assessment.schema.json",
+  "title": "CapabilityEmergenceConfigurationAssessment",
+  "description": "Configuration × task-family-stratum Cohervia assessment produced from capability Holdout A by the frozen capability evaluator. Positive labels are discrete-gate constrained; downstream selectors must independently recompute the numeric minimum-effect gates from the recorded values.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "record_type",
+    "assessment_id",
+    "experiment_id",
+    "configuration_id",
+    "timestamp",
+    "system_configuration_hash",
+    "capability_holdout_manifest_hash",
+    "capability_evaluator_hash",
+    "baseline_estimator_hash",
+    "comparator_definition_hash",
+    "task_family_id",
+    "capability_endpoint_id",
+    "n_target_trials",
+    "n_comparator_trials",
+    "baseline_prediction",
+    "mean_observed_value",
+    "delta_emergent",
+    "delta_min",
+    "lower_confidence_bound",
+    "uncertainty_procedure_hash",
+    "multiplicity_rule_hash",
+    "multiplicity_result",
+    "verifier_result",
+    "protocol_valid",
+    "emergence_classification",
+    "supporting_trial_observation_ids",
+    "supporting_comparator_observation_ids",
+    "provenance_hash"
+  ],
+  "properties": {
+    "record_type": {
+      "const": "configuration_emergence_assessment"
+    },
+    "assessment_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "experiment_id": {
+      "type": "string",
+      "pattern": "^COH-EXP-[0-9]{4}$"
+    },
+    "configuration_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "system_configuration_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capability_holdout_manifest_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capability_evaluator_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "baseline_estimator_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "comparator_definition_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "capability_endpoint_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "n_target_trials": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "n_comparator_trials": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "baseline_prediction": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "mean_observed_value": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "delta_emergent": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+    },
+    "delta_min": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "lower_confidence_bound": {
+      "type": "number",
+      "minimum": -1,
+      "maximum": 1
+    },
+    "uncertainty_procedure_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "multiplicity_rule_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "multiplicity_result": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail",
+        "not_applicable"
+      ]
+    },
+    "verifier_result": {
+      "type": "string",
+      "enum": [
+        "pass",
+        "fail",
+        "indeterminate"
+      ]
+    },
+    "protocol_valid": {
+      "type": "boolean"
+    },
+    "emergence_classification": {
+      "type": "string",
+      "enum": [
+        "positive",
+        "not_positive",
+        "invalid"
+      ]
+    },
+    "supporting_trial_observation_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "supporting_comparator_observation_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "provenance_hash": {
+      "type": "string",
+      "minLength": 1
+    },
+    "task_family_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "emergence_classification": {
+            "const": "positive"
+          }
+        },
+        "required": [
+          "emergence_classification"
+        ]
+      },
+      "then": {
+        "properties": {
+          "protocol_valid": {
+            "const": true
+          },
+          "verifier_result": {
+            "const": "pass"
+          },
+          "multiplicity_result": {
+            "enum": [
+              "pass",
+              "not_applicable"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "emergence_classification": {
+            "const": "invalid"
+          }
+        },
+        "required": [
+          "emergence_classification"
+        ]
+      },
+      "then": {
+        "properties": {
+          "protocol_valid": {
+            "const": false
+          }
+        }
+      }
+    }
+  ]
+}
