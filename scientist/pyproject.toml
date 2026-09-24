@@ -4,10 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "cohervia-scientist"
-version = "0.1.0"
-description = "Foundation scaffold for the Cohervia autonomous scientific research system"
+version = "0.2.0"
+description = "Bounded autonomous scientific reasoning scaffold for Cohervia"
 requires-python = ">=3.11"
 dependencies = []
+
+[project.optional-dependencies]
+openai = ["openai>=2.0.0,<3"]
 
 [project.scripts]
 cohervia-scientist = "cohervia_scientist.cli:main"
