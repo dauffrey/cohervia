@@ -13,7 +13,7 @@ This review is part of the implementation session, not an independent scientific
 | Failed samples omitted | Fixed order, all seven case results, explicit error counts | Interrupted/disk-failed runs can remain incomplete |
 | Malformed or partial output disappears | Save request before call and output before parsing; partial provider text carried into archive | Outputs above 1 MB are hash/length recorded but not fully preserved |
 | Transport messages leak credentials | Record error types without exception messages | Provider text itself must still be handled as potentially sensitive |
-| Archive summaries can diverge from packets | Verify hashes, trace bindings, case coverage, and recompute checks/counts | Hashes are not signatures; coordinated rewriting is not detectable without external custody |
+| Archive summaries can diverge from packets or misstate run identity | Bind summary mode/suite/rubric identity to the archived start/protocol; verify fixed protocol hashes, artifact hashes, trace bindings, case coverage, and recompute checks/counts | Hashes are not signatures; coordinated rewriting is not detectable without external custody |
 | Grading expectations leak into generation | Review focus/rubric excluded from role prompts | Public development suite can be learned or manually overfit |
 | One run or score unlocks execution | No aggregate grade, auto-qualification, or new authority | Further capability work requires a separate review |
 | Generalization overstated | Seven bounded topical probes with explicit scope | Neither broad research competence nor Cohervia effectiveness is established |

@@ -178,6 +178,21 @@ class QualificationTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError,'summary counts'):
             verify_archive(self.root,path.name)
 
+    def test_archive_binds_summary_mode_and_protocol_identity(self):
+        mutations = (
+            ('mode', 'live_candidate_reasoning', 'summary mode'),
+            ('suite_id', 'forged-suite', 'summary protocol identity'),
+            ('rubric_id', 'forged-rubric', 'summary protocol identity'),
+        )
+        for field, value, message in mutations:
+            with self.subTest(field=field):
+                path, _ = run_qualification(self.root)
+                report = json.loads(path.read_text())
+                report[field] = value
+                path.write_text(json.dumps(report))
+                with self.assertRaisesRegex(ValueError, message):
+                    verify_archive(self.root, path.name)
+
     def test_archive_detects_tampering_and_path_injection(self):
         path, report = run_qualification(self.root)
         first=self.root/'runs'/report['artifacts'][1]['file']

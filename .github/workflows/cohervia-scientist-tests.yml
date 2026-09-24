@@ -37,8 +37,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
-      - name: Install offline core
-        run: python -m pip install -e .
+      - name: Install core and optional OpenAI adapter dependency
+        run: python -m pip install -e ".[openai]"
       - name: Test (scripted and mocked providers; no API credentials)
         run: python -m unittest discover -s tests -v
       - name: CLI smoke test

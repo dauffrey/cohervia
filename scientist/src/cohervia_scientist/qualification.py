@@ -319,11 +319,34 @@ def verify_archive(scientist_root: Path, summary_name: str):
         return loaded[ref['file']]
 
     start = artifact(report['start'])
+    if (start.get('run_id') != run_id
+            or start.get('scientific_evidence') is not False
+            or start.get('execution_authorized') is not False):
+        raise ValueError('archived start record violates qualification boundaries')
+    if report.get('mode') != start.get('mode'):
+        raise ValueError('summary mode does not match archived start record')
+
     protocol = start['protocol']
-    for key in ('suite', 'rubric'):
+    for key, expected_hash in (('suite', SUITE_SHA256), ('rubric', RUBRIC_SHA256)):
         if digest(protocol[key + '_text'].encode()) != protocol[key + '_sha256']:
             raise ValueError('protocol snapshot hash mismatch')
-    cases = json.loads(protocol['suite_text'])['cases']
+        if protocol[key + '_sha256'] != expected_hash:
+            raise ValueError('archived protocol is not the fixed reviewed snapshot')
+
+    suite_snapshot = json.loads(protocol['suite_text'])
+    rubric_snapshot = json.loads(protocol['rubric_text'])
+    if (report.get('suite_id') != suite_snapshot.get('suite_id')
+            or report.get('rubric_id') != rubric_snapshot.get('rubric_id')):
+        raise ValueError('summary protocol identity does not match archived protocol')
+    if (start.get('case_order') != list(CASE_IDS)
+            or start.get('budget') != {'cases': 7, 'calls_per_case': 6, 'automatic_retries': 0}):
+        raise ValueError('archived start record has unexpected case order or budget')
+    if (start.get('mode') == 'live_candidate_reasoning' and not start.get('model')):
+        raise ValueError('live qualification start record requires an explicit model')
+    if (start.get('mode') == 'scripted_instrumentation' and start.get('model') is not None):
+        raise ValueError('scripted qualification start record must not declare a live model')
+
+    cases = suite_snapshot['cases']
     if [r['case_id'] for r in report['results']] != list(CASE_IDS):
         raise ValueError('qualification report must retain every case, including failures')
     if [case['id'] for case in cases] != list(CASE_IDS):

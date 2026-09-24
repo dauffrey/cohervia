@@ -81,7 +81,7 @@ Verify a saved run without making model calls:
 cohervia-scientist verify-qualification --summary qualification-RUN_ID-summary.json
 ```
 
-Verification checks artifact hashes, protocol snapshots, case coverage, call-trace hashes, and recomputed structural checks/counts. It does not authenticate authorship or independently establish truth. Keep archives outside the model's write authority after collection. CI preserves its scripted JSON artifacts with a finite retention period; the checked-in deterministic bundle preserves one reviewed instrumentation run.
+Verification checks artifact hashes, fixed reviewed protocol hashes, summary-to-start mode binding, summary-to-protocol suite/rubric identity, case coverage, call-trace hashes, and recomputed structural checks/counts. It does not authenticate authorship or independently establish truth. Keep archives outside the model's write authority after collection. CI preserves its scripted JSON artifacts with a finite retention period; the checked-in deterministic bundle preserves one reviewed instrumentation run.
 
 ## Authority and deployment
 
