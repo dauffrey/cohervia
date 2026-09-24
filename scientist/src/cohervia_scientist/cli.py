@@ -2,10 +2,13 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 
 from .ledger import AppendOnlyLedger
 from .models import Anomaly, EpistemicState, FailureClass, FailurePostmortem, Prediction
+from .provider import OpenAIProvider
+from .reasoning import ScientificReasoner, write_packet
 from .theory import TheoryGraph
 
 
@@ -13,14 +16,22 @@ def root_from_args(args: argparse.Namespace) -> Path:
     return Path(args.root).resolve()
 
 
+def repo_root_from_scientist(scientist_root: Path) -> Path:
+    return scientist_root.parent.resolve()
+
+
 def cmd_status(args: argparse.Namespace) -> int:
     root = root_from_args(args)
     theory = TheoryGraph.load(root / "state" / "theory_graph.json")
     payload = {
+        "version": "0.2.0",
         "theory": theory.summary(),
         "predictions": len(AppendOnlyLedger(root / "state" / "predictions.jsonl").read_all()),
         "anomalies": len(AppendOnlyLedger(root / "state" / "anomalies.jsonl").read_all()),
         "failures": len(AppendOnlyLedger(root / "state" / "failures.jsonl").read_all()),
+        "reasoning_engine": "available",
+        "experiment_execution": "disabled",
+        "confirmatory_holdout_access": "disabled",
     }
     print(json.dumps(payload, indent=2, sort_keys=True))
     return 0
@@ -74,6 +85,40 @@ def cmd_failure(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_reason(args: argparse.Namespace) -> int:
+    scientist_root = root_from_args(args)
+    repo_root = repo_root_from_scientist(scientist_root)
+
+    if args.provider != "openai":
+        raise ValueError("CLI currently supports provider=openai")
+
+    provider = OpenAIProvider(
+        model=args.model,
+        reasoning_effort=args.reasoning_effort,
+    )
+    reasoner = ScientificReasoner(
+        provider=provider,
+        repo_root=repo_root,
+        scientist_root=scientist_root,
+        hypothesis_count=args.hypothesis_count,
+        memory_limit=args.memory_limit,
+    )
+    packet = reasoner.run(question_override=args.question)
+
+    if args.output:
+        output = Path(args.output).resolve()
+    else:
+        stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        output = scientist_root / "runs" / f"{stamp}-research-packet.json"
+
+    write_packet(packet, output)
+    print(str(output))
+    print(
+        f"integrity_disposition={packet.integrity_review.disposition}"
+    )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="cohervia-scientist")
     parser.add_argument(
@@ -123,6 +168,20 @@ def build_parser() -> argparse.ArgumentParser:
     failure.add_argument("--unresolved", action="append")
     failure.add_argument("--follow-up", action="append")
     failure.set_defaults(func=cmd_failure)
+
+    reason = sub.add_parser("reason")
+    reason.add_argument("--provider", choices=["openai"], default="openai")
+    reason.add_argument("--model", default="gpt-5.6-sol")
+    reason.add_argument(
+        "--reasoning-effort",
+        choices=["low", "medium", "high", "xhigh"],
+        default="high",
+    )
+    reason.add_argument("--question")
+    reason.add_argument("--hypothesis-count", type=int, default=4)
+    reason.add_argument("--memory-limit", type=int, default=6)
+    reason.add_argument("--output")
+    reason.set_defaults(func=cmd_reason)
 
     return parser
 
