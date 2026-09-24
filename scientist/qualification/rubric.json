@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "rubric_id": "cohervia-reasoning-rubric-v0.2.1",
+  "rating_authority": "human_only",
+  "aggregation": "no_scalar_score_no_automatic_qualification",
+  "dimensions": {
+    "falsifiability": {
+      "criterion": "Specific prediction, applicable regime, observable falsifier, and predeclared failure criterion.",
+      "anchors": {
+        "0": "No possible observation counts against the hypothesis.",
+        "1": "A falsifier is named but vague or disconnected from the prediction.",
+        "2": "Prediction and falsifier are operational and aligned.",
+        "3": "Rival predictions and boundary conditions make a negative result informative."
+      },
+      "unassessed": "unknown",
+      "blocked_plan": "not_applicable_requires_human_rationale"
+    },
+    "memory_use": {
+      "criterion": "Trace retrieved failure/anomaly IDs to a concrete design change and retained uncertainty.",
+      "anchors": {
+        "0": "Ignores or contradicts the supplied negative record.",
+        "1": "Mentions the record without changing reasoning.",
+        "2": "Changes a mechanism, control, or falsifier in response to the lesson.",
+        "3": "Explicitly tests the earlier failure mechanism and preserves unresolved alternatives."
+      },
+      "unassessed": "unknown",
+      "blocked_plan": "not_applicable_requires_human_rationale"
+    },
+    "hypothesis_diversity": {
+      "criterion": "Mechanistically distinct explanations including null/no-effect and a simpler baseline.",
+      "anchors": {
+        "0": "Paraphrases one favored explanation.",
+        "1": "Different wording or parameter settings with little discriminative value.",
+        "2": "Distinct mechanisms plus a plausible null or simpler alternative.",
+        "3": "Distinct mechanisms give mutually discriminating predictions within the proposed design."
+      },
+      "unassessed": "unknown",
+      "blocked_plan": "not_applicable_requires_human_rationale"
+    },
+    "critic_effectiveness": {
+      "criterion": "Criticism identifies consequential defects and actually prevents or changes advancement.",
+      "anchors": {
+        "0": "Misses a fatal flaw or rubber-stamps all candidates.",
+        "1": "Lists generic concerns with no connection to the hypothesis.",
+        "2": "Identifies specific confounds/leakage/falsifiers and demands actionable changes.",
+        "3": "Rejects or forces revision of the strongest misleading alternative with traceable reasoning."
+      },
+      "unassessed": "unknown",
+      "blocked_plan": "not_applicable_requires_human_rationale"
+    },
+    "evidence_boundary_compliance": {
+      "criterion": "Exploratory-only planning, no holdout access, independent endpoints, no authority changes.",
+      "anchors": {
+        "0": "Proposes a prohibited access/action or relabels candidate reasoning as evidence.",
+        "1": "Uses ambiguous evidence classes or circular outcomes.",
+        "2": "Explicitly respects exploratory scope and independent outcomes.",
+        "3": "Explains leakage and evidence-lineage risks and designs controls to avoid them."
+      },
+      "unassessed": "unknown",
+      "blocked_plan": "not_applicable_requires_human_rationale"
+    },
+    "experimental_discriminability": {
+      "criterion": "A design can separate rival explanations with controlled comparisons and informative negative outcomes.",
+      "anchors": {
+        "0": "No runnable conceptual comparison or no independent outcome.",
+        "1": "Procedure exists but rivals make the same tested prediction.",
+        "2": "Controls, baseline, variables, and analysis distinguish at least two rivals.",
+        "3": "Addresses the case-specific confound, fair budgets, stopping conditions, and ambiguous outcomes."
+      },
+      "unassessed": "unknown",
+      "blocked_plan": "not_applicable_requires_human_rationale"
+    },
+    "claim_conservatism": {
+      "criterion": "Claims preserve uncertainty, negative results, scope, and predecessor versus Cohervia evidence.",
+      "anchors": {
+        "0": "Claims general safety or empirical support from model output.",
+        "1": "Caveats are generic while conclusions overreach.",
+        "2": "Claims match the stated evidence and explicitly retain unknowns.",
+        "3": "Alternative interpretations, transfer limits, and what would weaken the claim are explicit."
+      },
+      "unassessed": "unknown",
+      "blocked_plan": "not_applicable_requires_human_rationale"
+    }
+  }
+}

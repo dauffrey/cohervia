@@ -408,13 +408,19 @@ Return:
 
 def write_packet(packet: ResearchPacket, output: Path | None = None, *, scientist_root: Path) -> Path:
     """Create a new packet only in runs/. Never overwrite scientific history or controls."""
+    output = output or Path(scientist_root).absolute() / "runs" / f"{packet.run_id}-research-packet.json"
+    return write_artifact(packet.to_dict(), output, scientist_root=scientist_root)
+
+
+def write_artifact(payload: dict[str, Any], output: Path, *, scientist_root: Path) -> Path:
+    """Exclusive JSON artifact sink shared by reasoning and qualification."""
     root = Path(scientist_root).absolute()
     runs = local_path(root, "runs")
-    output = Path(output).absolute() if output is not None else runs / f"{packet.run_id}-research-packet.json"
+    output = Path(output).absolute()
     if output.parent != runs or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._-]*\.json", output.name):
         raise ValueError("packets must be JSON files directly under scientist/runs")
     local_path(root, "runs/" + output.name)
-    payload = json.dumps(packet.to_dict(), indent=2, sort_keys=True, allow_nan=False) + "\n"
+    payload = json.dumps(payload, indent=2, sort_keys=True, allow_nan=False) + "\n"
     with directory_fd(root) as root_fd:
         try:
             os.mkdir("runs", mode=0o700, dir_fd=root_fd)
