@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "theory_version": "0.1-foundation",
+  "status": "candidate",
+  "nodes": [
+    {"id": "disturbance", "label": "Disturbance load", "evidence_status": "supported_controlled_synthetic"},
+    {"id": "reserve", "label": "Operational reserve", "evidence_status": "supported_controlled_synthetic"},
+    {"id": "recovery", "label": "Recovery", "evidence_status": "supported_controlled_synthetic"},
+    {"id": "margin", "label": "Viability margin", "evidence_status": "supported_controlled_synthetic"},
+    {"id": "trajectory", "label": "Viability trajectory", "evidence_status": "candidate_hypothesis"},
+    {"id": "uncertainty", "label": "Uncertainty and evidence quality", "evidence_status": "candidate_hypothesis"},
+    {"id": "hazard", "label": "Accumulated trajectory hazard", "evidence_status": "candidate_hypothesis"},
+    {"id": "governor_signal", "label": "Governor signal", "evidence_status": "candidate_hypothesis"},
+    {"id": "authority", "label": "Authority decision", "evidence_status": "architectural_constraint"},
+    {"id": "enforcement", "label": "Deterministic permission enforcement", "evidence_status": "architectural_constraint"}
+  ],
+  "edges": [
+    {"from": "disturbance", "to": "reserve", "status": "candidate_relation"},
+    {"from": "reserve", "to": "margin", "status": "candidate_relation"},
+    {"from": "recovery", "to": "margin", "status": "candidate_relation"},
+    {"from": "margin", "to": "trajectory", "status": "candidate_relation"},
+    {"from": "trajectory", "to": "hazard", "status": "unknown"},
+    {"from": "uncertainty", "to": "governor_signal", "status": "candidate_relation"},
+    {"from": "hazard", "to": "governor_signal", "status": "candidate_relation"},
+    {"from": "governor_signal", "to": "authority", "status": "architectural_relation"},
+    {"from": "authority", "to": "enforcement", "status": "architectural_relation"}
+  ],
+  "limitations": [
+    "This graph is a research starting point, not a validated causal model.",
+    "Predecessor evidence is not automatically Cohervia evidence.",
+    "Real-agent generalization is not established."
+  ]
+}
