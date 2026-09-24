@@ -10,6 +10,14 @@ class ReasoningProvider(Protocol):
         """Return model text for one bounded reasoning role."""
 
 
+class ProviderResponseError(RuntimeError):
+    """Bounded returned text is available for qualification archives even on rejection."""
+    def __init__(self, message: str, *, output_text: str | None, response_status: str):
+        super().__init__(message)
+        self.output_text = output_text
+        self.response_status = response_status
+
+
 @dataclass
 class OpenAIProvider:
     model: str
@@ -38,14 +46,20 @@ class OpenAIProvider:
             store=False,
             max_output_tokens=8000,
         )
-        if getattr(response, "status", None) != "completed":
-            raise RuntimeError("reasoning provider response did not complete")
+        text = getattr(response, "output_text", None)
+        if not isinstance(text, str):
+            text = None
+        status = getattr(response, "status", "unknown")
+        if status != "completed":
+            raise ProviderResponseError("reasoning provider response did not complete",
+                                        output_text=text, response_status=str(status))
         if any(getattr(item, "type", "") not in {"message", "reasoning"}
                for item in getattr(response, "output", [])):
-            raise RuntimeError("reasoning provider returned an unexpected tool output")
-        text = getattr(response, "output_text", None)
+            raise ProviderResponseError("reasoning provider returned an unexpected tool output",
+                                        output_text=text, response_status="unexpected_tool_output")
         if not text:
-            raise RuntimeError("reasoning provider returned no text output")
+            raise ProviderResponseError("reasoning provider returned no text output",
+                                        output_text=text, response_status="missing_text")
         return str(text)
 
 

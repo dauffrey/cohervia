@@ -23,7 +23,7 @@ def cmd_status(args: argparse.Namespace) -> int:
     root = root_from_args(args)
     theory = TheoryGraph.load(root / "state" / "theory_graph.json")
     payload = {
-        "version": "0.2.0",
+        "version": "0.2.1",
         "theory": theory.summary(),
         "predictions": len(AppendOnlyLedger(root / "state" / "predictions.jsonl").read_all()),
         "anomalies": len(AppendOnlyLedger(root / "state" / "anomalies.jsonl").read_all()),
@@ -111,6 +111,24 @@ def cmd_reason(args: argparse.Namespace) -> int:
     return 0 if packet.status == "candidate_reasoning" else 2
 
 
+def cmd_qualify(args: argparse.Namespace) -> int:
+    from .qualification import run_qualification
+    if args.provider == "openai" and not args.model:
+        raise ValueError("live qualification requires an explicit --model")
+    if args.provider == "scripted" and args.model:
+        raise ValueError("--model is only valid with --provider openai")
+    path, report = run_qualification(root_from_args(args), model=args.model)
+    print(path)
+    print(f"mode={report['mode']} qualification=pending_human_review")
+    return 2 if report['pipeline_error_count'] or report['structural_failure_count'] else 0
+
+
+def cmd_verify_qualification(args: argparse.Namespace) -> int:
+    from .qualification import verify_archive
+    print(json.dumps(verify_archive(root_from_args(args), args.summary), indent=2))
+    return 0
+
+
 def bounded_integer(minimum: int, maximum: int):
     def parse(value: str) -> int:
         try:
@@ -186,6 +204,15 @@ def build_parser() -> argparse.ArgumentParser:
     reason.add_argument("--memory-limit", type=bounded_integer(1, 20), default=6)
     reason.add_argument("--output")
     reason.set_defaults(func=cmd_reason)
+
+    qualify = sub.add_parser("qualify", help="run fixed development qualification probes, no experiments")
+    qualify.add_argument("--provider", choices=["scripted", "openai"], default="scripted")
+    qualify.add_argument("--model", help="explicit API model identifier; live calls only")
+    qualify.set_defaults(func=cmd_qualify)
+
+    verify = sub.add_parser("verify-qualification", help="verify an archived run without provider calls")
+    verify.add_argument("--summary", required=True, help="summary filename under scientist/runs")
+    verify.set_defaults(func=cmd_verify_qualification)
 
     return parser
 

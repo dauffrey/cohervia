@@ -47,3 +47,15 @@ jobs:
         run: python -c "from pathlib import Path; from cohervia_scientist.context import RepositoryContext; s = RepositoryContext(Path('..').resolve(), Path('.').resolve()).snapshot(); assert len(s.sources) == 11; assert all(not x['truncated'] for x in s.sources)"
       - name: Whitespace check
         run: git diff --check
+      - name: Scripted qualification and archive verification
+        run: |
+          cohervia-scientist qualify
+          python -c "from pathlib import Path; from cohervia_scientist.qualification import verify_archive; root=Path('.').resolve(); files=list((root/'runs').glob('qualification-*-summary.json')); assert len(files)==1; print(verify_archive(root,files[0].name))"
+      - name: Preserve qualification instrumentation artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qualification-python-${{ matrix.python }}
+          path: scientist/runs/qualification-*.json
+          if-no-files-found: error
+          retention-days: 90

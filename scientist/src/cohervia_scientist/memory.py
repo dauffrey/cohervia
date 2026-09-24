@@ -30,14 +30,17 @@ class ScientificMemory:
         self.root = Path(scientist_root).absolute()
         self.sources: list[dict[str, str]] = []
 
+    def _read_sources(self):
+        for kind in ("failure", "anomaly"):
+            relative = "state/" + ("failures.jsonl" if kind == "failure" else "anomalies.jsonl")
+            yield kind, relative, read_local(self.root, relative, max_bytes=2_000_000)
+
     def relevant(self, query: str, limit: int = 6) -> list[dict[str, Any]]:
         validate_memory_limit(limit)
         query_tokens = _tokens(query)
         candidates = []
         self.sources = []
-        for kind in ("failure", "anomaly"):
-            relative = "state/" + ("failures.jsonl" if kind == "failure" else "anomalies.jsonl")
-            data = read_local(self.root, relative, max_bytes=2_000_000)
+        for kind, relative, data in self._read_sources():
             self.sources.append({"path": "scientist/" + relative,
                                  "sha256": hashlib.sha256(data).hexdigest()})
             for line_number, line in enumerate(data.splitlines(), 1):

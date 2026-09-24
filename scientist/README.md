@@ -74,6 +74,12 @@ v0.2 has:
 
 Model output is treated as **candidate reasoning**, not evidence.
 
+## v0.2.1 reasoning qualification
+
+The [qualification protocol](qualification/PROTOCOL.md) defines seven fixed Cohervia questions, controlled failure/anomaly stimuli, seven human-reviewed quality dimensions, and separate deterministic contract checks. Run `cohervia-scientist qualify` for an offline scripted instrumentation pass. Requests, raw outputs, packets, errors, and evaluation provenance are archived under `runs/`. All scientific-quality ratings remain unknown until human review; a completed scripted run does not qualify the model or authorize experiments.
+
+See the [design critique](qualification/DESIGN_REVIEW.md) for limitations and adversarial coverage.
+
 ## Planned progression
 
 1. Foundation and invariants. **Complete in v0.1.**
