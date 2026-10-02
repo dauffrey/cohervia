@@ -102,3 +102,9 @@ Uncertainty should be maintained as an explicit variable rather than treated as 
 The current intended deployment posture is shadow-mode-first. In this posture, the governor evaluates trajectories and emits advisory state without acting as the final authority. Only after controlled evidence and explicit review should intervention logic be advanced beyond observation and audit.
 
 This architecture is foundational, not a claim of production readiness.
+
+## Current implementation boundary
+
+The governor layers above describe the research target. Scientist v0.2.1 implements bounded proposal/critique reasoning and separate scientific-reasoning qualification; it executes no experiment. The development apparatus is a separate scripted fixture package, not a Scientist tool or production governor. The proposed observation core and independent evaluator/external-authority services remain unimplemented.
+
+See [Scientist/capability boundaries](../research/SCIENTIST_CAPABILITY_BOUNDARY.md), [migration contracts](../contracts/OBSERVATION_CONTRACT.md), and [integration plan](../implementation/RECONCILIATION.md).

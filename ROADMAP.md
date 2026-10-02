@@ -2,6 +2,8 @@
 
 The roadmap below is intentionally staged and does not imply completed evidence. Each phase has explicit exit criteria.
 
+Current implementation: Scientist v0.2.1 proposal-only reasoning and qualification instrumentation are implemented. The separate scripted apparatus tests development plumbing. Neither completes Phase 2, qualifies scientific reasoning automatically, or produces COH-EXP-0001 evidence. Phase 1 contracts are proposed in this reconciliation PR; Phases 2–6 remain deferred or gated. See [integration plan and human decisions](docs/implementation/RECONCILIATION.md).
+
 ## Phase 0: canonical foundation and provenance
 
 Purpose: establish the project identity, lineage record, and scientific guardrails.
@@ -31,7 +33,7 @@ Exit criteria:
 
 - explicit observation states are available and documented;
 - provenance and artifact hashing are part of the core record;
-- audit trails exist for telemetry, configuration, and decisions; 
+- audit trails exist for telemetry, configuration, and decisions;
 - missing evidence is retained as missing rather than silently converted.
 
 ## Phase 3: shadow-mode governor and baseline evaluation
@@ -74,3 +76,9 @@ Exit criteria:
 - intervention policy remains separately evaluated from deterministic enforcement;
 - graduated outcomes are recorded as research products, not validated safe thresholds;
 - the results remain bounded by their preregistered scope and evidence.
+
+## Parallel research tracks
+
+[COH-EXP-0001](experiments/COH-EXP-0001/README.md) is a proposed capability-emergence/transfer/governance design, not a completed Phase 4 study. It preserves separate sealed A/B/C holdouts and independent endpoints. Exact statistical choices, external containment, evaluator independence, artifact custody and explicit authorization remain blockers. No confirmatory execution is enabled.
+
+[Scientist qualification](scientist/qualification/PROTOCOL.md) tests reasoning instrumentation separately from capability research. Human semantic review remains pending; future live candidate-model qualification must be explicitly selected and cannot yield empirical experiment evidence. The existing Scientist read/tool/authority boundary remains unchanged.

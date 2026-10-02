@@ -5,15 +5,26 @@ on:
     paths:
       - "scientist/**"
       - "docs/**"
+      - "harness/**"
+      - "schemas/**"
+      - "experiments/**"
+      - "tests/**"
+      - ".github/workflows/reconciliation-tests.yml"
       - "*.md"
       - ".github/workflows/cohervia-scientist-tests.yml"
   push:
     branches:
       - "scientist/**"
+      - "integration/**"
       - "main"
     paths:
       - "scientist/**"
       - "docs/**"
+      - "harness/**"
+      - "schemas/**"
+      - "experiments/**"
+      - "tests/**"
+      - ".github/workflows/reconciliation-tests.yml"
       - "*.md"
       - ".github/workflows/cohervia-scientist-tests.yml"
 
