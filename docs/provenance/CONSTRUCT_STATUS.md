@@ -35,3 +35,15 @@ This table is intentionally conservative. Every status entry should be traceable
 - not established: no valid evidence or inference currently supports it for the intended general claim.
 
 The status labels above are intentionally conservative and should be treated as evidence-limited commitments rather than platform-wide endorsements.
+
+## Cohervia implementation status after reconciliation
+
+| Item | Implemented / designed | Evidence status |
+| --- | --- | --- |
+| Scientist v0.2.1 reasoning and bounded research artifacts | implemented infrastructure | Candidate proposals, not empirical findings |
+| Fixed qualification suite and archived scripted run | implemented instrumentation | Human quality ratings unknown; no competence or safety claim |
+| Proposed migration contracts and inventory | design interfaces | Not implemented observation core or validated estimators |
+| Capability-emergence and transfer constructs | proposed research hypotheses | COH-EXP-0001 unfrozen and not executed |
+| Separate scripted development apparatus | implemented instrumentation | No capability, transfer, governance or real-agent evidence |
+
+These entries do not change any predecessor outcome above. [Reconciliation audit](../implementation/RECONCILIATION.md) and [ownership mapping](../research/SCIENTIST_CAPABILITY_BOUNDARY.md) define current limitations.

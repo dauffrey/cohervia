@@ -1,0 +1,42 @@
+name: Reconciliation apparatus and boundaries
+on:
+  pull_request:
+  push:
+    branches: [main, 'integration/**']
+permissions:
+  contents: read
+jobs:
+  apparatus:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install separate apparatus package
+        run: python -m pip install -e ./harness
+      - name: Apparatus tests (fabricated records and public scripted fixtures only)
+        run: python -m unittest discover -s harness/tests -v
+      - name: Mainline boundary and documentation checks
+        run: python -m unittest discover -s tests -v
+      - name: Preserve scripted fixture output and source identities
+        run: |
+          mkdir -p instrumentation-artifacts
+          cohervia-harness --self-test > instrumentation-artifacts/apparatus.jsonl
+          python -c "import json; from pathlib import Path; from cohervia_harness.archive import verify_trial_archive; rows=[json.loads(line) for line in Path('instrumentation-artifacts/apparatus.jsonl').read_text().splitlines()]; assert len(rows)==2; print([verify_trial_archive(row) for row in rows])"
+          git rev-parse HEAD > instrumentation-artifacts/source-commit.txt
+          git ls-files harness schemas experiments/COH-EXP-0001 docs/implementation/RECONCILIATION_BASELINE.json | xargs sha256sum > instrumentation-artifacts/source-sha256.txt
+          git diff --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: apparatus-python-${{ matrix.python }}
+          path: instrumentation-artifacts/
+          if-no-files-found: error
+          retention-days: 90

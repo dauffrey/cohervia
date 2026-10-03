@@ -16,3 +16,7 @@ Cohervia reserves a new experimental namespace:
 ## Research posture
 
 The project does not treat predecessor experiments as direct evidence of Cohervia performance. Instead, they serve as lineage, methodology, and bounded prior context. New Cohervia evidence must be collected under new preregistration, frozen implementation, and traceable artifact records.
+
+## Proposed capability track
+
+[COH-EXP-0001](COH-EXP-0001/README.md) is proposed, unfrozen and not executed. It separates capability discovery (A), independent capability transfer (B), and governance evaluation (C), with blind holdouts and external authority. [Scripted apparatus](../harness/README.md) self-tests are instrumentation and cannot execute this study. [Scientist mapping](../docs/research/SCIENTIST_CAPABILITY_BOUNDARY.md) separates proposals, qualification, evaluator evidence and promotion. No new scientific evidence is recorded.
