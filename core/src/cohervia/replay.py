@@ -48,6 +48,8 @@ def replay(events, observations, context, inputs, *, checkpoint=None):
     Rejected raw submissions are deliberately absent: replay checks their disposition
     schema and chain, not the truth of diagnostic claims or recorder authenticity.
     """
+    if type(events) is not list or type(observations) is not dict:
+        raise ReplayError("events must be a JSON array and observations an ID map")
     state = ObservationState()
     previous = None
     event_ids = set()

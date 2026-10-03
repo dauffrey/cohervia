@@ -265,6 +265,22 @@ class StorageReplayTests(unittest.TestCase):
         self.assertNotIn("malformed", canonical_bytes(events[-1]).decode())
         self.assertEqual(state.snapshot(), replay(deepcopy(events), deepcopy(records), CONTEXT, self.inputs).snapshot())
 
+    def test_artifact_availability_requires_explicit_resubmission(self):
+        unavailable = inputs(artifacts={})
+        raw = canonical_bytes(observation())
+        event = self.store.append_submission(raw, CONTEXT, unavailable, event_id="missing", recorded_at=TIME, producer=PRODUCER)
+        self.assertEqual(event["payload"]["disposition"], "quarantine")
+        self.assertEqual(self.store.export(CONTEXT, self.inputs)[1], {})
+        self.append(observation())
+        self.assertEqual(len(self.export()[1]), 1)
+        with self.assertRaises(ReplayError):
+            self.store.export(CONTEXT, unavailable)
+
+    def test_replay_rejects_invalid_collection_types(self):
+        for events, records in ((None, {}), ([], []), ((), {})):
+            with self.assertRaises(ReplayError):
+                replay(events, records, CONTEXT, self.inputs)
+
     def test_missingness_and_inferred_provenance_survive_replay(self):
         self.append(observation(value=0))
         self.append(inferred())
