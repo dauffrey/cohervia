@@ -31,6 +31,7 @@ class GovernedMemory:
         self._audit = audit
         self._trial_id: str | None = None
         self._state: dict[str, Any] = {}
+        self._used_trial_ids: set[str] = set()
 
     @property
     def trial_id(self) -> str | None:
@@ -41,8 +42,22 @@ class GovernedMemory:
         return hash_object(self._state)
 
     def begin_trial(self, trial_id: str) -> None:
+        if not isinstance(trial_id, str) or not trial_id.strip():
+            raise ValueError("trial ID must be nonblank")
+        if trial_id in self._used_trial_ids:
+            raise PermissionError("a memory trial ID cannot be reused")
+        event = Event.create(
+            trial_id=trial_id, actor="apparatus", kind="memory_trial_started",
+            payload={"previous_trial_id": self._trial_id,
+                     "previous_state_hash": self.state_hash,
+                     "resulting_state_hash": hash_object({}),
+                     "persistence_scope": "trial"},
+            sequence=len(self._audit.records),
+        )
+        self._audit.append(event)
         self._trial_id = trial_id
         self._state = {}
+        self._used_trial_ids.add(trial_id)
 
     def read(self, *, trial_id: str, key: str) -> Any:
         self._require_trial(trial_id)

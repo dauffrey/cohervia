@@ -46,3 +46,7 @@ The 16-cell factor matrix, baseline/transfer estimators, real tool/memory compos
 Preserve Yellow-tier containment, independent evaluators, same-partition lower-order comparators, A→B→C task-instance separation, two-family replication of the same frozen configuration, topology-matched sham controls, pre-terminal feature masks, matched false-alarm budgets and fixed sample/stopping rules. Keep A/B/C inputs, outcomes and reconstructive metadata inaccessible in all development/testing. Known public fixtures never become holdouts.
 
 Changes after any holdout exposure invalidate the sequence and require a new eligible preregistration/holdout set. Hashes and test passes do not override these requirements. No safety, production-governor, real-agent, capability-emergence or scientific-competence finding follows from this integration.
+
+## Technical review corrections
+
+Scripted apparatus archives now bind saved task/configuration/answer bytes through audited hashes and provide a complete-archive verifier. Memory initialization/reset is audited; previously used trial IDs are rejected. Numeric integrity checks cover affirmative, negative and invalid assessment labels while preserving null unavailable estimates. These corrections do not supply a statistical design, independent evaluator, execution authority or new scientific evidence.

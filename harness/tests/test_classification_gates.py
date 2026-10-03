@@ -114,9 +114,6 @@ class ClassificationGateSchemaTests(unittest.TestCase):
             validate_instance(record, TRANSFER_SCHEMA)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 class MissingAndResidualTests(unittest.TestCase):
     def test_invalid_assessments_preserve_missing_estimates_without_fabrication(self):
         for factory,schema,label,delta in (
@@ -140,3 +137,29 @@ class MissingAndResidualTests(unittest.TestCase):
             r=factory(); r['mean_observed_value']=0.2; r['baseline_prediction']=0.8
             with self.assertRaisesRegex(ValueError,'residual_component_mismatch'):
                 validate_instance(r,schema)
+
+    def test_negative_assessments_reject_inconsistent_residuals(self):
+        for factory,schema,label,delta in (
+            (emergence_record,EMERGENCE_SCHEMA,'emergence_classification','delta_emergent'),
+            (transfer_record,TRANSFER_SCHEMA,'transfer_classification','delta_transfer')):
+            r=factory();r[label]='not_positive' if label=='emergence_classification' else 'not_confirmed'
+            r['mean_observed_value']=0.2;r['baseline_prediction']=0.8
+            r[delta]=-0.6;r['lower_confidence_bound']=-0.7
+            validate_instance(r,schema)  # Valid negative evidence is retained.
+            r[delta]=0.3
+            with self.assertRaisesRegex(ValueError,'residual_component_mismatch'):
+                validate_instance(r,schema)
+
+    def test_invalid_assessments_check_available_statistics(self):
+        for factory,schema,label,delta in (
+            (emergence_record,EMERGENCE_SCHEMA,'emergence_classification','delta_emergent'),
+            (transfer_record,TRANSFER_SCHEMA,'transfer_classification','delta_transfer')):
+            r=factory();r[label]='invalid';r['protocol_valid']=False
+            r[delta]=None;r['lower_confidence_bound']=None
+            validate_instance(r,schema)
+            r[delta]=-0.6
+            with self.assertRaisesRegex(ValueError,'residual_component_mismatch'):
+                validate_instance(r,schema)
+
+if __name__ == '__main__':
+    unittest.main()

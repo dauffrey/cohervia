@@ -29,6 +29,7 @@ jobs:
         run: |
           mkdir -p instrumentation-artifacts
           cohervia-harness --self-test > instrumentation-artifacts/apparatus.jsonl
+          python -c "import json; from pathlib import Path; from cohervia_harness.archive import verify_trial_archive; rows=[json.loads(line) for line in Path('instrumentation-artifacts/apparatus.jsonl').read_text().splitlines()]; assert len(rows)==2; print([verify_trial_archive(row) for row in rows])"
           git rev-parse HEAD > instrumentation-artifacts/source-commit.txt
           git ls-files harness schemas experiments/COH-EXP-0001 docs/implementation/RECONCILIATION_BASELINE.json | xargs sha256sum > instrumentation-artifacts/source-sha256.txt
           git diff --check

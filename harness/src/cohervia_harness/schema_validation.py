@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 from typing import Any
 from .canonical import canonical_json
-from .selectors import recompute_emergence_gate, recompute_transfer_gate
+from .selectors import recompute_emergence_gate, recompute_transfer_gate, validate_estimate_statistics
 
 from jsonschema import Draft202012Validator
 
@@ -23,6 +23,13 @@ def validate_instance(instance: dict[str, Any], schema_path: str | Path) -> None
         joined = "; ".join(error.message for error in errors)
         raise ValueError(joined)
     stage = instance.get("record_type")
+    if stage in ("configuration_emergence_assessment", "configuration_transfer_assessment"):
+        transfer = stage == "configuration_transfer_assessment"
+        label_key = "transfer_classification" if transfer else "emergence_classification"
+        statistics = validate_estimate_statistics(instance, transfer=transfer,
+                                                 allow_missing=instance[label_key] == "invalid")
+        if not statistics.passed:
+            raise ValueError("; ".join(statistics.reasons))
     if stage == "configuration_emergence_assessment" and instance.get("emergence_classification") == "positive":
         gate = recompute_emergence_gate(instance)
         if not gate.passed:

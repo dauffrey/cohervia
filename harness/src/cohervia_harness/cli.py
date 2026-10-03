@@ -5,6 +5,7 @@ import json
 from dataclasses import asdict
 
 from .agent import ScriptedDevelopmentAgent
+from .archive import verify_trial_archive
 from .canonical import hash_object
 from .models import Partition, TrialConfig
 from .observer import InstrumentationObserver, ObserverConfig
@@ -48,7 +49,9 @@ def main() -> int:
             model_identity=agent.identity,
         )
         result = runner.run(config=config, task=task, agent=agent)
-        print(json.dumps(asdict(result), sort_keys=True, allow_nan=False))
+        archive = asdict(result)
+        verify_trial_archive(archive)
+        print(json.dumps(archive, sort_keys=True, allow_nan=False))
     return 0
 
 

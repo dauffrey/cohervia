@@ -19,3 +19,11 @@ The runner accepts only the reviewed scripted fixture classes and public task re
 Defensive snapshots protect in-memory audit and memory interfaces from caller alias mutation. Memory writes commit state after successful audit append and record trial persistence scope. Memory is not wired into the scripted agent; no memory-factor effect is tested. The log is not persistent/WORM, does not meet the proposed JCS observation/audit contract, and cannot prove complete historical custody. Do not use this package as a live-agent sandbox.
 
 See [Scientist boundary](../docs/research/SCIENTIST_CAPABILITY_BOUNDARY.md), [reconciliation audit](../docs/implementation/RECONCILIATION.md), and [proposed experiment](../experiments/COH-EXP-0001/README.md). Human review, exact scientific design, independent containment/evaluation and external authority remain mandatory before any future experiment.
+
+## Archive and state integrity checks
+
+The start event binds the exact saved task (including prompt and expected answer) and trial configuration; the answer event binds the saved actual answer. `verify_trial_archive(archive)` verifies the in-memory archive's chain, event IDs/order/count, task/configuration/answer hashes, trial identity, verifier result and instrumentation-only status. CLI self-tests verify before emitting JSON, and CI verifies the saved JSON again. Missing, modified or partial/paused archives cannot be reported as verified complete runs. This is an integrity check, not an execution permission or custody/authenticity proof; coordinated rewriting still requires an externally retained checkpoint to detect.
+
+Memory trial IDs cannot be reused within a memory instance, including after another trial begins. Initialization/reset events bind previous trial/state and resulting empty-state hashes with trial persistence scope. A failed audit append leaves memory and its trial identity unchanged.
+
+Arithmetic consistency checks apply to positive, negative and invalid assessments. Null unavailable estimates remain permitted only on invalid records; every available numeric value is checked, and a residual is recomputed whenever both components and the residual are available. No negative result is rejected solely for failing the affirmative effect threshold.

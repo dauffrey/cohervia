@@ -19,6 +19,31 @@ def _finite(value: object) -> bool:
         return False
 
 
+def validate_estimate_statistics(record: Mapping[str, Any], *, transfer: bool, allow_missing: bool = False) -> GateResult:
+    """Check arithmetic regardless of the scientific classification label."""
+    reasons: list[str] = []
+    delta_key = "delta_transfer" if transfer else "delta_emergent"
+    minimum_key = "transfer_delta_min" if transfer else "delta_min"
+    delta, minimum, lower = (record.get(k) for k in (delta_key, minimum_key, "lower_confidence_bound"))
+    mean, baseline = (record.get(k) for k in ("mean_observed_value", "baseline_prediction"))
+    numeric = {delta_key: delta, minimum_key: minimum, "lower_confidence_bound": lower,
+               "mean_observed_value": mean, "baseline_prediction": baseline}
+    for key, value in numeric.items():
+        if allow_missing and value is None and key != minimum_key:
+            continue
+        if not _finite(value):
+            reasons.append("invalid_numeric:" + key)
+        elif not (-1 <= value <= 1 if key in (delta_key, "lower_confidence_bound") else 0 <= value <= 1):
+            reasons.append("out_of_range:" + key)
+    if all(_finite(x) for x in (delta, mean, baseline)):
+        # Frozen draft serialization tolerance; does not estimate uncertainty.
+        if not math.isclose(delta, mean - baseline, rel_tol=0, abs_tol=1e-12):
+            reasons.append("residual_component_mismatch")
+    if _finite(lower) and _finite(delta) and lower > delta:
+        reasons.append("lower_bound_above_estimate")
+    return GateResult(not reasons, tuple(reasons))
+
+
 def _gate(record: Mapping[str, Any], *, transfer: bool) -> GateResult:
     reasons: list[str] = []
     delta_key = "delta_transfer" if transfer else "delta_emergent"
@@ -44,25 +69,12 @@ def _gate(record: Mapping[str, Any], *, transfer: bool) -> GateResult:
                 or not all(isinstance(x, str) and x for x in refs)
                 or len(refs) != len(set(refs))):
             reasons.append("invalid_supporting_refs:" + key)
+    reasons.extend(validate_estimate_statistics(record, transfer=transfer).reasons)
     delta, minimum, lower = (record.get(k) for k in (delta_key, minimum_key, "lower_confidence_bound"))
-    mean, baseline = (record.get(k) for k in ("mean_observed_value", "baseline_prediction"))
-    numeric = {delta_key: delta, minimum_key: minimum, "lower_confidence_bound": lower,
-               "mean_observed_value": mean, "baseline_prediction": baseline}
-    for key, value in numeric.items():
-        if not _finite(value):
-            reasons.append("invalid_numeric:" + key)
-        elif not (-1 <= value <= 1 if key in (delta_key, "lower_confidence_bound") else 0 <= value <= 1):
-            reasons.append("out_of_range:" + key)
-    if all(_finite(x) for x in (delta, mean, baseline)):
-        # Frozen draft serialization tolerance; does not estimate uncertainty.
-        if not math.isclose(delta, mean - baseline, rel_tol=0, abs_tol=1e-12):
-            reasons.append("residual_component_mismatch")
     if _finite(delta) and _finite(minimum) and delta < minimum:
         reasons.append("delta_below_minimum")
     if _finite(lower) and _finite(minimum) and lower < minimum:
         reasons.append("lower_bound_below_minimum")
-    if _finite(lower) and _finite(delta) and lower > delta:
-        reasons.append("lower_bound_above_estimate")
     if record.get(label_key) != label:
         reasons.append("classification_not_" + label)
     return GateResult(not reasons, tuple(reasons))

@@ -52,3 +52,7 @@ Existing GitHub main CI run `35950748228` passed at the audited main. PR #2 has 
 - Implement the minimal observation core separately, including pinned JCS conformance, atomic local storage, deterministic dispositions and replay; then review it against the preserved contract matrix.
 
 No confirmatory holdout inputs, outcomes or reconstruction metadata were inspected. No model provider was called. Unit tests, public scripted qualification and apparatus self-tests are instrumentation, not new scientific evidence.
+
+## Pre-merge technical review corrections
+
+Three self-review findings were corrected on PR #8: archived IO/configuration is now bound to audit events and verified on output/re-read; memory resets are audited and trial-ID reuse is denied; available statistics are checked independently of positive/negative/invalid classification. Regressions cover archive mutation, missing events, permission/evidence relabeling, memory reset audit failure/rollback, reused IDs, valid negative estimates, inconsistent negative residuals and invalid-record missingness. Statistical plans and independent evaluator infrastructure remain deferred; no confirmatory execution is added.

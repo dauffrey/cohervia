@@ -3,6 +3,7 @@ from dataclasses import asdict
 
 from .agent import Agent, ScriptedDevelopmentAgent
 from .audit import AppendOnlyAuditLog
+from .canonical import hash_object
 from .events import Event
 from .memory import GovernedMemory
 from .models import EvidenceQuality, Partition, TrialConfig, TrialResult
@@ -73,12 +74,14 @@ class InstrumentationRunner:
             self._stop.observe(event)
             return event
 
-        emit("trial_started", {"task_id": task.task_id})
+        emit("trial_started", {"task_id": task.task_id,
+                               "task_sha256": hash_object(asdict(task)),
+                               "trial_config_sha256": hash_object(asdict(config))})
         if self._stop.decision.paused:
             return self._paused_result(config, audit)
 
         answer = agent.solve(task)
-        emit("agent_answer", {"task_id": task.task_id})
+        emit("agent_answer", {"task_id": task.task_id, "answer_sha256": hash_object(answer)})
 
         result = self._verifier.verify(expected=task.expected, actual=answer)
         emit("verifier_result", {"status": result.status, "score": result.score})
