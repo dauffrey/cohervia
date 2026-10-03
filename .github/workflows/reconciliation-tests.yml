@@ -2,7 +2,7 @@ name: Reconciliation apparatus and boundaries
 on:
   pull_request:
   push:
-    branches: [main, 'integration/**']
+    branches: [main, 'integration/**', 'core/**']
 permissions:
   contents: read
 jobs:

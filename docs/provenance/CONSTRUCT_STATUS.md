@@ -42,7 +42,7 @@ The status labels above are intentionally conservative and should be treated as 
 | --- | --- | --- |
 | Scientist v0.2.1 reasoning and bounded research artifacts | implemented infrastructure | Candidate proposals, not empirical findings |
 | Fixed qualification suite and archived scripted run | implemented instrumentation | Human quality ratings unknown; no competence or safety claim |
-| Proposed migration contracts and inventory | design interfaces | Not implemented observation core or validated estimators |
+| Migration contracts and inventory | observation/audit implementation; other design interfaces | Separate core has fabricated contract regressions; no validated estimators or scientific evidence |
 | Capability-emergence and transfer constructs | proposed research hypotheses | COH-EXP-0001 unfrozen and not executed |
 | Separate scripted development apparatus | implemented instrumentation | No capability, transfer, governance or real-agent evidence |
 

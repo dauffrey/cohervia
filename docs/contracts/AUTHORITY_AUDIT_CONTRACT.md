@@ -1,8 +1,8 @@
 # Authority and audit contract
 
-Reconciliation scope: adapted from PR #2 at `ef8477b11fa00f6d6ab1a0cc461424d6eddcb7b5`. Proposed future interface; Scientist and development apparatus do not implement this contract. See [current mapping](../research/SCIENTIST_CAPABILITY_BOUNDARY.md).
+Reconciliation scope: adapted from PR #2 at `ef8477b11fa00f6d6ab1a0cc461424d6eddcb7b5`. The separate observation core implements A3–A5; A1–A2 remain future interfaces. Scientist and development apparatus do not implement this contract. See [current mapping](../research/SCIENTIST_CAPABILITY_BOUNDARY.md).
 
-Status: proposed Cohervia contracts, pending review. Phase 2 implements only audit
+Status: A3–A5 implemented for review in [core v0.1.0](../../core/README.md), with fabricated acceptance regressions. Phase 2 implements only audit
 records and observation validation dispositions. Recommendations and enforcement are future interfaces.
 See inventory INV-12 and INV-13 for CGS architectural lineage.
 
@@ -80,7 +80,7 @@ but accepted observation state is not advanced.
 
 ## A4 — Canonical encoding and integrity
 
-Proposed Phase 2 convention: [RFC 8785 JSON Canonicalization Scheme (JCS)](https://www.rfc-editor.org/rfc/rfc8785), UTF-8, SHA-256,
+Implemented Phase 2 convention: [RFC 8785 JSON Canonicalization Scheme (JCS)](https://www.rfc-editor.org/rfc/rfc8785), UTF-8, SHA-256,
 lowercase hexadecimal digest. Use the same convention for observations, definitions and
 configuration; artifact refs instead hash the artifact's exact raw bytes.
 
