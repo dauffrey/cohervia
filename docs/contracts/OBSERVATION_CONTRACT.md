@@ -1,8 +1,8 @@
 # Observation contract
 
-Reconciliation scope: adapted from PR #2 at `ef8477b11fa00f6d6ab1a0cc461424d6eddcb7b5`. Proposed future interface; Scientist and development apparatus do not implement this contract. See [current mapping](../research/SCIENTIST_CAPABILITY_BOUNDARY.md).
+Reconciliation scope: adapted from PR #2 at `ef8477b11fa00f6d6ab1a0cc461424d6eddcb7b5`. Implemented by the separate observation core; Scientist and development apparatus do not implement or ingest this contract. See [current mapping](../research/SCIENTIST_CAPABILITY_BOUNDARY.md).
 
-Status: proposed Cohervia contract version 0.1; pending Phase 1 review. No implementation exists.
+Status: Cohervia observation contract version 0.1 implemented for review in [core v0.1.0](../../core/README.md). Fabricated acceptance tests do not validate scientific measurements.
 Source mappings: [migration inventory](../provenance/MIGRATION_INVENTORY.md), INV-01 through INV-04.
 This adapts EFGM semantics; it does not require binary compatibility with its model or inherit its default confidence or normalized value domain.
 

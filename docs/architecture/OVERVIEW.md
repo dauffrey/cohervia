@@ -105,6 +105,6 @@ This architecture is foundational, not a claim of production readiness.
 
 ## Current implementation boundary
 
-The governor layers above describe the research target. Scientist v0.2.1 implements bounded proposal/critique reasoning and separate scientific-reasoning qualification; it executes no experiment. The development apparatus is a separate scripted fixture package, not a Scientist tool or production governor. The proposed observation core and independent evaluator/external-authority services remain unimplemented.
+The governor layers above describe the research target. Scientist v0.2.1 implements bounded proposal/critique reasoning and separate scientific-reasoning qualification; it executes no experiment. The development apparatus is a separate scripted fixture package, not a Scientist tool or production governor. The separate [observation/audit core](../../core/README.md) implements local validation, provenance, JCS, atomic storage and deterministic replay using fabricated fixtures. Independent evaluator/external-authority services and state estimators remain unimplemented. No automatic Scientist or apparatus ingestion is supplied.
 
 See [Scientist/capability boundaries](../research/SCIENTIST_CAPABILITY_BOUNDARY.md), [migration contracts](../contracts/OBSERVATION_CONTRACT.md), and [integration plan](../implementation/RECONCILIATION.md).

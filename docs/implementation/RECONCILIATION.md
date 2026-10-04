@@ -1,5 +1,6 @@
 # Scientist / legacy PR reconciliation
 
+Historical reconciliation audit for merged PR #8. The next implementation is now [core v0.1.0](../../core/README.md); statements below about deferred observation implementation describe that earlier baseline. Scientist qualification and COH-EXP-0001 statistical design remain separate and deferred.
 ## Audited snapshots
 
 Audit date: 2026-10-02. Source snapshots were retrieved through the GitHub connector and compared by Git blob identity. Direct git cloning and local package-index access were unavailable. No historical custody or inaccessible predecessor artifact matching is claimed.

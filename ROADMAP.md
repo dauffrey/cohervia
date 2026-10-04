@@ -2,7 +2,7 @@
 
 The roadmap below is intentionally staged and does not imply completed evidence. Each phase has explicit exit criteria.
 
-Current implementation: Scientist v0.2.1 proposal-only reasoning and qualification instrumentation are implemented. The separate scripted apparatus tests development plumbing. Neither completes Phase 2, qualifies scientific reasoning automatically, or produces COH-EXP-0001 evidence. Phase 1 contracts are proposed in this reconciliation PR; Phases 2–6 remain deferred or gated. See [integration plan and human decisions](docs/implementation/RECONCILIATION.md).
+Current implementation: Scientist v0.2.1 proposal-only reasoning, separate qualification instrumentation and the scripted apparatus remain distinct from scientific evidence. The [minimal observation/audit core v0.1.0](core/README.md) now implements validation, explicit missingness, provenance, pinned JCS, atomic local storage and deterministic replay against fabricated fixtures. Phase 2 observation infrastructure is implemented for review; deployment readiness, estimators, decision/authority interfaces and Phases 3–6 remain gated. See [integration plan and human decisions](docs/implementation/RECONCILIATION.md).
 
 ## Phase 0: canonical foundation and provenance
 
@@ -33,7 +33,7 @@ Exit criteria:
 
 - explicit observation states are available and documented;
 - provenance and artifact hashing are part of the core record;
-- audit trails exist for telemetry, configuration, and decisions;
+- observation-validation submissions have atomic audit trails bound to frozen definitions/configuration; future decision and authority event types remain separate work;
 - missing evidence is retained as missing rather than silently converted.
 
 ## Phase 3: shadow-mode governor and baseline evaluation

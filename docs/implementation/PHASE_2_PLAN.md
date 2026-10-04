@@ -1,24 +1,23 @@
 # Phase 2 plan — minimal observation and audit core
 
-Status: proposed observation-core plan; this specific implementation has not begun. Scientist v0.2.1 and separate apparatus instrumentation already exist and do not satisfy this core. Phase 1 contracts remain subject to review in the replacement integration PR.
+Status: implemented for review in the separate [core v0.1.0 package](../../core/README.md), from merged PR #8 main. Fabricated acceptance regressions validate infrastructure only. Scientist qualification and COH-EXP-0001 statistical design remain separate workstreams; confirmatory holdouts remain sealed.
 Goal: validate versioned observations, preserve identity/provenance, append audit dispositions,
-and replay deterministically. Contracts are proposed requirements, not validated mechanisms.
+and replay deterministically. Contract conformance is distinct from measurement truth, predictive validity or scientific evidence.
 
 ## P1 — Bounded implementation
 
-Proposed fresh implementation (no files created by this PR):
+Fresh implementation (no predecessor code copied):
 
 | Module | Public interface | Responsibility |
 | --- | --- | --- |
-| src/cohervia/observations.py | validate_observation(raw, context, definitions, manifest, state) -> ValidationResult | O1–O4; accept/reject/quarantine and reason codes |
-| src/cohervia/canonical.py | canonical_bytes(record), record_sha256(record) | A4; pinned JCS-compatible encoding |
-| src/cohervia/audit.py | append_submission(store, raw, context), verify_stream(events, store) | A3–A4; atomic local persistence |
-| src/cohervia/replay.py | replay(events, observations, definitions, manifest) -> ReplayState | A5; deterministic reconstruction |
+| core/src/cohervia/observations.py | validate_observation(raw, context, inputs, state) -> ValidationResult | O1–O4; accept/reject/quarantine and reason codes |
+| core/src/cohervia/canonical.py | canonical_bytes(record), record_sha256(record) | A4; pinned JCS-compatible encoding |
+| core/src/cohervia/audit.py | AuditStore(path).append_submission(raw, context, inputs, recorder fields), export(context, inputs) | A3–A4; atomic local persistence |
+| core/src/cohervia/replay.py | replay(events, observations, context, inputs, checkpoint=None) -> ObservationState | A5; deterministic reconstruction |
 
-Use a local transactional store (proposed SQLite) with explicit caller-supplied path and
+Uses a local transactional SQLite store with explicit caller-supplied path and
 serialized writes. No daemon, cloud service or network evidence resolver.
-The first implementation PR must choose and pin a JCS implementation or demonstrate conformance
-of a fresh encoder before claiming stable hashes. This dependency is an implementation gate.
+The JCS implementation is pinned to `rfc8785==0.1.4`, with numeric/string/UTF-16 conformance vectors. `FrozenInputs` binds the canonical definitions, configuration and expected evidence manifest per run; artifacts are supplied bytes, never paths.
 Tests use fabricated local artifacts and deterministic IDs/timestamps supplied by fixtures.
 Runtime package/dependency/license choices remain subject to owner review before distribution.
 
@@ -55,10 +54,10 @@ Later predictor tests and authority tests belong to separate phases.
 
 ## P4 — Sequence and exit
 
-Implement observation validation, then canonical encoding, then atomic audit append and replay.
+Observation validation, canonical encoding, atomic audit append and replay are implemented in separate modules.
 Exit requires all matrix tests passing, documentation matching behavior, reproducible local
 installation/test instructions, and review of the exact implementation commit.
-The integration CI tests existing Scientist and apparatus code. A later observation-core PR must add its own contract acceptance gate; the existing suites do not satisfy this matrix.
+The dedicated observation-core CI runs its contract acceptance gate on Python 3.11–3.13, plus preserved mainline boundaries. Existing Scientist and apparatus suites remain independent gates. See the package README for installation, input schema, checkpoint semantics and replay limitations.
 No claim of production hardening or tamper-proof storage follows from passing these tests.
 
 ## P5 — Decisions and reuse blockers

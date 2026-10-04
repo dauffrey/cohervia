@@ -6,6 +6,8 @@ on:
       - "scientist/**"
       - "docs/**"
       - "harness/**"
+      - "core/**"
+      - ".github/workflows/observation-core-tests.yml"
       - "schemas/**"
       - "experiments/**"
       - "tests/**"
@@ -16,11 +18,14 @@ on:
     branches:
       - "scientist/**"
       - "integration/**"
+      - "core/**"
       - "main"
     paths:
       - "scientist/**"
       - "docs/**"
       - "harness/**"
+      - "core/**"
+      - ".github/workflows/observation-core-tests.yml"
       - "schemas/**"
       - "experiments/**"
       - "tests/**"
