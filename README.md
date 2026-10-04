@@ -80,6 +80,7 @@ Cohervia is in foundation/consolidation status. It contains no validated product
 | [Observation/audit core v0.1.0](core/README.md) | Observation validation, explicit missingness/provenance, pinned JCS, atomic SQLite append and deterministic replay | Fabricated contract regressions only; no scientific evidence, estimator or authority |
 | [Migration contracts](docs/provenance/MIGRATION_INVENTORY.md) | Inventory; observation/audit implemented separately; trajectory and authority interfaces remain proposed | No validated state estimator or governor |
 | [Capability research / COH-EXP-0001](experiments/COH-EXP-0001/README.md) | Proposed design, matrix and candidate record schemas | Unfrozen, not executed; no capability-emergence, transfer or governance evidence |
+| [Bounded public pilot](pilot/README.md) | Fixed public task runner, text-only API adapter, core ingestion and replayable report | Live execution requires configured provider/model; offline tests are fabricated instrumentation, not model findings |
 | [Separate development apparatus](harness/README.md) | Public scripted fixtures, audit/memory interfaces and arithmetic/identity diagnostics | Apparatus instrumentation only; no factorial study or holdout access |
 
 The Scientist proposes and critiques scientific work. Independent evaluators and external authority must govern any future experiment. A passing unit test, schema, hash check, or qualification diagnostic is not a scientific finding or permission to execute.
