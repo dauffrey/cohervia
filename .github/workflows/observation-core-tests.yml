@@ -2,7 +2,7 @@ name: Minimal observation and audit core
 on:
   pull_request:
   push:
-    branches: [main, 'core/**']
+    branches: [main, 'core/**', 'pilot/**']
 permissions:
   contents: read
 jobs:

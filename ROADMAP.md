@@ -82,3 +82,7 @@ Exit criteria:
 [COH-EXP-0001](experiments/COH-EXP-0001/README.md) is a proposed capability-emergence/transfer/governance design, not a completed Phase 4 study. It preserves separate sealed A/B/C holdouts and independent endpoints. Exact statistical choices, external containment, evaluator independence, artifact custody and explicit authorization remain blockers. No confirmatory execution is enabled.
 
 [Scientist qualification](scientist/qualification/PROTOCOL.md) tests reasoning instrumentation separately from capability research. Human semantic review remains pending; future live candidate-model qualification must be explicitly selected and cannot yield empirical experiment evidence. The existing Scientist read/tool/authority boundary remains unchanged.
+
+## Public development pilot
+
+The separate [bounded public pilot](pilot/README.md) connects three known public tasks to the observation core. Its live runner makes at most three text-only calls under explicit model/provider configuration. Unit tests and CI fabricate/mock responses and export clearly labelled instrumentation archives; they do not establish live performance. Real acquisition is gated by available credentials and model selection, and does not authorize confirmatory holdout access or promote results into Scientist. Qualification and COH-EXP-0001 statistical design remain separate.
