@@ -47,7 +47,17 @@ def bytes_sha256(raw):
     return hashlib.sha256(raw).hexdigest()
 
 
-def parse_json(raw):
+def json_bytes(value):
+    """JSON for validation/replay, preserving numeric types rather than JCS spelling.
+
+    Not a hash dialect. In particular 1e20 remains a floating-point token instead
+    of the integer token emitted by JCS; unsafe Python integers remain rejected.
+    """
+    _check(value)
+    return json.dumps(value, ensure_ascii=False, allow_nan=False, separators=(",", ":")).encode("utf-8")
+
+
+def _decode_json(raw, *, parse_int=int):
     if type(raw) is not bytes:
         raise TypeError("raw input must be bytes")
 
@@ -62,6 +72,29 @@ def parse_json(raw):
     def constant(_):
         raise ValueError("nonfinite number")
 
-    value = json.loads(raw.decode("utf-8"), object_pairs_hook=pairs, parse_constant=constant)
+    return json.loads(raw.decode("utf-8"), object_pairs_hook=pairs,
+                      parse_constant=constant, parse_int=parse_int)
+
+
+def parse_json(raw):
+    """Strict submission intake: integer tokens outside the safe range fail."""
+    value = _decode_json(raw)
     canonical_bytes(value)
+    return value
+
+
+def parse_canonical(raw):
+    """Read exact JCS bytes, preserving the pinned encoder's binary64 semantics.
+
+    JCS emits large integral floats in decimal integer spelling below 1e21.
+    Recover those as floats only if the complete input reproduces byte-for-byte
+    under JCS. This reader is separate from strict raw submission intake.
+    """
+    def canonical_integer(token):
+        value = int(token)
+        return value if abs(value) <= MAX_INTEGER else float(token)
+
+    value = _decode_json(raw, parse_int=canonical_integer)
+    if canonical_bytes(value) != raw:
+        raise ValueError("input is not exact canonical JSON")
     return value

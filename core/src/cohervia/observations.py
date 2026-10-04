@@ -1,7 +1,7 @@
 """Pure validation: explicit missingness, provenance and ordering dispositions."""
 from dataclasses import dataclass, field
 
-from .canonical import bytes_sha256, canonical_bytes, parse_json, record_sha256
+from .canonical import bytes_sha256, canonical_bytes, parse_canonical, parse_json
 from .inputs import identifier, keys, ref, timestamp, versioned
 
 FIELDS = "schema_version observation_id run_id trajectory_id subject_id sequence event_time available_at phase metric_id metric_version value_type value units status rationale uncertainty evidence_refs input_observation_ids derivation source collector scorer config acquisition_context"
@@ -15,13 +15,13 @@ class ObservationState:
     available_at: str | None = None
 
     def add(self, observation):
-        observation = parse_json(canonical_bytes(observation))
+        observation = parse_canonical(canonical_bytes(observation))
         self.accepted[observation["observation_id"]] = observation
         self.next_sequence += 1
         self.available_at = observation["available_at"]
 
     def snapshot(self):
-        return {"accepted": parse_json(canonical_bytes(self.accepted)), "next_sequence": self.next_sequence,
+        return {"accepted": parse_canonical(canonical_bytes(self.accepted)), "next_sequence": self.next_sequence,
                 "available_at": self.available_at}
 
 
@@ -84,7 +84,7 @@ def _shape(o):
             and all(identifier(v) for v in o["acquisition_context"].values()))
 
 
-def validate_observation(raw, context, inputs, state):
+def validate_observation(raw, context, inputs, state, *, reserved_ids=()):
     """No mutations or IO. Rejections take priority; all applicable codes are sorted."""
     try:
         o = parse_json(raw)
@@ -102,6 +102,8 @@ def validate_observation(raw, context, inputs, state):
     if previous is not None:
         if canonical_bytes(previous) == canonical_bytes(o):
             return ValidationResult("accept", ("duplicate_noop",), o)
+        return ValidationResult("reject", ("conflicting_id",))
+    if o["observation_id"] in reserved_ids:
         return ValidationResult("reject", ("conflicting_id",))
     definition = inputs.definitions.get((o["metric_id"], o["metric_version"]))
     if definition is None:

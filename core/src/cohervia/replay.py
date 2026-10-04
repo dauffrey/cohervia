@@ -1,5 +1,5 @@
 """Deterministic integrity replay. No clocks, filesystem lookups or estimators."""
-from .canonical import canonical_bytes, parse_json, record_sha256
+from .canonical import canonical_bytes, json_bytes, parse_canonical, record_sha256
 from .inputs import digest, identifier, keys, ref, timestamp, versioned
 from .observations import ObservationState, REJECT, _shape, validate_observation
 
@@ -58,7 +58,7 @@ def replay(events, observations, context, inputs, *, checkpoint=None):
         for count, raw_event in enumerate(events, start=1):
             if not _event_shape(raw_event):
                 raise ReplayError("invalid audit schema")
-            e = parse_json(canonical_bytes(raw_event))
+            e = parse_canonical(canonical_bytes(raw_event))
             if not _event_shape(e):
                 raise ReplayError("invalid audit schema")
             if e["sequence"] != count - 1 or e["previous_sha256"] != previous:
@@ -74,7 +74,7 @@ def replay(events, observations, context, inputs, *, checkpoint=None):
                 o = observations.get(r["id"])
                 if o is None or not _shape(o) or record_sha256(o) != r["sha256"] or o.get("observation_id") != r["id"]:
                     raise ReplayError("missing or corrupt accepted observation")
-                result = validate_observation(canonical_bytes(o), context, inputs, state)
+                result = validate_observation(json_bytes(o), context, inputs, state)
                 if result.disposition != "accept" or list(result.reason_codes) != p["reason_codes"]:
                     raise ReplayError("accepted disposition cannot be reconstructed")
                 if result.reason_codes == ("valid",):

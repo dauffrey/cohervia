@@ -1,7 +1,7 @@
 """Serialized, transactional SQLite append; no enforcement or external IO."""
 import sqlite3
 
-from .canonical import bytes_sha256, canonical_bytes, parse_json, record_sha256
+from .canonical import bytes_sha256, canonical_bytes, parse_canonical, parse_json, record_sha256
 from .inputs import identifier, timestamp, versioned
 from .observations import validate_observation
 from .replay import ReplayError, replay
@@ -62,15 +62,20 @@ class AuditStore:
             raise ReplayError("stream subject mismatch")
 
     def _export(self, context):
-        args = (context.run_id, context.trajectory_id)
-        events = []
-        for sequence, event_id, raw in self.connection.execute("SELECT sequence, event_id, record FROM events WHERE run_id=? AND trajectory_id=? ORDER BY sequence", args):
-            event = parse_json(raw)
-            if type(event) is not dict or event.get("sequence") != sequence or event.get("event_id") != event_id:
-                raise ReplayError("event storage index mismatch")
-            events.append(event)
-        observations = {r[0]: parse_json(r[1]) for r in self.connection.execute("SELECT observation_id, record FROM observations WHERE run_id=? AND trajectory_id=?", args)}
-        return events, observations
+        try:
+            args = (context.run_id, context.trajectory_id)
+            events = []
+            for sequence, event_id, raw in self.connection.execute("SELECT sequence, event_id, record FROM events WHERE run_id=? AND trajectory_id=? ORDER BY sequence", args):
+                event = parse_canonical(raw)
+                if type(event) is not dict or event.get("sequence") != sequence or event.get("event_id") != event_id:
+                    raise ReplayError("event storage index mismatch")
+                events.append(event)
+            observations = {r[0]: parse_canonical(r[1]) for r in self.connection.execute("SELECT observation_id, record FROM observations WHERE run_id=? AND trajectory_id=?", args)}
+            return events, observations
+        except (ValueError, TypeError, UnicodeError, OverflowError, RecursionError) as exc:
+            if isinstance(exc, ReplayError):
+                raise
+            raise ReplayError("malformed canonical storage record") from exc
 
     def export(self, context, inputs):
         """Consistent, verified snapshot; returned dictionaries cannot mutate storage."""
@@ -82,7 +87,8 @@ class AuditStore:
             self.connection.execute("COMMIT")
             return events, observations
         except BaseException:
-            self.connection.execute("ROLLBACK")
+            if self.connection.in_transaction:
+                self.connection.execute("ROLLBACK")
             raise
 
     def append_submission(self, raw, context, inputs, *, event_id, recorded_at, producer):
@@ -97,11 +103,10 @@ class AuditStore:
             self._bind(context, inputs, True)
             events, observations = self._export(context)
             state = replay(events, observations, context, inputs)
-            # Duplicate handling precedes ordering, with an index scoped to the
-            # whole run. Cross-trajectory inputs still fail the validator's identity check.
-            for observation_id, stored in db.execute("SELECT observation_id, record FROM observations WHERE run_id=? AND trajectory_id<>?", (context.run_id, context.trajectory_id)):
-                state.accepted[observation_id] = parse_json(stored)
-            result = validate_observation(raw, context, inputs, state)
+            # Reserve run-wide IDs without exposing foreign records as derivation
+            # inputs. Only this stream's verified accepted state is usable evidence.
+            reserved_ids = {r[0] for r in db.execute("SELECT observation_id FROM observations WHERE run_id=? AND trajectory_id<>?", (context.run_id, context.trajectory_id))}
+            result = validate_observation(raw, context, inputs, state, reserved_ids=reserved_ids)
             o = result.observation
             accepted_ref = None
             if result.disposition == "accept":
@@ -125,8 +130,15 @@ class AuditStore:
                      "previous_sha256": events[-1]["sha256"] if events else None}
             event["sha256"] = record_sha256(event)
             db.execute("INSERT INTO events VALUES (?, ?, ?, ?, ?)", (context.run_id, context.trajectory_id, len(events), event_id, canonical_bytes(event)))
+            # Verify actual persisted rows before commit, including silent trigger
+            # suppression. A committed stream must already be replayable.
+            written_events, written_observations = self._export(context)
+            if len(written_events) != len(events) + 1 or written_events[-1] != event:
+                raise ReplayError("audit append was not persisted as generated")
+            replay(written_events, written_observations, context, inputs)
             db.execute("COMMIT")
             return event
         except BaseException:
-            db.execute("ROLLBACK")
+            if db.in_transaction:
+                db.execute("ROLLBACK")
             raise

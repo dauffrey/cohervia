@@ -3,14 +3,20 @@ from dataclasses import dataclass
 from datetime import datetime
 import re
 
-from .canonical import canonical_bytes, parse_json, record_sha256
+from .canonical import canonical_bytes, parse_canonical, record_sha256
 
 HEX = re.compile(r"[0-9a-f]{64}\Z")
-TIME = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z\Z")
+TIME = re.compile(r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\.[0-9]{6}Z\Z")
 
 
 def identifier(value):
-    return type(value) is str and bool(value) and value == value.strip()
+    if type(value) is not str or not value or value != value.strip():
+        return False
+    try:
+        value.encode("utf-8", errors="strict")
+        return True
+    except UnicodeError:
+        return False
 
 
 def digest(value):
@@ -67,7 +73,7 @@ class FrozenInputs:
     def __init__(self, definitions, config_id, configuration, evidence_manifest, artifacts):
         if not identifier(config_id):
             raise ValueError("invalid config id")
-        definitions = parse_json(canonical_bytes(definitions))
+        definitions = parse_canonical(canonical_bytes(definitions))
         if type(definitions) is not list:
             raise ValueError("definitions must be a list")
         seen = set()
@@ -110,7 +116,7 @@ class FrozenInputs:
 
     @property
     def document(self):
-        return parse_json(self._document)
+        return parse_canonical(self._document)
 
     @property
     def sha256(self):

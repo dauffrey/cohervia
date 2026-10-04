@@ -9,7 +9,7 @@ import unittest
 from unittest.mock import patch
 
 from cohervia import AuditStore, Context, FrozenInputs, ReplayError, replay, validate_observation
-from cohervia.canonical import bytes_sha256, canonical_bytes, parse_json, record_sha256
+from cohervia.canonical import bytes_sha256, canonical_bytes, json_bytes, parse_canonical, parse_json, record_sha256
 from cohervia.observations import ObservationState
 
 TIME = "2026-09-18T12:00:01.000000Z"
@@ -77,6 +77,28 @@ class CanonicalTests(unittest.TestCase):
         for raw in bad:
             with self.subTest(raw=raw), self.assertRaises((ValueError, UnicodeError)):
                 parse_json(raw)
+
+    def test_large_float_canonical_roundtrip_preserves_hash(self):
+        for value in (float(2**53), -float(2**53), 1e16, -1e20, 1e20, 1e21, 1.7976931348623157e308):
+            with self.subTest(value=value):
+                raw = canonical_bytes({"value": value})
+                restored = parse_canonical(raw)
+                self.assertEqual(restored["value"], value)
+                self.assertEqual(canonical_bytes(restored), raw)
+                self.assertEqual(record_sha256(restored), record_sha256({"value": value}))
+                self.assertEqual(parse_json(json_bytes(restored))["value"], value)
+
+    def test_canonical_reader_is_separate_from_strict_submission_intake(self):
+        raw = canonical_bytes(1e20)
+        with self.assertRaises(ValueError):
+            parse_json(raw)
+        self.assertEqual(parse_canonical(raw), 1e20)
+        # Noncanonical encodings and integers rounded by binary64 must fail.
+        for raw in (b'9007199254740993', b' 0', b'-0', b'1.0', b'{"b":1,"a":2}', b'{"a":1,"a":1}'):
+            with self.subTest(raw=raw), self.assertRaises(ValueError):
+                parse_canonical(raw)
+        with self.assertRaises(ValueError):
+            json_bytes(9007199254740992)
 
     def test_no_coercion_and_hash_scope(self):
         self.assertEqual(canonical_bytes({"b": 1, "a": 2}), canonical_bytes({"a": 2, "b": 1}))
@@ -212,6 +234,21 @@ class ValidationTests(unittest.TestCase):
         self.check(observation(), "accept", ["valid"])
         self.assertNotEqual(inputs(configuration={"fixture": False}).sha256, before)
 
+    def test_large_finite_definition_and_configuration_snapshot(self):
+        d = self.inputs.document["definitions"][0]
+        d.update(minimum=-1e20, maximum=1e20)
+        frozen = inputs(definitions=[d], configuration={"fixture": True, "large_number": 1e20})
+        self.assertEqual(frozen.document["configuration"]["large_number"], 1e20)
+        self.assertEqual(frozen.definitions[("retry_count", "1")]["maximum"], 1e20)
+        self.assertEqual(frozen.sha256, record_sha256(frozen.document))
+        self.check(observation(value=1e20, config=frozen.config), "accept", ["valid"], frozen=frozen)
+
+    def test_identifiers_reject_invalid_unicode_before_sqlite_binding(self):
+        with self.assertRaises(ValueError):
+            Context("\ud800", "trajectory", "subject")
+        with self.assertRaises(ValueError):
+            Context("run", "trajectory", "\udfff")
+
     def test_invalid_frozen_inputs_fail_before_ingestion(self):
         definition = self.inputs.document["definitions"][0]
         for changes in ({"maximum": -1}, {"minimum": True}, {"units": None}, {"risk_orientation": "unknown"}, {"extra": 1}):
@@ -264,6 +301,50 @@ class StorageReplayTests(unittest.TestCase):
         self.assertEqual(events[-1]["payload"]["submission_sha256"], bytes_sha256(b'{"malformed":'))
         self.assertNotIn("malformed", canonical_bytes(events[-1]).decode())
         self.assertEqual(state.snapshot(), replay(deepcopy(events), deepcopy(records), CONTEXT, self.inputs).snapshot())
+
+    def test_large_float_storage_reopen_duplicate_and_replay(self):
+        d = self.inputs.document["definitions"][0]
+        d.update(minimum=-1e20, maximum=1e20)
+        self.inputs = inputs(definitions=[d], configuration={"large_number": 1e20})
+        o = observation(value=1e20, config=self.inputs.config)
+        first = self.append(json_bytes(o))
+        self.assertEqual(first["payload"]["reason_codes"], ["valid"])
+        self.store.close()
+        self.store = AuditStore(self.path)
+        duplicate = self.append(json_bytes(o))
+        self.assertEqual(duplicate["payload"]["reason_codes"], ["duplicate_noop"])
+        self.append(json_bytes(inferred(value=-1e20, config=self.inputs.config)))
+        events, records = self.export()
+        state = replay(events, records, CONTEXT, self.inputs)
+        self.assertEqual(state.next_sequence, 2)
+        self.assertEqual(state.accepted["obs-0"]["value"], 1e20)
+        self.assertEqual(state.accepted["obs-1"]["value"], -1e20)
+        self.assertEqual(state.snapshot(), replay(events, records, CONTEXT, self.inputs).snapshot())
+        # Changing the spelling to an unsafe integer does not bypass raw intake.
+        raw = json.dumps(observation(value=10**20, config=self.inputs.config)).encode()
+        self.assertEqual(self.append(raw)["payload"]["reason_codes"], ["invalid_record"])
+
+    def test_foreign_storage_identity_cannot_supply_local_derivation_evidence(self):
+        self.append(observation())
+        context = Context(CONTEXT.run_id, "another-trajectory", CONTEXT.subject_id)
+        # The database index still assigns the row to the first trajectory.
+        self.store.connection.execute("UPDATE observations SET record=?",
+                                      (canonical_bytes(observation(trajectory_id=context.trajectory_id)),))
+        o = inferred(observation_id="other-obs", sequence=0, trajectory_id=context.trajectory_id)
+        e = self.store.append_submission(json_bytes(o), context, self.inputs, event_id="another", recorded_at=TIME, producer=PRODUCER)
+        self.assertEqual(e["payload"]["disposition"], "quarantine")
+        self.assertEqual(e["payload"]["reason_codes"], ["unresolved_reference"])
+        events, records = self.store.export(context, self.inputs)
+        self.assertEqual(replay(events, records, context, self.inputs).next_sequence, 0)
+        # Run-wide ID reservation still precedes sequence checks.
+        e = self.store.append_submission(json_bytes(observation(trajectory_id=context.trajectory_id, sequence=99)), context, self.inputs, event_id="conflict", recorded_at=TIME, producer=PRODUCER)
+        self.assertEqual(e["payload"]["reason_codes"], ["conflicting_id"])
+
+    def test_invalid_unicode_recorder_fields_do_not_begin_a_run(self):
+        for changes in (dict(event_id="\ud800"), dict(producer={"id": "\udfff", "version": "1"})):
+            with self.assertRaises(ValueError):
+                self.append(observation(), **changes)
+        self.assertEqual(self.store.connection.execute("SELECT count(*) FROM runs").fetchone()[0], 0)
 
     def test_artifact_availability_requires_explicit_resubmission(self):
         unavailable = inputs(artifacts={})
@@ -354,6 +435,43 @@ class StorageReplayTests(unittest.TestCase):
             self.assertEqual(self.store.connection.execute(f"SELECT count(*) FROM {table}").fetchone()[0], 0)
         self.store.connection.execute("DROP TRIGGER fail_event")
         self.assertEqual(self.append(observation())["sequence"], 0)
+
+    def test_sqlite_automatic_rollback_preserves_original_error(self):
+        self.store.connection.execute("CREATE TRIGGER fail_event BEFORE INSERT ON events BEGIN SELECT RAISE(ROLLBACK, 'injected rollback'); END")
+        with self.assertRaisesRegex(sqlite3.IntegrityError, "injected rollback"):
+            self.append(observation())
+        for table in ("observations", "events", "runs", "streams"):
+            self.assertEqual(self.store.connection.execute(f"SELECT count(*) FROM {table}").fetchone()[0], 0)
+        self.assertFalse(self.store.connection.in_transaction)
+
+    def test_silently_suppressed_insert_cannot_commit_an_orphan_audit(self):
+        self.store.connection.execute("CREATE TRIGGER suppress_observation BEFORE INSERT ON observations BEGIN SELECT RAISE(IGNORE); END")
+        with self.assertRaises(ReplayError):
+            self.append(observation())
+        for table in ("observations", "events", "runs", "streams"):
+            self.assertEqual(self.store.connection.execute(f"SELECT count(*) FROM {table}").fetchone()[0], 0)
+
+    def test_silently_suppressed_disposition_audit_cannot_report_success(self):
+        self.store.connection.execute("CREATE TRIGGER suppress_event BEFORE INSERT ON events BEGIN SELECT RAISE(IGNORE); END")
+        with self.assertRaises(ReplayError):
+            self.append(b'{')
+        self.assertEqual(self.store.connection.execute("SELECT count(*) FROM runs").fetchone()[0], 0)
+        self.store.connection.execute("DROP TRIGGER suppress_event")
+        self.append(observation())
+        self.store.connection.execute("CREATE TRIGGER suppress_event BEFORE INSERT ON events BEGIN SELECT RAISE(IGNORE); END")
+        with self.assertRaises(ReplayError):
+            self.append(observation())
+        self.assertEqual(len(self.export()[0]), 1)
+
+    def test_malformed_storage_stops_export_and_append_with_replay_error(self):
+        self.append(observation())
+        self.store.connection.execute("UPDATE observations SET record=?", (b'{',))
+        with self.assertRaises(ReplayError):
+            self.export()
+        with self.assertRaises(ReplayError):
+            self.append(inferred())
+        self.assertEqual(self.store.connection.execute("SELECT count(*) FROM events").fetchone()[0], 1)
+        self.assertFalse(self.store.connection.in_transaction)
 
     def test_atomic_rollback_when_observation_insert_fails(self):
         self.store.connection.execute("CREATE TRIGGER fail_observation BEFORE INSERT ON observations BEGIN SELECT RAISE(ABORT, 'injected failure'); END")

@@ -89,6 +89,9 @@ invalid Unicode and integers outside the interoperable safe range [-900719925474
 9007199254740991]. Booleans are not numbers in validation. No implicit string trimming,
 timestamp conversion, array sorting or data coercion occurs during hashing.
 Object property order is canonicalized by JCS; array order is preserved.
+Canonical storage must round-trip finite binary64 values whose JCS spelling is a large
+integer token. The dedicated exact-JCS reader preserves the same canonical bytes/hash;
+it does not relax safe-integer checks on raw submission intake.
 Pin the implementation/version and validate it against canonicalization vectors before use;
 ordinary sorted-key JSON is not asserted equivalent to JCS.
 

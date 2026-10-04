@@ -25,16 +25,29 @@ than a copied encoder or sorted-key JSON substitute. Tests include RFC 8785 nume
 string and UTF-16 property ordering vectors. Cohervia's own license remains an owner
 decision before distribution; no predecessor implementation was imported.
 
+## Canonical storage and strict intake
+
+Raw submissions reject integer tokens outside ±9007199254740991. Finite binary64
+numbers remain valid when their metric definition allows them. JCS can serialize a
+large integral float such as `1e20` as decimal integer text; a dedicated canonical
+reader restores its binary64 representation only when the entire stored document
+reproduces the exact original JCS bytes. It rejects noncanonical encodings and values
+that would change through rounding. This reader is used for canonical storage and
+frozen snapshots, never as the raw submission parser. Replay uses ordinary validated
+JSON serialization to preserve floating-point token types, while record/event hashes
+continue to use the pinned JCS encoder exclusively.
+
 ## Interfaces and caller obligations
 
 - `Context(run_id, trajectory_id, subject_id)` fixes identity for an audit stream.
 - `FrozenInputs(definitions, config_id, configuration, evidence_manifest, artifacts)`
   snapshots JSON definitions/configuration and expected raw artifact digests.
   Artifacts are explicitly supplied byte strings, never paths or URLs.
-- `validate_observation(raw_bytes, context, inputs, state)` is pure and returns
+- `validate_observation(raw_bytes, context, inputs, state, reserved_ids=())` is pure and returns
   `ValidationResult(disposition, reason_codes, observation)`. Only accepts carry an
   observation. The caller must supply an accurate accepted state; the store rebuilds
-  and verifies it instead of trusting a caller-maintained index.
+  and verifies it instead of trusting a caller-maintained index. Optional run-wide
+  reserved IDs detect conflicts without exposing foreign-trajectory records as inputs.
 - `AuditStore(path).append_submission(raw_bytes, context, inputs, event_id=...,
   recorded_at=..., producer={id, version})` returns the committed audit event.
   Recorder IDs and UTC timestamps are explicit; no clock or random ID is generated.
@@ -69,8 +82,9 @@ connection is thread-confined. The accepted observation, audit event and new inp
 bindings commit together or roll back together. SQLite uses `synchronous=FULL`;
 filesystem and hardware durability remain external assumptions. Export uses a read
 transaction. Reopening an existing run verifies its input binding and stream identity.
-Append verifies the entire existing stream before writing, intentionally O(n) in this
-minimal implementation. No pruning, repair or automatic quarantine release is provided.
+Append verifies the entire existing stream before writing and replays the persisted
+rows before committing, including detection of silently suppressed inserts. This is
+intentionally O(n) in this minimal implementation. No pruning, repair or automatic quarantine release is provided.
 
 ## Integrity limits and review gates
 
@@ -78,6 +92,9 @@ Replay verifies strict event schema, identity, contiguous sequence, links, event
 accepted record hashes and reconstructed validation outcomes. Orphan accepted records
 also fail. Rejected raw submissions are absent by design: replay checks their disposition
 schema and hash chain, and cannot independently recompute the diagnostics or raw digest.
+Original submission byte strings are not retained, including for accepted records:
+their raw submission digests require externally retained bytes to verify. Accepted
+canonical payloads and their record hashes are independently checked during replay.
 Integrity does not authenticate the recorder, validate a measurement's truth, establish
 historical custody, or prevent an attacker who controls the database from rewriting it.
 
