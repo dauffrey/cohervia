@@ -53,6 +53,18 @@ Exception text, headers, credentials and private system context are not archived
 API references: [Responses create](https://developers.openai.com/api/reference/python/resources/responses/methods/create)
 and [data controls](https://developers.openai.com/api/docs/guides/your-data).
 
+## GitHub Actions live execution
+
+After merge, the **Manual bounded public model pilot** workflow provides an API-enabled
+execution path outside this Work environment. Configure the repository's `OPENAI_API_KEY`
+secret and manually dispatch the workflow with an explicit `model` and `run_id`. There
+is no push/PR trigger for live acquisition, and no default model. The same fixed three
+calls and tool/holdout boundaries apply; acquisition has an additional two-minute job
+step limit. Input strings are passed through quoted environment variables rather than
+inserted into shell code. Missing credentials block acquisition, not fabricate results.
+The workflow verifies report replay and saves the owned run as a labelled development
+artifact. This PR does not assume that the repository secret is already configured.
+
 ## Offline self-test and replay
 
 ```sh

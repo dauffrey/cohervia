@@ -336,6 +336,26 @@ class BundleTests(unittest.TestCase):
             self.assertEqual(main(["replay", "--directory", str(self.output)]), 0)
         self.assertEqual(original, stdout.getvalue())
 
+    @unittest.skipUnless(importlib.util.find_spec("yaml"), "workflow parser dependency unavailable locally; CI installs it")
+    def test_live_workflow_is_manual_and_inputs_do_not_become_shell_code(self):
+        import yaml
+        root = Path(__file__).resolve().parents[2]
+        workflow = yaml.load((root / ".github/workflows/public-pilot-live.yml").read_text(), Loader=yaml.BaseLoader)
+        self.assertEqual(set(workflow["on"]), {"workflow_dispatch"})
+        self.assertEqual(workflow["permissions"], {"contents": "read"})
+        inputs = workflow["on"]["workflow_dispatch"]["inputs"]
+        self.assertEqual(inputs["model"]["required"], "true")
+        self.assertNotIn("default", inputs["model"])
+        job = workflow["jobs"]["public-development"]
+        self.assertNotIn("env", job)
+        steps = job["steps"]
+        acquisition = next(s for s in steps if "env" in s)
+        self.assertEqual(acquisition["timeout-minutes"], "2")
+        self.assertEqual(acquisition["env"]["PILOT_MODEL"], "${{ inputs.model }}")
+        self.assertNotIn("${{", acquisition["run"])
+        self.assertEqual(acquisition["run"], 'cohervia-pilot live --model "$PILOT_MODEL" --run-id "$PILOT_RUN_ID" --output pilot/runs/live')
+        self.assertTrue(all("env" not in s for s in steps if s is not acquisition))
+
     def test_cli_missing_credentials_does_not_create_a_fake_live_run(self):
         with patch.dict(os.environ, {}, clear=True), redirect_stderr(StringIO()):
             self.assertEqual(main(["live", "--model", "fixture-model", "--output", str(self.output), "--run-id", "fixture"]), 2)

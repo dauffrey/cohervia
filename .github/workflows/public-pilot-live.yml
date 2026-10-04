@@ -1,0 +1,45 @@
+name: Manual bounded public model pilot
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Explicit accessible Responses model ID (maximum three billable calls)
+        required: true
+        type: string
+      run_id:
+        description: Identifier for this public development acquisition
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  public-development:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install separate public pilot
+        run: python -m pip install -e ./core -e ./harness -e './pilot[openai]'
+      - name: Acquire only three fixed public tasks (no tools or holdouts)
+        timeout-minutes: 2
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PILOT_MODEL: ${{ inputs.model }}
+          PILOT_RUN_ID: ${{ inputs.run_id }}
+        run: cohervia-pilot live --model "$PILOT_MODEL" --run-id "$PILOT_RUN_ID" --output pilot/runs/live
+      - name: Verify local report replay
+        run: |
+          cohervia-pilot replay --directory pilot/runs/live > pilot/replayed-live-report.txt
+          cmp pilot/runs/live/report.md pilot/replayed-live-report.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-development-model-acquisition
+          path: pilot/runs/live/
+          if-no-files-found: warn
+          retention-days: 30
