@@ -82,10 +82,10 @@ missing. Python booleans do not count as integer answers. No confidence default 
 scientific-reliability score is assigned.
 
 Before acquisition the driver writes its fixed plan, hashes the public catalog and
-captures exact source bytes for the pilot/core/JCS/public-task modules. After each
+captures exact source bytes for the pilot/core/public-task modules. After each
 attempt it saves the bounded returned text and selected API metadata (ID, returned
 model, token usage) in a receipt. These are SDK-level acquisition records, not full HTTP
-wire captures or authenticated producer attestations. Python/SDK versions are recorded;
+wire captures or authenticated producer attestations. Python/SDK and pinned JCS versions are recorded;
 source changes during acquisition invalidate report generation. No source archive is
 executed during replay. Expected evidence digests are frozen after collection; measurement
 configuration and scoring rules are fixed beforehand. This is not a preregistration.

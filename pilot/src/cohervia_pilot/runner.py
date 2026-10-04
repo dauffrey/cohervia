@@ -4,6 +4,7 @@ from importlib import import_module, metadata
 from pathlib import Path
 import os
 import platform
+import rfc8785
 
 from cohervia import AuditStore, Context, FrozenInputs, replay
 from cohervia.canonical import bytes_sha256, canonical_bytes, json_bytes, parse_canonical, record_sha256
@@ -13,7 +14,7 @@ from .protocol import (VERSION, INSTRUCTIONS, MAX_CALLS, MAX_OUTPUT_TOKENS, MAX_
                        TIMEOUT_SECONDS, catalog, definitions, model_id, outcomes)
 from .provider import normalize
 
-SOURCES = ("rfc8785", "rfc8785._impl", "cohervia", "cohervia_harness", "cohervia_pilot", "cohervia.canonical", "cohervia.inputs", "cohervia.observations", "cohervia.audit",
+SOURCES = ("cohervia", "cohervia_harness", "cohervia_pilot", "cohervia.canonical", "cohervia.inputs", "cohervia.observations", "cohervia.audit",
            "cohervia.replay", "cohervia_harness.tasks", "cohervia_pilot.protocol",
            "cohervia_pilot.provider", "cohervia_pilot.runner", "cohervia_pilot.cli")
 
@@ -39,12 +40,14 @@ def _sources():
 def _plan(model, kind, sources):
     if not model_id(model) or kind not in ("openai_responses", "scripted_instrumentation"):
         raise ValueError("explicit supported provider/model required")
+    if rfc8785.__version__ != "0.1.4":
+        raise ValueError("pilot requires the pinned JCS dependency")
     try:
         sdk_version = metadata.version("openai") if kind == "openai_responses" else None
     except metadata.PackageNotFoundError:
         sdk_version = None
     return {"schema_version": VERSION, "mode": "live_development" if kind == "openai_responses" else "scripted_instrumentation",
-            "provider": kind, "requested_model": model, "sdk_version": sdk_version, "python_version": platform.python_version(),
+            "provider": kind, "requested_model": model, "sdk_version": sdk_version, "jcs_version": rfc8785.__version__, "python_version": platform.python_version(),
             "max_calls": MAX_CALLS, "max_output_tokens": MAX_OUTPUT_TOKENS,
             "max_text_bytes": MAX_TEXT_BYTES, "timeout_seconds": TIMEOUT_SECONDS, "retries": 0,
             "tools": [], "instructions": INSTRUCTIONS, "catalog_sha256": record_sha256(catalog()),
@@ -167,11 +170,11 @@ def replay_bundle(bundle, *, expected_sha256=None):
     if frozen.document != document or document["definitions"] != definitions():
         raise ValueError("metric/configuration binding mismatch")
     plan = document["configuration"]
-    if not keys(plan, "schema_version mode provider requested_model sdk_version python_version max_calls max_output_tokens max_text_bytes timeout_seconds retries tools instructions catalog_sha256 source_hashes confirmatory holdout_access"):
+    if not keys(plan, "schema_version mode provider requested_model sdk_version jcs_version python_version max_calls max_output_tokens max_text_bytes timeout_seconds retries tools instructions catalog_sha256 source_hashes confirmatory holdout_access"):
         raise ValueError("invalid pilot plan")
     expected_mode = {"openai_responses": "live_development", "scripted_instrumentation": "scripted_instrumentation"}.get(plan["provider"])
     if (plan["schema_version"] != VERSION or expected_mode is None or plan["mode"] != expected_mode or not model_id(plan["requested_model"])
-        or plan["max_calls"] != MAX_CALLS or type(plan["max_calls"]) is not int or plan["max_output_tokens"] != MAX_OUTPUT_TOKENS
+        or plan["jcs_version"] != "0.1.4" or plan["max_calls"] != MAX_CALLS or type(plan["max_calls"]) is not int or plan["max_output_tokens"] != MAX_OUTPUT_TOKENS
         or type(plan["max_output_tokens"]) is not int or plan["max_text_bytes"] != MAX_TEXT_BYTES or plan["timeout_seconds"] != TIMEOUT_SECONDS
         or plan["retries"] != 0 or type(plan["retries"]) is not int or plan["tools"] != [] or plan["instructions"] != INSTRUCTIONS
         or plan["confirmatory"] is not False or plan["holdout_access"] is not False or plan["catalog_sha256"] != record_sha256(catalog())):
