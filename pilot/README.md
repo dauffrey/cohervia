@@ -90,7 +90,9 @@ Each task has its own trajectory with three accepted observations:
 Completed text that fails JSON/answer criteria is a failure. Incomplete, missing,
 oversized, invalid-provider or unexpected-tool outputs do not become false measured
 answers: success remains unknown. A wrong completed answer is explicitly false, never
-missing. Python booleans do not count as integer answers. No confidence default or
+missing. Integer criteria require integer JSON tokens, including every sorted-list
+element: booleans, decimal/exponent tokens and decimals rounded to an integer by the
+parser do not count as integer answers. No confidence default or
 scientific-reliability score is assigned.
 
 Before acquisition the driver writes its fixed plan, hashes the public catalog and

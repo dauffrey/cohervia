@@ -37,11 +37,25 @@ def assess(text):
         return False, None
 
 
+def _same_shape_and_types(answer, expected):
+    """Check types before JCS can erase integer/float distinctions."""
+    if type(answer) is not type(expected):
+        return False
+    if type(expected) is list:
+        return len(answer) == len(expected) and all(
+            _same_shape_and_types(a, e) for a, e in zip(answer, expected))
+    if type(expected) is dict:
+        return set(answer) == set(expected) and all(
+            _same_shape_and_types(answer[k], expected[k]) for k in expected)
+    return True
+
+
 def outcomes(receipt, task):
     usable = receipt["status"] == "completed"
     valid, answer = assess(receipt["text"]) if usable else (None, None)
-    # JSON equality by canonical bytes avoids Python's True == 1 shortcut.
-    success = (valid and canonical_bytes(answer) == canonical_bytes(task["expected"])) if usable else None
+    # Integer criteria reject floats (including rounded decimal tokens) and booleans.
+    success = (valid and _same_shape_and_types(answer, task["expected"])
+               and canonical_bytes(answer) == canonical_bytes(task["expected"])) if usable else None
     return {"response_received": usable, "answer_valid_json": valid, "task_success": success}
 
 

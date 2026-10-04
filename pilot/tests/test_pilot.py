@@ -51,6 +51,17 @@ class ProtocolTests(unittest.TestCase):
             self.assertIs(values["answer_valid_json"], False)
             self.assertIs(values["task_success"], False)
 
+    def test_integer_criteria_reject_decimal_exponent_and_boolean_answers(self):
+        cases = [(1, token) for token in ('56.0', '5.6e1', '55.999999999999999', '"56"', 'true')]
+        cases += [(2, token) for token in ('3.0', '3e0', '2.99999999999999999', 'true')]
+        cases += [(0, token) for token in ('[1.0,2,3]', '[1,2e0,3]', '[1,2,2.99999999999999999]',
+                                           '[true,2,3]', '[1,2]', '[[1],2,3]', '[3,2,1]')]
+        for task_index, token in cases:
+            with self.subTest(task=task_index, token=token):
+                values = outcomes(result('{"answer":' + token + '}'), catalog()[task_index])
+                self.assertIs(values["answer_valid_json"], True)
+                self.assertIs(values["task_success"], False)
+
     def test_incomplete_and_provider_errors_preserve_missingness(self):
         for status in ("timeout", "provider_error", "incomplete", "unexpected_output"):
             values = outcomes(result(None, status), catalog()[0])
@@ -214,6 +225,18 @@ class BundleTests(unittest.TestCase):
         self.acquire(provider)
         self.assertEqual(provider.calls, [{"instructions": INSTRUCTIONS, "prompt": task["prompt"]} for task in catalog()])
         self.assertTrue(all(set(call) == {"instructions", "prompt"} for call in provider.calls))
+
+    def test_decimal_integer_answers_remain_failures_through_storage_and_replay(self):
+        provider = ScriptedProvider([result('{"answer":[1.0,2,3]}'),
+            result('{"answer":55.999999999999999}'), result('{"answer":3e0}')])
+        bundle, report = self.acquire(provider)
+        self.assertIn("pass=0, fail=3, unknown=0", report)
+        stored = parse_canonical((self.output / "bundle.json").read_bytes())
+        self.assertEqual(report, replay_bundle(stored))
+        for task, stream in zip(catalog(), stored["streams"]):
+            observation = stream["observations"][task["id"] + ":task_success"]
+            self.assertIs(observation["value"], False)
+            self.assertEqual(observation["status"], "inferred")
 
     def test_plan_exists_before_first_call_and_no_overwrite(self):
         provider = self_test_provider()
