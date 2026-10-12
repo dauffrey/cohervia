@@ -40,7 +40,7 @@ def assess_shadow_evidence(summary: object) -> ShadowEvidenceSignal:
         return ShadowEvidenceSignal("INVALID", ("invalid_source_or_claim",))
     if not digest(summary["model_sha256"]) or not digest(summary["evidence_manifest_sha256"]):
         return ShadowEvidenceSignal("INVALID", ("invalid_hash_identity",))
-    if summary["efgm_disposition"] not in _DISPOSITIONS or type(summary["efgm_disposition"]) is not str:
+    if type(summary["efgm_disposition"]) is not str or summary["efgm_disposition"] not in _DISPOSITIONS:
         return ShadowEvidenceSignal("INVALID", ("invalid_disposition",))
     reasons = summary["efgm_reasons"]
     if (type(reasons) is not list
