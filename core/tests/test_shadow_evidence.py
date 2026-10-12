@@ -34,7 +34,7 @@ class ShadowEvidenceTests(unittest.TestCase):
                     sample[field] = value
                     result = assess_shadow_evidence(sample)
                     self.assertEqual(result.status, "INSUFFICIENT_EVIDENCE")
-                    self.assertIn(field + "_not_observed", result.reasons)
+                    self.assertIn(field.removesuffix("_status") + "_not_observed", result.reasons)
                     self.assertFalse(result.grants_permission)
 
     def test_prior_efgm_issue_cannot_be_laundered(self):
