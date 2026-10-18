@@ -1,4 +1,8 @@
+import json
 import unittest
+
+from cohervia_harness.audit import AppendOnlyAuditLog
+from cohervia_harness.events import Event
 
 from cohervia_harness.agent import ScriptedDevelopmentAgent
 from cohervia_harness.canonical import hash_object
@@ -41,6 +45,31 @@ class OrchestratorTests(unittest.TestCase):
         self.assertEqual(result.score, 1.0)
         self.assertTrue(result.metadata["audit_chain_valid"])
         self.assertEqual(result.metadata["evidence_quality"], "exploratory")
+
+    def test_audit_export_preserves_config_and_independent_verifier(self):
+        task = development_tasks()[0]
+        config = TrialConfig(
+            experiment_id="COH-EXP-0001",
+            trial_id="AUDIT-TEST-1",
+            task_family_id=task.task_family_id,
+            partition=Partition.DEVELOPMENT,
+            system_configuration_hash="frozen-configuration-identity",
+            model_identity=self.agent.identity,
+        )
+        result = self.runner.run(config=config, task=task, agent=self.agent)
+        records = json.loads(self.runner.export_audit(config.trial_id))
+        self.assertEqual(result.event_count, len(records))
+        start = records[0]["event"]["payload"]
+        self.assertEqual(start["system_configuration_hash"], config.system_configuration_hash)
+        self.assertEqual(start["model_identity"], config.model_identity)
+        self.assertEqual(start["experiment_id"], config.experiment_id)
+        self.assertEqual(start["partition"], config.partition.value)
+        verifier_event = next(r["event"] for r in records if r["event"]["kind"] == "verifier_result")
+        self.assertNotEqual(verifier_event["actor"], self.agent.identity)
+        self.assertIn("ExactMatchVerifier", verifier_event["actor"])
+        self.assertEqual(records[-1]["record_hash"], result.audit_root_hash)
+        with self.assertRaises(ValueError):
+            self.runner.run(config=config, task=task, agent=self.agent)
 
     def test_observer_state_resets_between_trials(self):
         first_task, second_task = development_tasks()
