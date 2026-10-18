@@ -1,5 +1,7 @@
 # COH-EXP-0001 — System-Level Capability Emergence
 
+Current status: proposed, unfrozen, not executed. Separate [scripted apparatus](../../harness/README.md) validates instrumentation only and cannot execute this study. Read the [Scientist boundary mapping](../../docs/research/SCIENTIST_CAPABILITY_BOUNDARY.md) and [reconciliation audit](../../docs/implementation/RECONCILIATION.md) before the original design below.
+
 ## Status
 
 **Preregistration proposed; not executed.**
@@ -35,7 +37,7 @@ No real credentials, public network access, physical actuation, real offensive-s
 
 - [PREREGISTRATION.md](PREREGISTRATION.md) — proposed confirmatory design
 - [config/MATRIX.yaml](config/MATRIX.yaml) — candidate factorial, partition, and freeze structure
-- [ARTIFACT_MANIFEST.template.json](ARTIFACT_MANIFEST.template.json) — complete freeze/provenance manifest template
+- [ARTIFACT_MANIFEST.template.json](ARTIFACT_MANIFEST.template.json) — freeze-field template; null fields do not establish readiness
 - [../../schemas/capability-emergence-observation.schema.json](../../schemas/capability-emergence-observation.schema.json) — trial-level evidence schema
 - [../../schemas/capability-emergence-assessment.schema.json](../../schemas/capability-emergence-assessment.schema.json) — Holdout A configuration-level emergence schema
 - [../../schemas/capability-transfer-assessment.schema.json](../../schemas/capability-transfer-assessment.schema.json) — Holdout B capability-transfer schema

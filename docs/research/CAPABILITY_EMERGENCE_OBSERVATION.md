@@ -1,5 +1,7 @@
 # Capability Emergence Evidence Records
 
+See [Scientist record and authority boundaries](SCIENTIST_CAPABILITY_BOUNDARY.md). Invalid aggregate estimates may be null and usable counts zero; Python diagnostics additionally recompute finite residuals and identity gates. JSON Schema alone does not validate arithmetic or scientific provenance.
+
 ## Status
 
 The records in this document are **candidate research evidence contracts**. They are not validated sensors and must not be used as authority signals without separate evidence.
@@ -108,7 +110,7 @@ Machine-readable schema:
 ## Lifecycle
 
 ```mermaid
-flowchart LR
+flowchart TD
     C[Frozen configuration] --> A[Holdout A]
     A --> EA[Emergence assessment]
     EA --> B[Transfer Holdout B]

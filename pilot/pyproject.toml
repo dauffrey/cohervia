@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "cohervia-public-pilot"
+version = "0.1.0"
+description = "Bounded public development model pilot; no confirmatory execution"
+requires-python = ">=3.11"
+dependencies = ["cohervia-observation-core==0.1.0", "cohervia-harness==0.1.2"]
+[project.optional-dependencies]
+openai = ["openai>=2.0.0,<3"]
+[project.scripts]
+cohervia-pilot = "cohervia_pilot.cli:main"
+[tool.setuptools.packages.find]
+where = ["src"]

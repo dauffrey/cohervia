@@ -2,7 +2,9 @@
 
 ## Status
 
-**Proposed preregistration. No confirmatory execution has occurred.**
+**Proposed / unfrozen / not executed. This draft is not execution authorization.**
+
+Reconciled from PR #3 at `f91f38daa57f38375eefa1cfd708fad2c6f6b7e4` onto Scientist v0.2.1. [Scientist ownership and lifecycle](../../docs/research/SCIENTIST_CAPABILITY_BOUNDARY.md) govern the interface mapping. The 16-cell study is not implemented by the development apparatus. The null artifact manifest and lists of required plans are not a completed freeze; exact scientific decisions remain human-review blockers in [the integration audit](../../docs/implementation/RECONCILIATION.md).
 
 ## Title
 
@@ -178,6 +180,7 @@ The frozen A-to-B selector must **independently recompute** every emergence prer
 - `protocol_valid = true`;
 - `verifier_result = pass`;
 - the frozen multiplicity rule is satisfied;
+- independently recompute `Delta_emergent_A(x,f) = mean_observed_value - baseline_prediction` from the recorded components, using the frozen numeric precision/tolerance; mismatches are invalid and cannot advance;
 - `Delta_emergent_A(x,f) >= delta_min`;
 - the recorded lower confidence bound is greater than or equal to `delta_min`.
 
@@ -215,6 +218,7 @@ The frozen B-to-C selector must **independently recompute** every transfer prere
 - `protocol_valid = true`;
 - `verifier_result = pass`;
 - the frozen multiplicity rule is satisfied;
+- independently recompute `Delta_transfer_B(x,f) = mean_observed_value - baseline_prediction` from the recorded components, using the frozen numeric precision/tolerance; mismatches are invalid and cannot advance;
 - `Delta_transfer_B(x,f) >= transfer_delta_min`;
 - the recorded lower confidence bound is greater than or equal to `transfer_delta_min`.
 
@@ -416,6 +420,8 @@ All observations use explicit:
 
 Missing evidence is never converted to zero.
 
+For configuration-level A/B assessments, if the baseline, observed mean, residual, or confidence bound cannot be calculated, the assessment must carry `invalid` classification and an explicit `null` for each unavailable aggregate. Positive, not-positive, confirmed, and not-confirmed assessments require numeric aggregate values. A missing or inconsistent residual cannot pass a selector; raw score records and missingness reasons remain in the immutable evidence bundle.
+
 ## Planned outputs
 
 The confirmatory report, if execution is authorized, must include:
@@ -453,3 +459,11 @@ If no configuration satisfies the frozen Holdout A emergence criterion, or no Ho
 Any material design change before confirmatory execution must be committed as an explicit preregistration amendment.
 
 After any Holdout A, B, or C input exposure, material changes require new eligible confirmatory partitions as specified above and must be explicitly documented.
+
+## Reconciliation amendment (pre-exposure)
+
+Selectors must recompute `delta_emergent = mean_observed_value - baseline_prediction` and the equivalent transfer residual, using finite non-boolean statistics and absolute serialization tolerance 1e-12 (zero relative tolerance). Positive/confirmed records with inconsistent components are ineligible. An unavailable estimate is null in an invalid record, with zero usable counts where applicable; no zero effect is fabricated.
+
+A/B pairing must bind experiment, configuration ID and exact configuration hash, task family, comparator definition and capability endpoint. Conflicting configuration hashes or duplicate assessments are protocol anomalies, retained and ineligible. Two-family replication must refer to the same frozen configuration and comparator/endpoint definitions. A label or selector pass is never execution permission or evidence acceptance; external reviewers/evaluators must verify the full frozen protocol, identities, custody and supporting artifacts independently.
+
+All exact sample/allocation/seed, timing/censoring, missingness, uncertainty, multiplicity, observer contrast and numerical survival/falsification/inconclusive decisions must be populated and reviewed before freeze. They remain unresolved here. No material artifact may change between A/B/C.

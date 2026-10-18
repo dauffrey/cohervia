@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "max_context_characters": 60000,
+  "max_characters_per_document": 14000,
+  "approved_context_paths": [
+    "README.md",
+    "ROADMAP.md",
+    "CONTRIBUTING.md",
+    "docs/architecture/OVERVIEW.md",
+    "docs/provenance/CONSTRUCT_STATUS.md",
+    "docs/provenance/LINEAGE.md",
+    "docs/research/EVIDENCE_POLICY.md",
+    "experiments/README.md",
+    "scientist/SCIENTIFIC_CONSTITUTION.md",
+    "scientist/docs/CONTINUAL_LEARNING.md",
+    "scientist/state/theory_graph.json"
+  ]
+}
