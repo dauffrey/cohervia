@@ -35,4 +35,4 @@ jobs:
         run: python -m unittest discover -s tests -v
 
       - name: Run instrumentation self-test
-        run: cohervia-harness --self-test
+        run: cohervia-experiment-harness --self-test

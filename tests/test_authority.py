@@ -1,6 +1,6 @@
 import unittest
 
-from cohervia_harness.authority import AuthorityBoundary, ProtectedResource
+from cohervia_experiment_harness.authority import AuthorityBoundary, ProtectedResource
 
 
 class AuthorityTests(unittest.TestCase):

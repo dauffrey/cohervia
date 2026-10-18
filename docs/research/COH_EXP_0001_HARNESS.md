@@ -8,7 +8,7 @@ This harness does not authorize or implement confirmatory execution of capabilit
 
 ## Purpose
 
-The harness exists to test whether the experimental apparatus can preserve the preregistered authority, provenance, isolation, and freeze boundaries before any confirmatory task is opened.
+The separate `cohervia_experiment_harness` Python package, distinct from the established `harness/cohervia_harness` apparatus, exists to test whether the experimental apparatus can preserve the preregistered authority, provenance, isolation, and freeze boundaries before any confirmatory task is opened.
 
 It currently provides:
 

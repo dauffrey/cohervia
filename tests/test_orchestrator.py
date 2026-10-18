@@ -1,17 +1,17 @@
 import json
 import unittest
 
-from cohervia_harness.audit import AppendOnlyAuditLog
-from cohervia_harness.events import Event
+from cohervia_experiment_harness.audit import AppendOnlyAuditLog
+from cohervia_experiment_harness.events import Event
 
-from cohervia_harness.agent import ScriptedDevelopmentAgent
-from cohervia_harness.canonical import hash_object
-from cohervia_harness.models import Partition, TrialConfig
-from cohervia_harness.observer import InstrumentationObserver, ObserverConfig
-from cohervia_harness.orchestrator import InstrumentationRunner
-from cohervia_harness.stop_controller import ExternalStopController
-from cohervia_harness.tasks import development_tasks
-from cohervia_harness.verifier import ExactMatchVerifier
+from cohervia_experiment_harness.agent import ScriptedDevelopmentAgent
+from cohervia_experiment_harness.canonical import hash_object
+from cohervia_experiment_harness.models import Partition, TrialConfig
+from cohervia_experiment_harness.observer import InstrumentationObserver, ObserverConfig
+from cohervia_experiment_harness.orchestrator import InstrumentationRunner
+from cohervia_experiment_harness.stop_controller import ExternalStopController
+from cohervia_experiment_harness.tasks import development_tasks
+from cohervia_experiment_harness.verifier import ExactMatchVerifier
 
 
 class OrchestratorTests(unittest.TestCase):

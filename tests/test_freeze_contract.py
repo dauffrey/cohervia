@@ -1,7 +1,7 @@
 import unittest
 from pathlib import Path
 
-from cohervia_harness.freeze import matrix_freeze_requirements, verify_freeze_contract
+from cohervia_experiment_harness.freeze import matrix_freeze_requirements, verify_freeze_contract
 
 
 ROOT = Path(__file__).resolve().parents[1]

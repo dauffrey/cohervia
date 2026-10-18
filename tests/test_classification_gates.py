@@ -2,7 +2,7 @@ import copy
 import unittest
 from pathlib import Path
 
-from cohervia_harness.schema_validation import validate_instance
+from cohervia_experiment_harness.schema_validation import validate_instance
 
 
 ROOT = Path(__file__).resolve().parents[1]

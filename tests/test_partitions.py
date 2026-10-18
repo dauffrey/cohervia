@@ -1,6 +1,6 @@
 import unittest
 
-from cohervia_harness.models import Partition, TrialConfig
+from cohervia_experiment_harness.models import Partition, TrialConfig
 
 
 class PartitionTests(unittest.TestCase):

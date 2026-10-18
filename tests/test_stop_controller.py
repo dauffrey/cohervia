@@ -1,7 +1,7 @@
 import unittest
 
-from cohervia_harness.events import Event
-from cohervia_harness.stop_controller import ExternalStopController
+from cohervia_experiment_harness.events import Event
+from cohervia_experiment_harness.stop_controller import ExternalStopController
 
 
 class StopControllerTests(unittest.TestCase):

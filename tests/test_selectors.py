@@ -2,7 +2,7 @@ import copy
 import math
 import unittest
 
-from cohervia_harness.selectors import (
+from cohervia_experiment_harness.selectors import (
     cross_family_eligible_configurations,
     recompute_emergence_gate,
     recompute_transfer_gate,

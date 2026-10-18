@@ -1,7 +1,7 @@
 import unittest
 
-from cohervia_harness.audit import AppendOnlyAuditLog
-from cohervia_harness.memory import GovernedMemory
+from cohervia_experiment_harness.audit import AppendOnlyAuditLog
+from cohervia_experiment_harness.memory import GovernedMemory
 
 
 class MemoryTests(unittest.TestCase):

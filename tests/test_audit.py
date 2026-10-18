@@ -1,7 +1,7 @@
 import unittest
 
-from cohervia_harness.audit import AppendOnlyAuditLog
-from cohervia_harness.events import Event
+from cohervia_experiment_harness.audit import AppendOnlyAuditLog
+from cohervia_experiment_harness.events import Event
 
 
 class AuditTests(unittest.TestCase):
