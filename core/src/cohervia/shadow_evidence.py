@@ -34,7 +34,7 @@ def assess_shadow_evidence(summary: object) -> ShadowEvidenceSignal:
     """
     if type(summary) is not dict or set(summary) != _FIELDS:
         return ShadowEvidenceSignal("INVALID", ("invalid_shape",))
-    if summary["schema_version"] != "efgm-evidence-summary/0.1":
+    if type(summary["schema_version"]) is not str or summary["schema_version"] != "efgm-evidence-summary/0.1":
         return ShadowEvidenceSignal("INVALID", ("unsupported_schema",))
     if summary["source_repository"] != "dauffrey/efgm" or not identifier(summary["claim_id"]):
         return ShadowEvidenceSignal("INVALID", ("invalid_source_or_claim",))
