@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import dataclass
 from typing import Any
 
@@ -16,6 +17,7 @@ class MemoryWrite:
     previous_state_hash: str
     resulting_state_hash: str
     source_event_ids: tuple[str, ...]
+    persistence_scope: str
 
 
 class GovernedMemory:
@@ -44,7 +46,7 @@ class GovernedMemory:
 
     def read(self, *, trial_id: str, key: str) -> Any:
         self._require_trial(trial_id)
-        return self._state.get(key)
+        return deepcopy(self._state.get(key))
 
     def write(
         self,
@@ -57,7 +59,7 @@ class GovernedMemory:
     ) -> MemoryWrite:
         self._require_trial(trial_id)
         previous_hash = self.state_hash
-        self._state[key] = value
+        self._state[key] = deepcopy(value)
         resulting_hash = self.state_hash
         write = MemoryWrite(
             actor=actor,
@@ -66,6 +68,7 @@ class GovernedMemory:
             previous_state_hash=previous_hash,
             resulting_state_hash=resulting_hash,
             source_event_ids=source_event_ids,
+            persistence_scope="trial",
         )
         event = Event.create(
             trial_id=trial_id,
@@ -73,6 +76,7 @@ class GovernedMemory:
             kind="memory_write",
             payload={
                 "key": key,
+                "persistence_scope": "trial",
                 "previous_state_hash": previous_hash,
                 "resulting_state_hash": resulting_hash,
                 "source_event_ids": list(source_event_ids),
