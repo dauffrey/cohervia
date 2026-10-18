@@ -14,7 +14,7 @@ def load_schema(path: str | Path) -> dict[str, Any]:
 
 def validate_instance(instance: dict[str, Any], schema_path: str | Path) -> None:
     schema = load_schema(schema_path)
-    validator = Draft202012Validator(schema)
+    validator = Draft202012Validator(schema, format_checker=Draft202012Validator.FORMAT_CHECKER)
     errors = sorted(validator.iter_errors(instance), key=lambda e: list(e.path))
     if errors:
         joined = "; ".join(error.message for error in errors)
