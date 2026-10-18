@@ -178,6 +178,7 @@ The frozen A-to-B selector must **independently recompute** every emergence prer
 - `protocol_valid = true`;
 - `verifier_result = pass`;
 - the frozen multiplicity rule is satisfied;
+- independently recompute `Delta_emergent_A(x,f) = mean_observed_value - baseline_prediction` from the recorded components, using the frozen numeric precision/tolerance; mismatches are invalid and cannot advance;
 - `Delta_emergent_A(x,f) >= delta_min`;
 - the recorded lower confidence bound is greater than or equal to `delta_min`.
 
@@ -215,6 +216,7 @@ The frozen B-to-C selector must **independently recompute** every transfer prere
 - `protocol_valid = true`;
 - `verifier_result = pass`;
 - the frozen multiplicity rule is satisfied;
+- independently recompute `Delta_transfer_B(x,f) = mean_observed_value - baseline_prediction` from the recorded components, using the frozen numeric precision/tolerance; mismatches are invalid and cannot advance;
 - `Delta_transfer_B(x,f) >= transfer_delta_min`;
 - the recorded lower confidence bound is greater than or equal to `transfer_delta_min`.
 
@@ -415,6 +417,8 @@ All observations use explicit:
 - `not_applicable`
 
 Missing evidence is never converted to zero.
+
+For configuration-level A/B assessments, if the baseline, observed mean, residual, or confidence bound cannot be calculated, the assessment must carry `invalid` classification and an explicit `null` for each unavailable aggregate. Positive, not-positive, confirmed, and not-confirmed assessments require numeric aggregate values. A missing or inconsistent residual cannot pass a selector; raw score records and missingness reasons remain in the immutable evidence bundle.
 
 ## Planned outputs
 
