@@ -15,6 +15,8 @@ def emergence_record(family="algorithmic_verifiable"):
         "system_configuration_hash": "sha-frozen-cfg-1",
         "task_family_id": family,
         "delta_emergent": 0.3,
+        "baseline_prediction": 0.2,
+        "mean_observed_value": 0.5,
         "delta_min": 0.1,
         "lower_confidence_bound": 0.2,
         "multiplicity_result": "pass",
@@ -30,6 +32,8 @@ def transfer_record(family="algorithmic_verifiable"):
         "system_configuration_hash": "sha-frozen-cfg-1",
         "task_family_id": family,
         "delta_transfer": 0.3,
+        "baseline_prediction": 0.2,
+        "mean_observed_value": 0.5,
         "transfer_delta_min": 0.1,
         "lower_confidence_bound": 0.2,
         "multiplicity_result": "pass",
@@ -101,6 +105,16 @@ class SelectorTests(unittest.TestCase):
                         record = factory()
                         record[field] = bad
                         self.assertFalse(gate(record).passed)
+
+    def test_residual_is_recomputed_not_trusted(self):
+        for factory, gate in ((emergence_record, recompute_emergence_gate),
+                              (transfer_record, recompute_transfer_gate)):
+            example = factory()
+            example["mean_observed_value"] = 0.1
+            example["baseline_prediction"] = 0.8
+            self.assertIn("residual_components_disagree", gate(example).reasons)
+            example["mean_observed_value"] = None
+            self.assertIn("missing_or_invalid_residual_components", gate(example).reasons)
 
     def test_cross_family_hash_mismatch_never_conflates_systems(self):
         families = ("algorithmic_verifiable", "mathematical_verifiable")
