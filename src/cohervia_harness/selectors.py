@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import isfinite
+from math import isclose, isfinite
 from typing import Any, Iterable, Mapping
 
 
@@ -29,7 +29,13 @@ def recompute_emergence_gate(record: Mapping[str, Any]) -> GateResult:
     if not _multiplicity_ok(record.get("multiplicity_result")):
         reasons.append("multiplicity_not_satisfied")
 
+    observed = record.get("mean_observed_value")
+    baseline = record.get("baseline_prediction")
     delta = record.get("delta_emergent")
+    if not _finite_number(observed) or not _finite_number(baseline):
+        reasons.append("missing_or_invalid_residual_components")
+    elif not _finite_number(delta) or not isclose(delta, observed - baseline, rel_tol=0, abs_tol=1e-9):
+        reasons.append("residual_components_disagree")
     delta_min = record.get("delta_min")
     lower = record.get("lower_confidence_bound")
 
@@ -59,7 +65,13 @@ def recompute_transfer_gate(record: Mapping[str, Any]) -> GateResult:
     if not _multiplicity_ok(record.get("multiplicity_result")):
         reasons.append("multiplicity_not_satisfied")
 
+    observed = record.get("mean_observed_value")
+    baseline = record.get("baseline_prediction")
     delta = record.get("delta_transfer")
+    if not _finite_number(observed) or not _finite_number(baseline):
+        reasons.append("missing_or_invalid_residual_components")
+    elif not _finite_number(delta) or not isclose(delta, observed - baseline, rel_tol=0, abs_tol=1e-9):
+        reasons.append("residual_components_disagree")
     delta_min = record.get("transfer_delta_min")
     lower = record.get("lower_confidence_bound")
 
