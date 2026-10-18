@@ -1,0 +1,177 @@
+experiment_id: COH-EXP-0001
+status: proposed_not_executed
+safety_tier: yellow
+safety_tier_scope: entire_matrix
+
+factors:
+  agent_count:
+    - 1
+    - 2
+  code_tool:
+    - "off"
+    - "on"
+  verifier_feedback:
+    - "off"
+    - "on"
+  structured_memory:
+    - "off"
+    - "on"
+
+task_families:
+  - algorithmic_verifiable
+  - mathematical_verifiable
+
+partitions:
+  development:
+    purpose: tuning_and_instrumentation
+    holdout: false
+  capability_holdout_a:
+    purpose: initial_capability_emergence_classification
+    holdout: true
+  transfer_holdout_b:
+    purpose: independent_capability_transfer_confirmation
+    holdout: true
+    opened_only_after_capability_holdout_a_classification: true
+  governance_holdout_c:
+    purpose: independent_governance_evaluation
+    holdout: true
+    opened_only_after_transfer_holdout_b_confirmation: true
+
+network:
+  public_access: false
+
+credentials:
+  real_credentials_allowed: false
+
+services:
+  synthetic_only: true
+
+external_side_effects:
+  allowed: false
+
+isolation:
+  namespace_isolation_required: true
+  explicit_channel_inventory_required: true
+  instrumented_shared_state_required: true
+
+audit:
+  immutable_or_cryptographically_append_only_required: true
+  acting_agent_write_path_to_historical_records: false
+
+governance:
+  acting_agent_controls_evaluator: false
+  acting_agent_controls_monitor: false
+  acting_agent_controls_stop_controller: false
+  acting_agent_controls_permissions: false
+  acting_agent_controls_audit_log: false
+  acting_agent_controls_emergence_classification: false
+  acting_agent_controls_transfer_confirmation: false
+
+holdout:
+  capability_a_inputs_blinded_during_development: true
+  capability_a_outcomes_blinded_during_development: true
+  transfer_b_inputs_blinded_during_development: true
+  transfer_b_outcomes_blinded_during_development: true
+  governance_c_inputs_blinded_during_development: true
+  governance_c_outcomes_blinded_during_development: true
+  transfer_b_inputs_blinded_until_a_classification_complete: true
+  governance_c_inputs_blinded_until_b_transfer_confirmation_complete: true
+  frozen_evaluators_only_after_freeze: true
+
+emergence_classification:
+  source_partition: capability_holdout_a
+  observer_independent: true
+  delta_min_frozen_before_holdout: true
+  confidence_procedure_frozen_before_holdout: true
+  multiplicity_rule_frozen_before_holdout: true
+
+capability_transfer:
+  source_partition: transfer_holdout_b
+  classification_source: capability_holdout_a
+  observer_independent: true
+  task_family_matched_to_a: true
+  same_frozen_capability_comparator_mapping: true
+  transfer_delta_min_frozen_before_holdout_a: true
+  confidence_procedure_frozen_before_holdout_a: true
+  configurations_must_pass_b_before_c: true
+  selector_recomputes_numeric_and_discrete_gates: true
+
+cross_family_gate:
+  minimum_transfer_confirmed_task_families: 2
+  same_frozen_configuration_required: true
+  definition_frozen_before_holdout_a: true
+  single_family_candidate_not_system_level: true
+
+governance_evaluation:
+  source_partition: governance_holdout_c
+  eligibility_source: transfer_holdout_b
+  cross_family_gate_required: true
+  selector_recomputes_transfer_gates: true
+  primary_population_does_not_condition_on_holdout_c_success: true
+  primary_reference_type: topology_matched_sham_control
+  governance_control_definition_frozen_before_holdout_a: true
+  selection_rule_frozen_before_holdout_a: true
+  capability_comparator_definition_frozen_before_holdout_a: true
+  observer_frozen_before_holdout_a: true
+  observer_receives_configuration_identity: false
+  raw_static_treatment_markers_allowed: false
+  feature_mask_frozen_before_holdout_a: true
+  feature_normalization_policy_frozen_before_holdout_a: true
+  thresholds_frozen_before_holdout_a: true
+  success_conditioned_analysis_secondary_only: true
+
+analysis_integrity:
+  sample_size_plan_frozen_before_holdout_a: true
+  run_order_plan_frozen_before_holdout_a: true
+  retry_policy_frozen_before_holdout_a: true
+  exclusion_rule_frozen_before_holdout_a: true
+  missing_data_policy_frozen_before_holdout_a: true
+  compute_time_limits_frozen_before_holdout_a: true
+  primary_endpoints_frozen_before_holdout_a: true
+  secondary_endpoints_frozen_before_holdout_a: true
+  optional_stopping_allowed: false
+
+freeze_required_before_confirmatory_execution:
+  - model_identity
+  - orchestrator_identity
+  - orchestrator_version
+  - tool_versions
+  - task_generation_procedure
+  - development_manifest
+  - capability_holdout_a_manifest
+  - transfer_holdout_b_manifest
+  - governance_holdout_c_manifest
+  - baseline_estimator
+  - transfer_estimator
+  - sample_size_plan
+  - run_order_plan
+  - retry_policy
+  - exclusion_rule
+  - missing_data_policy
+  - compute_time_limits
+  - primary_endpoint_definitions
+  - secondary_endpoint_definitions
+  - delta_min
+  - transfer_delta_min
+  - uncertainty_procedure
+  - multiplicity_rule
+  - success_threshold
+  - comparator_definition
+  - governance_control_definition
+  - cross_family_gate_definition
+  - holdout_selection_rule
+  - observer
+  - observer_features
+  - observer_feature_mask
+  - observer_normalization_policy
+  - observer_thresholds
+  - capability_evaluator
+  - transfer_evaluator
+  - governance_evaluator
+  - verifier_identity
+  - configuration_hashes
+  - environment_image
+  - channel_inventory
+  - stop_conditions
+  - stop_controller
+  - audit_immutability_configuration

@@ -1,0 +1,60 @@
+{
+  "baseline_commit": "fc139abfbc92f0d7ef30dfb6bb032402c8e05456",
+  "baseline_tree": "632e7b452219b134b696fed0759ca94bde198014",
+  "source_prs": [
+    {
+      "number": 2,
+      "sha": "ef8477b11fa00f6d6ab1a0cc461424d6eddcb7b5"
+    },
+    {
+      "number": 3,
+      "sha": "f91f38daa57f38375eefa1cfd708fad2c6f6b7e4"
+    },
+    {
+      "number": 4,
+      "sha": "54423f84cdcd122e23767406c8e6e4cf386d2600"
+    }
+  ],
+  "protected_blobs": {
+    "docs/research/EVIDENCE_POLICY.md": "de8bb611f8857c51a80775a91e50ad3f6513e028",
+    "scientist/README.md": "cbe506e77e978513744bcfd0f11d10c7cb8be75f",
+    "scientist/SCIENTIFIC_CONSTITUTION.md": "1290bf32755eea8a9e7d2aed2173d7982a59f8da",
+    "scientist/config/authority.json": "2d8c6d2d3f60e98ee4390ed899b44b86d70c4117",
+    "scientist/config/reasoning.json": "f6e504c5674097d17cade64f26b415adfd8d0cab",
+    "scientist/docs/ARCHITECTURE.md": "e8463622ad1fc82a0d10dc9cfb838c79856f6b2c",
+    "scientist/docs/CONTINUAL_LEARNING.md": "271aba8586d4be629d694dfae46038a6ad522a8b",
+    "scientist/docs/REASONING_ENGINE.md": "4a5e9e5628c3f1bb7b4894e4ef80181e361af51a",
+    "scientist/docs/V02_REVIEW.md": "27f34fda4e7f780a4c55ffad8ba39c1c781e08ca",
+    "scientist/pyproject.toml": "a177b6ac91850fe3054dfd1f1b501f56fc098d7c",
+    "scientist/qualification/DESIGN_REVIEW.md": "76886c06b5d14dee2715a13afa8439d3b4cb5f6b",
+    "scientist/qualification/PROTOCOL.md": "2f530c84f9d0472b7b409f3a1388e9ce354326f2",
+    "scientist/qualification/results/README.md": "94d040b80ca3b901b8d13ab93f344bcbd554d50a",
+    "scientist/qualification/results/scripted-instrumentation.json.xz": "4a3e3e9c54603ad5dacc2206d476971153987e8f",
+    "scientist/qualification/rubric.json": "452e7a0cfb4a3ed2f22130639f4fb7af8d90ed4e",
+    "scientist/qualification/suite.json": "efb7fde12c9865ef90cc9d1da578d16d42b12d26",
+    "scientist/src/cohervia_scientist/__init__.py": "ac4cd8b32d0bdfb32498665577ee42550bac3b17",
+    "scientist/src/cohervia_scientist/cli.py": "d7034ff38884c4bb7a3a9ad2380e3f3f97573f72",
+    "scientist/src/cohervia_scientist/context.py": "0c19670f9719f707101e979e78cf67d02989d568",
+    "scientist/src/cohervia_scientist/json_utils.py": "94e5a024a2cdee82a7df7ffc51b4461af95a609f",
+    "scientist/src/cohervia_scientist/ledger.py": "a4984bab286b310c095600bbe83761eb18c855d4",
+    "scientist/src/cohervia_scientist/memory.py": "ac2d2b6de37ace663c4d36a399b3081d3032dab0",
+    "scientist/src/cohervia_scientist/models.py": "426951d28a47ddc82f008c2db2d967bc012531dd",
+    "scientist/src/cohervia_scientist/prompts.py": "c4e9161564423dd595643fde1ff71bc1dbb7a888",
+    "scientist/src/cohervia_scientist/provider.py": "a2bd9251602a34d44e2f32d40dcf30744dbfc8f7",
+    "scientist/src/cohervia_scientist/qualification.py": "b47781edfcb8ca3dee3ffa1c7d7f4ec92f699974",
+    "scientist/src/cohervia_scientist/reasoning.py": "72edf78c7c71e90e0dae4c7435ffcc1af4e8b38d",
+    "scientist/src/cohervia_scientist/research_cycle.py": "e218455e774db3cc12b102eb204fe098489af45c",
+    "scientist/src/cohervia_scientist/safe_io.py": "3d130aec84894fea8eadaf0dc1776cc596d54a60",
+    "scientist/src/cohervia_scientist/schemas.py": "151a51acd3519e60b82c30165c7a833437c830d7",
+    "scientist/src/cohervia_scientist/theory.py": "20fea9594ebbbf4cae09acaa8162b7c5733c6dfb",
+    "scientist/state/anomalies.jsonl": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "scientist/state/failures.jsonl": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "scientist/state/predictions.jsonl": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+    "scientist/state/theory_graph.json": "4f4399115e825fc41133633d8e61f7b70d144fac",
+    "scientist/tests/test_boundaries.py": "b6b78c4ff2a7bd1d70981b5ede5a4d3d046bdef9",
+    "scientist/tests/test_provider.py": "48d5b4be2ecaba70746c2c1e6736166628fd8892",
+    "scientist/tests/test_qualification.py": "b83d07bad8f5ee55aada5205e6bf2ff37a87d22c",
+    "scientist/tests/test_reasoning.py": "38e7317f93aa6e107b6a3144373b29811c744f60",
+    "scientist/tests/test_scientist.py": "515409ee8c953b4b5d5ae91f692f721e7661363c"
+  }
+}

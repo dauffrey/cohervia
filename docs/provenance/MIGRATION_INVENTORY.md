@@ -1,5 +1,7 @@
 # Migration inventory
 
+Imported design inventory from PR #2 at `ef8477b11fa00f6d6ab1a0cc461424d6eddcb7b5`. Source-verification statements below describe that prior review; this integration does not claim a fresh verification of predecessor bytes or historical custody. Scientist infrastructure is distinct from the proposed migration core.
+
 Status: proposed Phase 1 decisions, pending review. No source code is migrated.
 Each source link pins the exact snapshot in [LINEAGE.md](LINEAGE.md).
 ADOPT retains conceptual semantics, not permission to copy code. ADAPT explicitly changes

@@ -62,11 +62,6 @@ See the provenance documentation for the full lineage and constraints: [docs/pro
 - [docs/provenance/CONSTRUCT_STATUS.md](docs/provenance/CONSTRUCT_STATUS.md) — conservative construct status table
 - [docs/provenance/LINEAGE.md](docs/provenance/LINEAGE.md) — predecessor lineages and authoritative snapshot record
 - [docs/research/EVIDENCE_POLICY.md](docs/research/EVIDENCE_POLICY.md) — preregistration, freeze, and evidence rules
-- [MIGRATION_INVENTORY.md](docs/provenance/MIGRATION_INVENTORY.md) — source-grounded migration inventory and adoption boundaries
-- [OBSERVATION_CONTRACT.md](docs/contracts/OBSERVATION_CONTRACT.md) — explicit observation semantics for Cohervia measurements
-- [TRAJECTORY_STATE_CONTRACT.md](docs/contracts/TRAJECTORY_STATE_CONTRACT.md) — viability-state and metric boundary for trajectory assessment
-- [AUTHORITY_AUDIT_CONTRACT.md](docs/contracts/AUTHORITY_AUDIT_CONTRACT.md) — separation of governor signal from authority and audit boundary
-- [PHASE_2_PLAN.md](docs/implementation/PHASE_2_PLAN.md) — implementation plan for the minimal observation-and-audit core
 - [ROADMAP.md](ROADMAP.md) — phased research roadmap
 - [CONTRIBUTING.md](CONTRIBUTING.md) — scientific and implementation expectations
 - [SECURITY.md](SECURITY.md) — security reporting policy
@@ -74,4 +69,20 @@ See the provenance documentation for the full lineage and constraints: [docs/pro
 
 ## Status
 
-Phase 0 is merged. Phase 1 migration inventory and contracts are proposed and pending review; Phase 2 implementation has not begun. No runtime implementation, workflow, or authority logic is introduced. The project does not claim validated production or real-agent safety performance.
+Cohervia is in foundation/consolidation status. It contains no validated production governor, no validated general safety capability, and no claim that inherited constructs are validated simply because they were selected for a successor project.
+
+## Implemented infrastructure and research status
+
+| Track | Implementation | Scientific status |
+| --- | --- | --- |
+| [Scientist v0.2.1](scientist/README.md) | Bounded research memory, multi-role reasoning, critic gates and local artifacts; proposal-only CLI | No experiment execution authority; outputs are candidate reasoning |
+| [Scientific reasoning qualification](scientist/qualification/PROTOCOL.md) | Seven fixed public cases, exact artifact archive, structural diagnostics and anchored human rubric | Scripted instrumentation; human scientific-quality ratings remain unknown; no automatic qualification |
+| [Observation/audit core v0.1.0](core/README.md) | Observation validation, explicit missingness/provenance, pinned JCS, atomic SQLite append and deterministic replay | Fabricated contract regressions only; no scientific evidence, estimator or authority |
+| [Migration contracts](docs/provenance/MIGRATION_INVENTORY.md) | Inventory; observation/audit implemented separately; trajectory and authority interfaces remain proposed | No validated state estimator or governor |
+| [Capability research / COH-EXP-0001](experiments/COH-EXP-0001/README.md) | Proposed design, matrix and candidate record schemas | Unfrozen, not executed; no capability-emergence, transfer or governance evidence |
+| [Bounded public pilot](pilot/README.md) | Fixed public task runner, text-only API adapter, core ingestion and replayable report | Live execution requires configured provider/model; offline tests are fabricated instrumentation, not model findings |
+| [Separate development apparatus](harness/README.md) | Public scripted fixtures, audit/memory interfaces and arithmetic/identity diagnostics | Apparatus instrumentation only; no factorial study or holdout access |
+
+The Scientist proposes and critiques scientific work. Independent evaluators and external authority must govern any future experiment. A passing unit test, schema, hash check, or qualification diagnostic is not a scientific finding or permission to execute.
+
+Read the [integration audit and plan](docs/implementation/RECONCILIATION.md), [Scientist/capability ownership map](docs/research/SCIENTIST_CAPABILITY_BOUNDARY.md), [observation contract](docs/contracts/OBSERVATION_CONTRACT.md), [trajectory contract](docs/contracts/TRAJECTORY_STATE_CONTRACT.md), [authority/audit contract](docs/contracts/AUTHORITY_AUDIT_CONTRACT.md), and [observation-core implementation and acceptance plan](docs/implementation/PHASE_2_PLAN.md). These reconcile legacy PRs #2–#4 with merged Scientist PR #7; old branches remain historical review sources.

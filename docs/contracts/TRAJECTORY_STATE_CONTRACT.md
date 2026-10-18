@@ -1,5 +1,7 @@
 # Trajectory-state contract
 
+Reconciliation scope: adapted from PR #2 at `ef8477b11fa00f6d6ab1a0cc461424d6eddcb7b5`. Proposed future interface; Scientist and development apparatus do not implement this contract. See [current mapping](../research/SCIENTIST_CAPABILITY_BOUNDARY.md).
+
 Status: proposed interface, pending review. Phase 2 does not compute state estimates.
 See inventory INV-09 through INV-14 for CGS lineage.
 The following is a Cohervia interface, not a claim of validated estimators.
