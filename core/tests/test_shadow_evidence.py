@@ -59,6 +59,17 @@ class ShadowEvidenceTests(unittest.TestCase):
                 self.assertEqual(result.reasons, ("unsupported_schema",))
                 self.assertFalse(result.grants_permission)
 
+    def test_upstream_invalid_cannot_be_downgraded_to_missing_evidence(self):
+        for reported_reasons in ([], ["invalid_record_shape"]):
+            sample = packet()
+            sample["efgm_disposition"] = "INVALID"
+            sample["efgm_reasons"] = reported_reasons
+            result = assess_shadow_evidence(sample)
+            self.assertEqual(result.status, "INVALID")
+            self.assertEqual(result.reasons, ("upstream_claim_invalid",))
+            self.assertFalse(result.evidence_independently_verified)
+            self.assertFalse(result.grants_permission)
+
     def test_malformed_or_forged_shape_rejected(self):
         self.assertEqual(assess_shadow_evidence({}).status, "INVALID")
         self.assertEqual(assess_shadow_evidence(None).status, "INVALID")
