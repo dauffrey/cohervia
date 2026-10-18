@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import asdict, dataclass
 
 from .canonical import hash_object
@@ -28,13 +29,14 @@ class AppendOnlyAuditLog:
 
     @property
     def records(self) -> tuple[AuditRecord, ...]:
-        return tuple(self._records)
+        return tuple(deepcopy(self._records))
 
     @property
     def root_hash(self) -> str:
         return self._records[-1].record_hash if self._records else self.GENESIS
 
     def append(self, event: Event) -> AuditRecord:
+        event = deepcopy(event)
         previous_hash = self.root_hash
         sequence = len(self._records)
         record_hash = hash_object(
@@ -51,7 +53,7 @@ class AppendOnlyAuditLog:
             record_hash=record_hash,
         )
         self._records.append(record)
-        return record
+        return deepcopy(record)
 
     def verify(self) -> bool:
         previous = self.GENESIS
