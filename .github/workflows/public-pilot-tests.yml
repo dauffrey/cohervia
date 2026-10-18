@@ -1,0 +1,40 @@
+name: Bounded public development pilot
+on:
+  pull_request:
+  push:
+    branches: [main, 'pilot/**']
+permissions:
+  contents: read
+jobs:
+  pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install separate core, harness and optional live adapter
+        run: python -m pip install -e ./core -e ./harness -e './pilot[openai]'
+      - name: Pilot tests (offline and SDK mocks; no API credentials)
+        run: python -m unittest discover -s pilot/tests -v
+      - name: Preserved mainline boundaries
+        run: python -m unittest discover -s tests -v
+      - name: Scripted instrumentation archive and deterministic report replay
+        run: |
+          cohervia-pilot self-test --run-id ci-offline --output pilot/runs/ci-offline > pilot/runs-report.txt
+          cohervia-pilot replay --directory pilot/runs/ci-offline > pilot/replayed-report.txt
+          cmp pilot/runs-report.txt pilot/replayed-report.txt
+          git diff --check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-pilot-scripted-instrumentation-python-${{ matrix.python }}
+          path: pilot/runs/ci-offline/
+          if-no-files-found: error
+          retention-days: 30

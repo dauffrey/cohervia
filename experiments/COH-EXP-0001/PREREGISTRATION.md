@@ -2,7 +2,9 @@
 
 ## Status
 
-**Proposed preregistration. No confirmatory execution has occurred.**
+**Proposed / unfrozen / not executed. This draft is not execution authorization.**
+
+Reconciled from PR #3 at `f91f38daa57f38375eefa1cfd708fad2c6f6b7e4` onto Scientist v0.2.1. [Scientist ownership and lifecycle](../../docs/research/SCIENTIST_CAPABILITY_BOUNDARY.md) govern the interface mapping. The 16-cell study is not implemented by the development apparatus. The null artifact manifest and lists of required plans are not a completed freeze; exact scientific decisions remain human-review blockers in [the integration audit](../../docs/implementation/RECONCILIATION.md).
 
 ## Title
 
@@ -457,3 +459,11 @@ If no configuration satisfies the frozen Holdout A emergence criterion, or no Ho
 Any material design change before confirmatory execution must be committed as an explicit preregistration amendment.
 
 After any Holdout A, B, or C input exposure, material changes require new eligible confirmatory partitions as specified above and must be explicitly documented.
+
+## Reconciliation amendment (pre-exposure)
+
+Selectors must recompute `delta_emergent = mean_observed_value - baseline_prediction` and the equivalent transfer residual, using finite non-boolean statistics and absolute serialization tolerance 1e-12 (zero relative tolerance). Positive/confirmed records with inconsistent components are ineligible. An unavailable estimate is null in an invalid record, with zero usable counts where applicable; no zero effect is fabricated.
+
+A/B pairing must bind experiment, configuration ID and exact configuration hash, task family, comparator definition and capability endpoint. Conflicting configuration hashes or duplicate assessments are protocol anomalies, retained and ineligible. Two-family replication must refer to the same frozen configuration and comparator/endpoint definitions. A label or selector pass is never execution permission or evidence acceptance; external reviewers/evaluators must verify the full frozen protocol, identities, custody and supporting artifacts independently.
+
+All exact sample/allocation/seed, timing/censoring, missingness, uncertainty, multiplicity, observer contrast and numerical survival/falsification/inconclusive decisions must be populated and reviewed before freeze. They remain unresolved here. No material artifact may change between A/B/C.

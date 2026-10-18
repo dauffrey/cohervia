@@ -16,8 +16,6 @@ Autonomous systems can continue operating even when the evidence of their future
 
 This project focuses on the separation of measurement, viability estimation, trajectory warning, and authority decisions. It does not assume that a candidate governor signal is sufficient to authorize action on its own.
 
-A related research track studies **system-level capability emergence**: whether combinations of tools, persistent state, verification, multiple agents, and environments produce reproducible capability gains, and whether trajectory changes associated with those gains can be observed before the final outcome. This track remains subject to the same falsification, provenance, holdout, and authority-separation rules as the rest of Cohervia.
-
 ## Compact architecture
 
 ```mermaid
@@ -64,15 +62,27 @@ See the provenance documentation for the full lineage and constraints: [docs/pro
 - [docs/provenance/CONSTRUCT_STATUS.md](docs/provenance/CONSTRUCT_STATUS.md) — conservative construct status table
 - [docs/provenance/LINEAGE.md](docs/provenance/LINEAGE.md) — predecessor lineages and authoritative snapshot record
 - [docs/research/EVIDENCE_POLICY.md](docs/research/EVIDENCE_POLICY.md) — preregistration, freeze, and evidence rules
-- [docs/research/CAPABILITY_DISCOVERY.md](docs/research/CAPABILITY_DISCOVERY.md) — system-level capability discovery research track
-- [docs/research/CAPABILITY_EMERGENCE_OBSERVATION.md](docs/research/CAPABILITY_EMERGENCE_OBSERVATION.md) — candidate observation contract
-- [docs/research/SAFETY_TIERS.md](docs/research/SAFETY_TIERS.md) — environment tiers and automatic pause conditions
 - [ROADMAP.md](ROADMAP.md) — phased research roadmap
 - [CONTRIBUTING.md](CONTRIBUTING.md) — scientific and implementation expectations
 - [SECURITY.md](SECURITY.md) — security reporting policy
 - [experiments/README.md](experiments/README.md) — Cohervia experiment namespace and rules
-- [experiments/COH-EXP-0001/README.md](experiments/COH-EXP-0001/README.md) — proposed first Cohervia preregistration package
 
 ## Status
 
-Cohervia is in foundation/consolidation status. It contains no validated production governor, no validated general safety capability, and no claim that inherited constructs or proposed capability-emergence constructs are validated simply because they are included in the successor project.
+Cohervia is in foundation/consolidation status. It contains no validated production governor, no validated general safety capability, and no claim that inherited constructs are validated simply because they were selected for a successor project.
+
+## Implemented infrastructure and research status
+
+| Track | Implementation | Scientific status |
+| --- | --- | --- |
+| [Scientist v0.2.1](scientist/README.md) | Bounded research memory, multi-role reasoning, critic gates and local artifacts; proposal-only CLI | No experiment execution authority; outputs are candidate reasoning |
+| [Scientific reasoning qualification](scientist/qualification/PROTOCOL.md) | Seven fixed public cases, exact artifact archive, structural diagnostics and anchored human rubric | Scripted instrumentation; human scientific-quality ratings remain unknown; no automatic qualification |
+| [Observation/audit core v0.1.0](core/README.md) | Observation validation, explicit missingness/provenance, pinned JCS, atomic SQLite append and deterministic replay | Fabricated contract regressions only; no scientific evidence, estimator or authority |
+| [Migration contracts](docs/provenance/MIGRATION_INVENTORY.md) | Inventory; observation/audit implemented separately; trajectory and authority interfaces remain proposed | No validated state estimator or governor |
+| [Capability research / COH-EXP-0001](experiments/COH-EXP-0001/README.md) | Proposed design, matrix and candidate record schemas | Unfrozen, not executed; no capability-emergence, transfer or governance evidence |
+| [Bounded public pilot](pilot/README.md) | Fixed public task runner, text-only API adapter, core ingestion and replayable report | Live execution requires configured provider/model; offline tests are fabricated instrumentation, not model findings |
+| [Separate development apparatus](harness/README.md) | Public scripted fixtures, audit/memory interfaces and arithmetic/identity diagnostics | Apparatus instrumentation only; no factorial study or holdout access |
+
+The Scientist proposes and critiques scientific work. Independent evaluators and external authority must govern any future experiment. A passing unit test, schema, hash check, or qualification diagnostic is not a scientific finding or permission to execute.
+
+Read the [integration audit and plan](docs/implementation/RECONCILIATION.md), [Scientist/capability ownership map](docs/research/SCIENTIST_CAPABILITY_BOUNDARY.md), [observation contract](docs/contracts/OBSERVATION_CONTRACT.md), [trajectory contract](docs/contracts/TRAJECTORY_STATE_CONTRACT.md), [authority/audit contract](docs/contracts/AUTHORITY_AUDIT_CONTRACT.md), and [observation-core implementation and acceptance plan](docs/implementation/PHASE_2_PLAN.md). These reconcile legacy PRs #2–#4 with merged Scientist PR #7; old branches remain historical review sources.

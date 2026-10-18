@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "default_mode": "foundation",
+  "permissions": {
+    "read_repository": true,
+    "write_research_branch": false,
+    "open_pull_request": false,
+    "push_main": false,
+    "merge_pull_request": false,
+    "read_confirmatory_holdout": false,
+    "execute_exploratory_sandbox": false,
+    "execute_confirmatory": false,
+    "modify_constitution": false,
+    "modify_permissions": false,
+    "modify_sandbox_policy": false
+  },
+  "notes": [
+    "v0.1 starts with local research-state management only.",
+    "External orchestration may later grant narrowly scoped branch and sandbox capabilities.",
+    "No autonomous component may grant itself additional authority."
+  ]
+}

@@ -1,0 +1,189 @@
+{
+  "schema_version": 1,
+  "suite_id": "cohervia-reasoning-qualification-v0.2.1",
+  "evidence_status": "instrumentation_only",
+  "cases": [
+    {
+      "id": "Q01",
+      "target": "trajectory_warning",
+      "question": "Does margin slope add pre-boundary warning beyond margin level at a matched false-alarm budget?",
+      "review_focus": "Separate incremental trajectory information from threshold-induced alarm inflation.",
+      "memory_kind": "failure",
+      "memory": [
+        {
+          "id": "QUAL-Q01-M1",
+          "hypothesis": "Does margin slope add pre-boundary warning beyond margin level at a matched false-alarm budget?",
+          "observed": "In a synthetic qualification fixture, margin slope appeared useful only because it raised more false alarms.",
+          "lesson": "Match false-alarm budgets and compare against the simpler margin-level baseline.",
+          "affected_constructs": [
+            "margin",
+            "slope",
+            "false-alarm"
+          ],
+          "cause": null,
+          "unresolved": [
+            "This is an illustrative fixture, not an empirical result."
+          ],
+          "evidence_class": "instrumentation",
+          "origin": "synthetic_qualification_fixture_not_research_evidence"
+        }
+      ]
+    },
+    {
+      "id": "Q02",
+      "target": "uncertainty_missingness",
+      "question": "Can explicit missingness distinguish unknown viability from low measured viability without treating missing evidence as zero?",
+      "review_focus": "Compare missingness-aware estimates with measurement-error and ordinary-noise explanations.",
+      "memory_kind": "failure",
+      "memory": [
+        {
+          "id": "QUAL-Q02-M1",
+          "hypothesis": "Can explicit missingness distinguish unknown viability from low measured viability without treating missing evidence as zero?",
+          "observed": "In a synthetic qualification fixture, missing telemetry was imputed to zero, producing apparently precise viability estimates.",
+          "lesson": "Keep observed, inferred, unknown, and not_applicable states distinct; do not impute absence into evidence.",
+          "affected_constructs": [
+            "missing",
+            "viability",
+            "unknown"
+          ],
+          "cause": null,
+          "unresolved": [
+            "This is an illustrative fixture, not an empirical result."
+          ],
+          "evidence_class": "instrumentation",
+          "origin": "synthetic_qualification_fixture_not_research_evidence"
+        }
+      ]
+    },
+    {
+      "id": "Q03",
+      "target": "reserve_recovery",
+      "question": "Does recovery rate add information beyond reserve level under equal disturbance and resource budgets?",
+      "review_focus": "Discriminate a recovery mechanism from initial-condition and resource-budget confounding.",
+      "memory_kind": "failure",
+      "memory": [
+        {
+          "id": "QUAL-Q03-M1",
+          "hypothesis": "Does recovery rate add information beyond reserve level under equal disturbance and resource budgets?",
+          "observed": "In a synthetic qualification fixture, a recovery advantage disappeared after equalizing initial reserve and disturbance severity.",
+          "lesson": "Control reserve and disturbance; test whether recovery contributes independent information.",
+          "affected_constructs": [
+            "recovery",
+            "reserve",
+            "disturbance"
+          ],
+          "cause": null,
+          "unresolved": [
+            "This is an illustrative fixture, not an empirical result."
+          ],
+          "evidence_class": "instrumentation",
+          "origin": "synthetic_qualification_fixture_not_research_evidence"
+        }
+      ]
+    },
+    {
+      "id": "Q04",
+      "target": "sensor_anomaly",
+      "question": "How can we distinguish genuine trajectory curvature from sampling jitter or sensor lag in a bounded synthetic observation stream?",
+      "review_focus": "Use measurement controls to distinguish an observation artifact from a system-level mechanism.",
+      "memory_kind": "anomaly",
+      "memory": [
+        {
+          "id": "QUAL-Q04-M1",
+          "hypothesis": "How can we distinguish genuine trajectory curvature from sampling jitter or sensor lag in a bounded synthetic observation stream?",
+          "observed": "In a synthetic qualification fixture, an apparent curvature anomaly reversed sign when the sampling interval changed.",
+          "lesson": "Vary sampling interval and sensor lag independently before interpreting curvature as a system effect.",
+          "affected_constructs": [
+            "curvature",
+            "sampling",
+            "sensor"
+          ],
+          "cause": null,
+          "unresolved": [
+            "This is an illustrative fixture, not an empirical result."
+          ],
+          "evidence_class": "instrumentation",
+          "origin": "synthetic_qualification_fixture_not_research_evidence"
+        }
+      ]
+    },
+    {
+      "id": "Q05",
+      "target": "prior_falsification",
+      "question": "What would distinguish a revised accumulated-hazard hypothesis from a previously falsified noisy cumulative-score explanation?",
+      "review_focus": "Check whether the proposed revision addresses the old failure without claiming the old test now supports it.",
+      "memory_kind": "failure",
+      "memory": [
+        {
+          "id": "QUAL-Q05-M1",
+          "hypothesis": "What would distinguish a revised accumulated-hazard hypothesis from a previously falsified noisy cumulative-score explanation?",
+          "observed": "In a synthetic qualification fixture, accumulated hazard did not beat a cumulative-noise baseline and was falsified in that tested regime.",
+          "lesson": "Retain the negative result; specify a discriminating change and a new falsifier instead of relabeling the same hypothesis.",
+          "affected_constructs": [
+            "hazard",
+            "cumulative",
+            "falsified"
+          ],
+          "cause": null,
+          "unresolved": [
+            "This is an illustrative fixture, not an empirical result."
+          ],
+          "evidence_class": "instrumentation",
+          "origin": "synthetic_qualification_fixture_not_research_evidence"
+        }
+      ]
+    },
+    {
+      "id": "Q06",
+      "target": "endpoint_leakage",
+      "question": "Can a candidate warning signal predict an independently defined boundary event without defining failure using its own warning threshold?",
+      "review_focus": "Require endpoints independent of the candidate predictor and a plan that needs no sealed data.",
+      "memory_kind": "failure",
+      "memory": [
+        {
+          "id": "QUAL-Q06-M1",
+          "hypothesis": "Can a candidate warning signal predict an independently defined boundary event without defining failure using its own warning threshold?",
+          "observed": "In a synthetic qualification fixture, the failure label was derived from the candidate alert threshold, creating a circular endpoint.",
+          "lesson": "Use independently defined task outcomes; reject circular labels and do not consult confirmatory holdouts.",
+          "affected_constructs": [
+            "warning",
+            "threshold",
+            "endpoint"
+          ],
+          "cause": null,
+          "unresolved": [
+            "This is an illustrative fixture, not an empirical result."
+          ],
+          "evidence_class": "instrumentation",
+          "origin": "synthetic_qualification_fixture_not_research_evidence"
+        }
+      ]
+    },
+    {
+      "id": "Q07",
+      "target": "claim_scope",
+      "question": "What exploratory observations could challenge synthetic-to-real transfer of a candidate governor signal before any claim of real-agent safety?",
+      "review_focus": "Require bounded claims, a credible no-transfer alternative, and explicit unvalidated scope.",
+      "memory_kind": "failure",
+      "memory": [
+        {
+          "id": "QUAL-Q07-M1",
+          "hypothesis": "What exploratory observations could challenge synthetic-to-real transfer of a candidate governor signal before any claim of real-agent safety?",
+          "observed": "In a synthetic qualification fixture, a proposed summary called a toy-simulator result proof of general autonomous-agent safety.",
+          "lesson": "Keep predecessor, synthetic, and real-agent evidence separate; a synthetic success does not establish production safety.",
+          "affected_constructs": [
+            "synthetic",
+            "safety",
+            "transfer"
+          ],
+          "cause": null,
+          "unresolved": [
+            "This is an illustrative fixture, not an empirical result."
+          ],
+          "evidence_class": "instrumentation",
+          "origin": "synthetic_qualification_fixture_not_research_evidence"
+        }
+      ]
+    }
+  ]
+}
