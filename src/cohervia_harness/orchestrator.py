@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+from dataclasses import asdict
+
+from .canonical import canonical_json
+
 from .agent import Agent
 from .audit import AppendOnlyAuditLog
 from .events import Event
@@ -24,6 +28,11 @@ class InstrumentationRunner:
         self._verifier = verifier
         self._observer = observer
         self._stop = stop_controller
+        self._audit_logs: dict[str, AppendOnlyAuditLog] = {}
+
+    def export_audit(self, trial_id: str) -> str:
+        """Return canonical, recomputable JSON for a completed or paused development trial."""
+        return canonical_json([asdict(record) for record in self._audit_logs[trial_id].records])
 
     def run(
         self,
@@ -43,14 +52,17 @@ class InstrumentationRunner:
         }:
             raise PermissionError("only development/instrumentation runs are enabled")
 
+        if config.trial_id in self._audit_logs:
+            raise ValueError("trial_id already recorded; refusing to overwrite audit evidence")
         audit = AppendOnlyAuditLog()
+        self._audit_logs[config.trial_id] = audit
         memory = GovernedMemory(audit=audit)
         memory.begin_trial(config.trial_id)
 
-        def emit(kind: str, payload: dict[str, object] | None = None) -> Event:
+        def emit(kind: str, payload: dict[str, object] | None = None, *, actor: str | None = None) -> Event:
             event = Event.create(
                 trial_id=config.trial_id,
-                actor=agent.identity,
+                actor=agent.identity if actor is None else actor,
                 kind=kind,
                 payload=payload,
                 sequence=len(audit.records),
@@ -60,7 +72,14 @@ class InstrumentationRunner:
             self._stop.observe(event)
             return event
 
-        emit("trial_started", {"task_id": task.task_id})
+        emit("trial_started", {
+            "task_id": task.task_id,
+            "task_family_id": config.task_family_id,
+            "experiment_id": config.experiment_id,
+            "partition": config.partition.value,
+            "system_configuration_hash": config.system_configuration_hash,
+            "model_identity": config.model_identity,
+        })
         if self._stop.decision.paused:
             return self._paused_result(config, audit)
 
@@ -68,7 +87,8 @@ class InstrumentationRunner:
         emit("agent_answer", {"task_id": task.task_id})
 
         result = self._verifier.verify(expected=task.expected, actual=answer)
-        emit("verifier_result", {"status": result.status, "score": result.score})
+        verifier_id = type(self._verifier).__module__ + "." + type(self._verifier).__qualname__
+        emit("verifier_result", {"status": result.status, "score": result.score}, actor=verifier_id)
 
         completed = not self._stop.decision.paused
         return TrialResult(
