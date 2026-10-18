@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import isfinite
 from typing import Any, Iterable, Mapping
 
 
@@ -11,7 +12,11 @@ class GateResult:
 
 
 def _multiplicity_ok(value: object) -> bool:
-    return value in {"pass", "not_applicable"}
+    return type(value) is str and value in {"pass", "not_applicable"}
+
+
+def _finite_number(value: object) -> bool:
+    return type(value) in (int, float) and isfinite(value)
 
 
 def recompute_emergence_gate(record: Mapping[str, Any]) -> GateResult:
@@ -28,12 +33,12 @@ def recompute_emergence_gate(record: Mapping[str, Any]) -> GateResult:
     delta_min = record.get("delta_min")
     lower = record.get("lower_confidence_bound")
 
-    if not isinstance(delta, (int, float)) or not isinstance(delta_min, (int, float)):
+    if not _finite_number(delta) or not _finite_number(delta_min):
         reasons.append("invalid_delta_fields")
     elif delta < delta_min:
         reasons.append("delta_below_minimum")
 
-    if not isinstance(lower, (int, float)) or not isinstance(delta_min, (int, float)):
+    if not _finite_number(lower) or not _finite_number(delta_min):
         reasons.append("invalid_confidence_fields")
     elif lower < delta_min:
         reasons.append("lower_bound_below_minimum")
@@ -58,12 +63,12 @@ def recompute_transfer_gate(record: Mapping[str, Any]) -> GateResult:
     delta_min = record.get("transfer_delta_min")
     lower = record.get("lower_confidence_bound")
 
-    if not isinstance(delta, (int, float)) or not isinstance(delta_min, (int, float)):
+    if not _finite_number(delta) or not _finite_number(delta_min):
         reasons.append("invalid_delta_fields")
     elif delta < delta_min:
         reasons.append("delta_below_minimum")
 
-    if not isinstance(lower, (int, float)) or not isinstance(delta_min, (int, float)):
+    if not _finite_number(lower) or not _finite_number(delta_min):
         reasons.append("invalid_confidence_fields")
     elif lower < delta_min:
         reasons.append("lower_bound_below_minimum")
@@ -84,31 +89,33 @@ def cross_family_eligible_configurations(
     if minimum_families < 2:
         raise ValueError("system-level cross-family gate must require at least 2 families")
 
-    a_positive: set[tuple[str, str]] = set()
+    a_positive: set[tuple[str, str, str]] = set()
     for record in emergence_records:
         if not recompute_emergence_gate(record).passed:
             continue
         config_id = record.get("configuration_id")
         family_id = record.get("task_family_id")
-        if isinstance(config_id, str) and config_id and isinstance(family_id, str) and family_id:
-            a_positive.add((config_id, family_id))
+        digest = record.get("system_configuration_hash")
+        if all(type(x) is str and x for x in (config_id, family_id, digest)):
+            a_positive.add((config_id, family_id, digest))
 
-    families_by_config: dict[str, set[str]] = {}
+    families_by_config: dict[tuple[str, str], set[str]] = {}
+    hashes_by_id: dict[str, set[str]] = {}
     for record in transfer_records:
         if not recompute_transfer_gate(record).passed:
             continue
         config_id = record.get("configuration_id")
         family_id = record.get("task_family_id")
-        if not isinstance(config_id, str) or not config_id:
+        digest = record.get("system_configuration_hash")
+        if not all(type(x) is str and x for x in (config_id, family_id, digest)):
             continue
-        if not isinstance(family_id, str) or not family_id:
+        hashes_by_id.setdefault(config_id, set()).add(digest)
+        if (config_id, family_id, digest) not in a_positive:
             continue
-        if (config_id, family_id) not in a_positive:
-            continue
-        families_by_config.setdefault(config_id, set()).add(family_id)
+        families_by_config.setdefault((config_id, digest), set()).add(family_id)
 
     return frozenset(
         config_id
-        for config_id, families in families_by_config.items()
-        if len(families) >= minimum_families
+        for (config_id, digest), families in families_by_config.items()
+        if len(families) >= minimum_families and len(hashes_by_id[config_id]) == 1
     )
