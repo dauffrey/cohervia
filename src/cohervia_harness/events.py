@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from copy import deepcopy
 from datetime import datetime, timezone
 from typing import Any
 
@@ -26,11 +27,12 @@ class Event:
         payload: dict[str, Any] | None = None,
         sequence: int,
     ) -> "Event":
+        frozen_payload = deepcopy(payload) if payload is not None else {}
         body = {
             "trial_id": trial_id,
             "actor": actor,
             "kind": kind,
-            "payload": payload or {},
+            "payload": frozen_payload,
             "sequence": sequence,
         }
         return cls(
@@ -38,6 +40,6 @@ class Event:
             trial_id=trial_id,
             actor=actor,
             kind=kind,
-            payload=payload or {},
+            payload=frozen_payload,
             timestamp=datetime.now(timezone.utc).isoformat(),
         )
