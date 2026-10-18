@@ -1,0 +1,65 @@
+name: Manual Cohervia Scientist — Goodfire causal research
+
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Explicit OpenAI API model ID; gpt-5.4 needs API account access
+        required: true
+        default: gpt-5.4
+        type: string
+      reasoning_effort:
+        description: Bounded reasoning effort
+        required: true
+        default: high
+        type: choice
+        options: [medium, high]
+
+permissions:
+  contents: read
+
+jobs:
+  scientist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install bounded Scientist and OpenAI adapter
+        run: python -m pip install --disable-pip-version-check -e './scientist[openai]'
+      - name: Run proposal-only Goodfire research assignment 12
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          SCIENTIST_MODEL: ${{ inputs.model }}
+          SCIENTIST_REASONING_EFFORT: ${{ inputs.reasoning_effort }}
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "::error::Repository secret OPENAI_API_KEY is missing; do not print it."
+            exit 1
+          fi
+          test "$SCIENTIST_MODEL" = "gpt-5.4" || {
+            echo "::error::This reviewed assignment is pinned to gpt-5.4."
+            exit 1
+          }
+          cd scientist
+          cohervia-scientist reason \
+            --provider openai \
+            --model "$SCIENTIST_MODEL" \
+            --reasoning-effort "$SCIENTIST_REASONING_EFFORT" \
+            --hypothesis-count 4 \
+            --question "RESEARCH ASSIGNMENT #12: Using the working hypothesis in Nick Cammarata's essay Neural Networks Are Already Clean (https://already-clean.goodfire.com/; external webpage content NOT retrieved or verified by this no-tools engine), propose falsifiable controlled research for THREE separate gates: (1) native neuron and circuit explanations predicting direction/magnitude of unseen causal ablations or activation-patching interventions versus sham/random-neuron controls, distinguishing recursive generalization, genuine superposition, architecture and measurement artifacts; (2) pre-intervention EFGM measurements showing incremental held-out predictive gain versus behavior-only, native-mechanism-only, EFGM-only and combined baselines; (3) independent authenticated evidence improving Cohervia pre-terminal shadow warnings at matched false-alarm budgets without modifying deterministic external permissions. Preserve timing, disjoint holdouts, uncertainty, negative findings, scope limits, and human evaluation. No experiment execution, confirmation or autonomous authority." 
+      - name: Archive Scientist research packet, even if rejected
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: goodfire-scientist-candidate-${{ github.run_id }}
+          path: scientist/runs/*.json
+          if-no-files-found: warn
+          retention-days: 30
+      - name: Audit source revision
+        if: always()
+        run: git rev-parse HEAD
