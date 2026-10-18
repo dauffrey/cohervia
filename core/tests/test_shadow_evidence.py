@@ -45,6 +45,20 @@ class ShadowEvidenceTests(unittest.TestCase):
         self.assertEqual(result.status, "INSUFFICIENT_EVIDENCE")
         self.assertIn("reported_claim_has_issues", result.reasons)
 
+    def test_untrusted_schema_version_comparison_is_not_executed(self):
+        class AdversarialValue:
+            def __ne__(self, other):
+                raise AssertionError("unexpected overloaded comparison")
+
+        for malformed in (None, 1, [], {}, AdversarialValue()):
+            with self.subTest(value=type(malformed).__name__):
+                sample = packet()
+                sample["schema_version"] = malformed
+                result = assess_shadow_evidence(sample)
+                self.assertEqual(result.status, "INVALID")
+                self.assertEqual(result.reasons, ("unsupported_schema",))
+                self.assertFalse(result.grants_permission)
+
     def test_malformed_or_forged_shape_rejected(self):
         self.assertEqual(assess_shadow_evidence({}).status, "INVALID")
         self.assertEqual(assess_shadow_evidence(None).status, "INVALID")
