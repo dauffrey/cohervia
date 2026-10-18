@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://github.com/dauffrey/cohervia/schemas/capability-transfer-assessment.schema.json",
   "title": "CapabilityTransferConfigurationAssessment",
-  "description": "Configuration × task-family-stratum capability-transfer assessment produced from Holdout B by the frozen transfer evaluator. Confirmed labels are discrete-gate constrained; downstream selectors must independently recompute numeric transfer gates from the recorded values.",
+  "description": "Configuration × task-family-stratum capability-transfer assessment produced from Holdout B by the frozen transfer evaluator. Confirmed labels are discrete-gate constrained; downstream selectors must independently recompute numeric transfer gates from the recorded values. Missing aggregate estimates are allowed only in invalid classifications; a selector must recompute the residual from component values and reject inconsistencies.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -92,19 +92,40 @@
       "minimum": 1
     },
     "baseline_prediction": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 1
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "mean_observed_value": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 1
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "delta_transfer": {
-      "type": "number",
-      "minimum": -1,
-      "maximum": 1
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "transfer_delta_min": {
       "type": "number",
@@ -112,9 +133,16 @@
       "maximum": 1
     },
     "lower_confidence_bound": {
-      "type": "number",
-      "minimum": -1,
-      "maximum": 1
+      "anyOf": [
+        {
+          "type": "number",
+          "minimum": -1,
+          "maximum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "uncertainty_procedure_hash": {
       "type": "string",
@@ -216,6 +244,45 @@
         "properties": {
           "protocol_valid": {
             "const": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "transfer_classification": {
+            "enum": [
+              "confirmed",
+              "not_confirmed"
+            ]
+          }
+        },
+        "required": [
+          "transfer_classification"
+        ]
+      },
+      "then": {
+        "properties": {
+          "baseline_prediction": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "mean_observed_value": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "delta_transfer": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
+          },
+          "lower_confidence_bound": {
+            "type": "number",
+            "minimum": -1,
+            "maximum": 1
           }
         }
       }
