@@ -1,4 +1,5 @@
 import copy
+import math
 import unittest
 
 from cohervia_harness.selectors import (
@@ -11,6 +12,7 @@ from cohervia_harness.selectors import (
 def emergence_record(family="algorithmic_verifiable"):
     return {
         "configuration_id": "cfg-1",
+        "system_configuration_hash": "sha-frozen-cfg-1",
         "task_family_id": family,
         "delta_emergent": 0.3,
         "delta_min": 0.1,
@@ -25,6 +27,7 @@ def emergence_record(family="algorithmic_verifiable"):
 def transfer_record(family="algorithmic_verifiable"):
     return {
         "configuration_id": "cfg-1",
+        "system_configuration_hash": "sha-frozen-cfg-1",
         "task_family_id": family,
         "delta_transfer": 0.3,
         "transfer_delta_min": 0.1,
@@ -86,6 +89,25 @@ class SelectorTests(unittest.TestCase):
             ),
             frozenset(),
         )
+
+    def test_nonfinite_or_boolean_numeric_fields_fail_closed(self):
+        for factory, gate, delta_field, minimum_field in (
+            (emergence_record, recompute_emergence_gate, "delta_emergent", "delta_min"),
+            (transfer_record, recompute_transfer_gate, "delta_transfer", "transfer_delta_min"),
+        ):
+            for field in (delta_field, minimum_field, "lower_confidence_bound"):
+                for bad in (math.nan, math.inf, -math.inf, True, False):
+                    with self.subTest(field=field, bad=repr(bad)):
+                        record = factory()
+                        record[field] = bad
+                        self.assertFalse(gate(record).passed)
+
+    def test_cross_family_hash_mismatch_never_conflates_systems(self):
+        families = ("algorithmic_verifiable", "mathematical_verifiable")
+        emergence = [emergence_record(f) for f in families]
+        transfer = [transfer_record(f) for f in families]
+        transfer[1]["system_configuration_hash"] = "other-frozen-system"
+        self.assertEqual(cross_family_eligible_configurations(emergence, transfer), frozenset())
 
     def test_duplicate_family_does_not_count_twice(self):
         emergence = [
