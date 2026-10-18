@@ -50,6 +50,9 @@ def assess_shadow_evidence(summary: object) -> ShadowEvidenceSignal:
                    for key in ("provenance_status", "independent_evidence_status"))):
         return ShadowEvidenceSignal("INVALID", ("invalid_evidence_states",))
 
+    if summary["efgm_disposition"] == "INVALID":
+        return ShadowEvidenceSignal("INVALID", ("upstream_claim_invalid",))
+
     blockers = []
     if summary["efgm_disposition"] != "READY_FOR_EXTERNAL_AUDIT":
         blockers.append("efgm_claim_not_review_ready")
