@@ -77,6 +77,10 @@ Exit criteria:
 - graduated outcomes are recorded as research products, not validated safe thresholds;
 - the results remain bounded by their preregistered scope and evidence.
 
+## Independent oversight and interpretability (prospective)
+
+[Research proposal and read-only evidence intake](docs/research/SCALABLE_OVERSIGHT_AND_INTERPRETABILITY_PROGRAM.md): investigate causal-explanation fidelity, monitor limits under stronger-than-monitor agents, independent evidence custody and deterministic authority, without pretending that a complete solution already exists. The untrusted summary diagnostic is infrastructure only; causal probes, external evaluation, shadow-mode monitor trials and enforcement remain separately gated future work.
+
 ## Parallel research tracks
 
 [COH-EXP-0001](experiments/COH-EXP-0001/README.md) is a proposed capability-emergence/transfer/governance design, not a completed Phase 4 study. It preserves separate sealed A/B/C holdouts and independent endpoints. Exact statistical choices, external containment, evaluator independence, artifact custody and explicit authorization remain blockers. No confirmatory execution is enabled.

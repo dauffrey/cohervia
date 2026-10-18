@@ -71,6 +71,10 @@ See the provenance documentation for the full lineage and constraints: [docs/pro
 
 Cohervia is in foundation/consolidation status. It contains no validated production governor, no validated general safety capability, and no claim that inherited constructs are validated simply because they were selected for a successor project.
 
+## Prospective independent understanding and oversight track
+
+The [scalable oversight and interpretability research program](docs/research/SCALABLE_OVERSIGHT_AND_INTERPRETABILITY_PROGRAM.md) defines what would have to be independently demonstrated to understand and govern increasingly capable AI. The new `core/cohervia.shadow_evidence` module is a read-only, untrusted EFGM evidence-summary diagnostic; it never authenticates evidence, controls agents, grants permissions, or changes Cohervia's existing scientific status. No universal or 100% solution is claimed.
+
 ## Implemented infrastructure and research status
 
 | Track | Implementation | Scientific status |
