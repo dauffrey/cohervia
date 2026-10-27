@@ -22,7 +22,7 @@ class ReplayAdversarialTests(unittest.TestCase):
         for index, task in enumerate(self.tasks, 1):
             key = task["id"]
             commitment = {"trial_id": "trial-1:" + key, "prediction_digest": digest({"id":key}),
-                          "previous_digest": "0" * 64, "sequence": index, "receipt": "receipt-" + key}
+                          "previous_digest": "0" * 64, "sequence": index, "receipt": digest({"receipt":key})}
             self.commitments[key] = commitment
             self.attestations[key] = {"commitment_sha256": digest(commitment), "signature": "fixture"}
         self.evidence = {"schema_version": "witness-evidence/0.1", "run_id": "trial-1",
@@ -77,6 +77,13 @@ class ReplayAdversarialTests(unittest.TestCase):
         changed = copy.deepcopy(self.evidence)
         a, b = self.tasks[0]["id"], self.tasks[1]["id"]
         changed["commitments"][a], changed["commitments"][b] = changed["commitments"][b], changed["commitments"][a]
+        with self.assertRaises(ValueError):
+            self.verify(changed)
+
+    def test_duplicate_custody_sequence(self):
+        changed = copy.deepcopy(self.evidence)
+        a, b = self.tasks[0]["id"], self.tasks[1]["id"]
+        changed["commitments"][b]["sequence"] = changed["commitments"][a]["sequence"]
         with self.assertRaises(ValueError):
             self.verify(changed)
 
