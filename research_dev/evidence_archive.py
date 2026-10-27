@@ -30,6 +30,11 @@ def export_evidence(bundle_path, witness_path, destination):
             raise ValueError("evidence must be JSON objects")
     destination = Path(destination)
     destination.mkdir(parents=False, exist_ok=False)
+    parent_fd = os.open(destination.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+    try:
+        os.fsync(parent_fd)
+    finally:
+        os.close(parent_fd)
     try:
         _durable_exclusive(destination / "bundle.json", bundle)
         _durable_exclusive(destination / "witness.json", witness)
@@ -60,3 +65,13 @@ def verify_archive(destination):
         if not (destination / name).is_file() or _sha256((destination / name).read_bytes()) != manifest["files"][name]:
             raise ValueError("archive digest mismatch: " + name)
     return manifest
+
+def verify_archived_pilot(destination, tsa_url, pinned_ca_file):
+    """Verify archive digests AND independently verify RFC3161 pilot evidence."""
+    from witnessed_replay import verify_rfc3161_pilot_evidence
+    destination = Path(destination)
+    verify_archive(destination)
+    bundle = json.loads((destination / "bundle.json").read_bytes())
+    return verify_rfc3161_pilot_evidence(
+        bundle, destination / "witness.json", tsa_url, pinned_ca_file
+    )
