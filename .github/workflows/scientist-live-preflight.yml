@@ -1,0 +1,34 @@
+name: Scientist live qualification preflight (offline)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: scientist-qualification-preflight
+  cancel-in-progress: false
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Verify protocol and safety requirements (no API access)
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f scientist/qualification/PROTOCOL.md
+          test -f scientist/qualification/LIVE_RUN_READINESS.md
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("scientist/qualification/PROTOCOL.md").read_text()
+          g = Path("scientist/qualification/LIVE_RUN_READINESS.md").read_text()
+          for value in ("Q01", "Q02", "Q03", "Q04", "Q05", "Q06", "Q07"):
+              assert value in p, f"Missing qualification case {value}"
+          assert "US$5" in g
+          assert "42" in g
+          print("OFFLINE PREFLIGHT ONLY: protocol and readiness gate present.")
+          print("No OpenAI secret mounted; no provider calls; no spending.")
+          print("Live execution is NOT enabled by this workflow.")
+          PY
