@@ -31,11 +31,13 @@ def validate(record):
         raise ValueError("invalid probability")
     if a["status"] not in ("completed", "incomplete", "error") or not isinstance(a["response"], (str, type(None))):
         raise ValueError("invalid attempt")
+    if a["status"] == "completed" and not isinstance(a["response"], str):
+        raise ValueError("completed attempt requires recorded text")
     if a["status"] != "completed" and a["response"] is not None:
         raise ValueError("non-completed response")
     if not isinstance(v["verifier"], str) or not v["verifier"]:
         raise ValueError("verifier identity required")
-    if v["outcome"] not in (True, False, None):
+    if v["outcome"] is not None and type(v["outcome"]) is not bool:
         raise ValueError("invalid outcome")
     if a["status"] != "completed" and v["outcome"] is not None:
         raise ValueError("missing outcome must remain unknown")
