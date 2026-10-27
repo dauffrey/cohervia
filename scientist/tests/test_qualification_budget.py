@@ -3,7 +3,10 @@ import unittest
 from decimal import Decimal
 from concurrent.futures import ThreadPoolExecutor
 
-from cohervia_scientist.qualification_budget import BudgetDenied, Pricing, ReservationBudget
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'qualification'))
+from budget_guard import BudgetDenied, Pricing, ReservationBudget
 
 
 class ReservationBudgetTests(unittest.TestCase):
