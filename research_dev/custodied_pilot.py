@@ -37,18 +37,20 @@ def run_witnessed_pilot(provider, output_dir, run_id, probabilities, custody_pat
     if not callable(witness_submit) or not callable(witness_verify) or not witness_id:
         raise ValueError("external witness required")
     receipts = {}
+    predictions = {}
     with PersistentCustody(custody_path, secret) as custody:
         for task in tasks:
             prediction = {"trial_id": run_id + ":" + task["id"], "task_hash": digest(task),
                           "model": provider.model, "probability": probabilities[task["id"]]}
+            predictions[task["id"]] = prediction
             receipts[task["id"]] = custody.commit(prediction)
     witnessed = {task["id"]: witness_submit(receipts[task["id"]]) for task in tasks}
     witnessed_commitments(receipts, witnessed, witness_verify, witness_id)
     # Retain an independently verifiable sidecar before any acquisition.
     # The pilot runner owns its output directory, so sidecar lives alongside it.
     sidecar = Path(str(output_dir) + ".witness.json")
-    record = {"schema_version": "witness-evidence/0.1", "run_id": run_id,
-              "witness_id": witness_id, "commitments": receipts, "attestations": witnessed}
+    record = {"schema_version": "witness-evidence/0.2", "run_id": run_id,
+              "witness_id": witness_id, "commitments": receipts, "predictions": predictions, "attestations": witnessed}
     raw = canonical(record)
     # Exclusive final publication: an interrupted temporary write never appears
     # as a valid sidecar. Never replace evidence from an earlier run.
