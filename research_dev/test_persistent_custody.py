@@ -64,6 +64,30 @@ class PersistentCustodyTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 ledger.audit()
 
+    def test_consumption_state_cannot_be_reset(self):
+        p = prediction()
+        with PersistentCustody(self.path, SECRET) as ledger:
+            receipt = ledger.commit(p)
+            ledger.authorize(p, receipt)
+            ledger.db.execute("UPDATE commitments SET attempted=0 WHERE trial='t'")
+            with self.assertRaises(ValueError):
+                ledger.audit()
+            with self.assertRaises(ValueError):
+                ledger.authorize(p, receipt)
+
+    def test_consumption_cannot_be_fabricated(self):
+        with PersistentCustody(self.path, SECRET) as ledger:
+            ledger.commit(prediction())
+            ledger.db.execute("UPDATE commitments SET attempted=1 WHERE trial='t'")
+            with self.assertRaises(ValueError):
+                ledger.audit()
+
+    def test_unicode_identity_round_trip(self):
+        p = prediction("run-é:task")
+        with PersistentCustody(self.path, SECRET) as ledger:
+            receipt = ledger.commit(p)
+            self.assertTrue(ledger.authorize(p, receipt))
+
     def test_no_secret_rejected(self):
         with self.assertRaises(ValueError):
             PersistentCustody(self.path, b"short")
