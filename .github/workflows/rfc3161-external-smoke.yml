@@ -1,0 +1,63 @@
+name: RFC3161 external timestamp smoke test
+on:
+  workflow_dispatch:
+    inputs:
+      tsa_url:
+        description: 'Approved HTTPS RFC3161 endpoint (synthetic data only)'
+        required: true
+        type: string
+      ca_pem_url:
+        description: 'Approved HTTPS PEM trust certificate URL'
+        required: true
+        type: string
+      ca_sha256:
+        description: 'Expected SHA256 of pinned PEM certificate file'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  tsa-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fetch and pin public trust certificate
+        env:
+          CA_URL: ${{ inputs.ca_pem_url }}
+          CA_SHA: ${{ inputs.ca_sha256 }}
+        run: |
+          set -euo pipefail
+          case "$CA_URL" in https://*) ;; *) exit 1;; esac
+          curl --fail --location --silent --show-error --max-time 20 "$CA_URL" -o tsa-ca.pem
+          printf '%s  %s\n' "$CA_SHA" tsa-ca.pem | sha256sum -c -
+      - name: Obtain and verify independent signed timestamp
+        env:
+          TSA_URL: ${{ inputs.tsa_url }}
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json, os, sys
+          sys.path.insert(0, 'research_dev')
+          from rfc3161_witness import RFC3161Witness
+          from persistent_custody import digest
+          witness = RFC3161Witness(os.environ['TSA_URL'], 'tsa-ca.pem')
+          commitment = {'trial_id':'synthetic-ci-only', 'prediction_digest':digest({'synthetic':True}), 'previous_digest':'0'*64, 'sequence':1, 'receipt':'fixture-not-research-evidence'}
+          receipt = witness.submit(commitment)
+          assert witness.verify(receipt, commitment)
+          try:
+              witness.verify(receipt, dict(commitment, sequence=2))
+          except ValueError:
+              pass
+          else:
+              raise AssertionError('tampered commitment accepted')
+          with open('timestamp-evidence.json', 'w', encoding='utf-8') as stream:
+              json.dump({'synthetic': True, 'commitment': commitment, 'receipt': receipt}, stream, indent=2)
+          print('Verified independent RFC3161 receipt and rejected altered commitment')
+          PY
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: synthetic-rfc3161-evidence
+          path: timestamp-evidence.json
+          retention-days: 30
