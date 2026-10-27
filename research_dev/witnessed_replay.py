@@ -4,6 +4,7 @@ The verifier uses a pinned TSA trust root; it never requires the coordinator HMA
 secret. It does not establish trustworthy provider execution time on its own.
 """
 import json
+import math
 from pathlib import Path
 from cohervia_pilot.protocol import catalog
 from cohervia_pilot.runner import replay_bundle
@@ -34,12 +35,15 @@ def verify_rfc3161_pilot_evidence(bundle, sidecar_path, tsa_url, pinned_ca_file)
         task_id = task["id"]
         commitment = commitments[task_id]
         prediction = predictions[task_id]
+        if type(commitment) is not dict or set(commitment) != {"trial_id", "prediction_digest", "previous_digest", "sequence", "receipt"}:
+            raise ValueError("invalid commitment schema")
         if type(prediction) is not dict or set(prediction) != {"trial_id", "task_hash", "model", "probability"}:
             raise ValueError("invalid prospective prediction schema")
         if (prediction["trial_id"] != bundle["run_id"] + ":" + task_id
                 or prediction["task_hash"] != digest(task)
                 or prediction["model"] != bundle["inputs"]["configuration"]["requested_model"]
                 or type(prediction["probability"]) not in (int, float)
+                or not math.isfinite(prediction["probability"])
                 or not 0 <= prediction["probability"] <= 1):
             raise ValueError("prospective prediction mismatch")
         if digest(prediction) != commitment["prediction_digest"]:
