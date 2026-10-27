@@ -29,7 +29,7 @@ def verify_rfc3161_pilot_evidence(bundle, sidecar_path, tsa_url, pinned_ca_file)
     commitments, attestations = evidence["commitments"], evidence["attestations"]
     if type(commitments) is not dict or type(attestations) is not dict or set(commitments) != expected or set(attestations) != expected:
         raise ValueError("incomplete witness evidence")
-    model = bundle["inputs"]["configuration"]["requested_model"]
+    seen_sequences = set()
     for task in tasks:
         task_id = task["id"]
         commitment = commitments[task_id]
@@ -41,6 +41,12 @@ def verify_rfc3161_pilot_evidence(bundle, sidecar_path, tsa_url, pinned_ca_file)
             raise ValueError("swapped task commitment")
         if type(commitment["prediction_digest"]) is not str or len(commitment["prediction_digest"]) != 64:
             raise ValueError("invalid prediction digest")
+        sequence = commitment["sequence"]
+        if type(sequence) is not int or sequence < 1 or sequence in seen_sequences:
+            raise ValueError("duplicate or invalid custody sequence")
+        seen_sequences.add(sequence)
+        if type(commitment["receipt"]) is not str or len(commitment["receipt"]) != 64:
+            raise ValueError("invalid custody receipt shape")
         if not witness.verify(attestations[task_id], commitment):
             raise ValueError("unverified external witness")
     return {
