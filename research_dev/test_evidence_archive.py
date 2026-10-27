@@ -56,6 +56,21 @@ class EvidenceArchiveTests(unittest.TestCase):
             export_evidence(self.bundle, self.witness, self.archive)
         verify_archive(self.archive)
 
+    def test_symlinked_witness_rejected(self):
+        export_evidence(self.bundle, self.witness, self.archive)
+        archived = self.archive / "witness.json"
+        archived.unlink()
+        archived.symlink_to(self.witness)
+        with self.assertRaisesRegex(ValueError, "regular files"):
+            verify_archive(self.archive)
+
+    def test_symlinked_archive_directory_rejected(self):
+        export_evidence(self.bundle, self.witness, self.archive)
+        alias = self.root / "archive-alias"
+        alias.symlink_to(self.archive, target_is_directory=True)
+        with self.assertRaisesRegex(ValueError, "symlink"):
+            verify_archive(alias)
+
     def test_missing_evidence_rejected(self):
         export_evidence(self.bundle, self.witness, self.archive)
         (self.archive / "witness.json").unlink()
