@@ -1,0 +1,33 @@
+name: Capability self-assessment development tests
+
+on:
+  pull_request:
+    paths:
+      - 'research_dev/**'
+      - '.github/workflows/capability-self-assessment.yml'
+  push:
+    branches:
+      - 'research/capability-self-assessment-dev'
+    paths:
+      - 'research_dev/**'
+      - '.github/workflows/capability-self-assessment.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install local offline dependencies
+        run: |
+          python -m pip install -e ./core -e ./harness -e ./pilot
+      - name: Run capability self-assessment offline tests
+        run: |
+          python -m unittest discover -s research_dev -p 'test_*.py' -v
