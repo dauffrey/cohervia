@@ -4,11 +4,13 @@ Caller supplies genuine prospective probabilities; this module never invents
 model predictions. All commitments are durable before pilot acquisition starts.
 No live provider is constructed here and no external time claims are made.
 """
+import os
+from pathlib import Path
 from cohervia_pilot.protocol import catalog
 from cohervia_pilot.runner import run
 from gated_provider import CustodyGatedProvider
 from external_witness import witnessed_commitments
-from persistent_custody import PersistentCustody, digest
+from persistent_custody import PersistentCustody, digest, canonical
 
 def run_custodied_pilot(provider, output_dir, run_id, probabilities, custody_path, secret):
     tasks = catalog()
@@ -41,5 +43,15 @@ def run_witnessed_pilot(provider, output_dir, run_id, probabilities, custody_pat
             receipts[task["id"]] = custody.commit(prediction)
     witnessed = {task["id"]: witness_submit(receipts[task["id"]]) for task in tasks}
     witnessed_commitments(receipts, witnessed, witness_verify, witness_id)
+    # Retain an independently verifiable sidecar before any acquisition.
+    # The pilot runner owns its output directory, so sidecar lives alongside it.
+    sidecar = Path(str(output_dir) + ".witness.json")
+    record = {"schema_version": "witness-evidence/0.1", "run_id": run_id,
+              "witness_id": witness_id, "commitments": receipts, "attestations": witnessed}
+    raw = canonical(record)
+    with sidecar.open("xb") as stream:
+        stream.write(raw)
+        stream.flush()
+        os.fsync(stream.fileno())
     bundle, report = run(CustodyGatedProvider(provider, custody_path, secret, run_id, receipts, probabilities), output_dir, run_id)
     return bundle, report, receipts, witnessed
