@@ -18,15 +18,18 @@ class ReplayAdversarialTests(unittest.TestCase):
         self.bundle = {"run_id": "trial-1", "sha256": "bundle-digest",
                        "inputs": {"configuration": {"requested_model": "fixture"}}}
         self.commitments = {}
+        self.predictions = {}
         self.attestations = {}
         for index, task in enumerate(self.tasks, 1):
             key = task["id"]
-            commitment = {"trial_id": "trial-1:" + key, "prediction_digest": digest({"id":key}),
+            prediction = {"trial_id": "trial-1:" + key, "task_hash": digest(task), "model": "fixture", "probability": 0.5}
+            self.predictions[key] = prediction
+            commitment = {"trial_id": "trial-1:" + key, "prediction_digest": digest(prediction),
                           "previous_digest": "0" * 64, "sequence": index, "receipt": digest({"receipt":key})}
             self.commitments[key] = commitment
             self.attestations[key] = {"commitment_sha256": digest(commitment), "signature": "fixture"}
-        self.evidence = {"schema_version": "witness-evidence/0.1", "run_id": "trial-1",
-                         "witness_id": "rfc3161-tsa", "commitments": self.commitments,
+        self.evidence = {"schema_version": "witness-evidence/0.2", "run_id": "trial-1",
+                         "witness_id": "rfc3161-tsa", "commitments": self.commitments, "predictions": self.predictions,
                          "attestations": self.attestations}
 
     def tearDown(self):
@@ -77,6 +80,19 @@ class ReplayAdversarialTests(unittest.TestCase):
         changed = copy.deepcopy(self.evidence)
         a, b = self.tasks[0]["id"], self.tasks[1]["id"]
         changed["commitments"][a], changed["commitments"][b] = changed["commitments"][b], changed["commitments"][a]
+        with self.assertRaises(ValueError):
+            self.verify(changed)
+
+    def test_tampered_prediction_value(self):
+        changed = copy.deepcopy(self.evidence)
+        changed["predictions"][self.tasks[0]["id"]]["probability"] = 0.8
+        with self.assertRaises(ValueError):
+            self.verify(changed)
+
+    def test_swapped_prediction(self):
+        changed = copy.deepcopy(self.evidence)
+        a, b = self.tasks[0]["id"], self.tasks[1]["id"]
+        changed["predictions"][a], changed["predictions"][b] = changed["predictions"][b], changed["predictions"][a]
         with self.assertRaises(ValueError):
             self.verify(changed)
 
