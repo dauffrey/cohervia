@@ -55,3 +55,27 @@ def run_witnessed_pilot(provider, output_dir, run_id, probabilities, custody_pat
         os.fsync(stream.fileno())
     bundle, report = run(CustodyGatedProvider(provider, custody_path, secret, run_id, receipts, probabilities), output_dir, run_id)
     return bundle, report, receipts, witnessed
+
+def run_rfc3161_pilot(provider, output_dir, run_id, probabilities, custody_path,
+                      secret, tsa_url, pinned_ca_file):
+    """Production-shaped strict path; real TSA network use requires authorization.
+
+    Verification binds each response to the exact committed receipt.
+    """
+    from rfc3161_witness import RFC3161Witness
+    witness = RFC3161Witness(tsa_url, pinned_ca_file)
+    def submit(commitment):
+        return witness.submit(commitment)
+    # Store expected commitment per signed response for verifier callback.
+    submitted = {}
+    def tracked_submit(commitment):
+        receipt = submit(commitment)
+        submitted[receipt["signature"]] = commitment
+        return receipt
+    def verify(receipt):
+        commitment = submitted.get(receipt["signature"])
+        if commitment is None:
+            return False
+        return witness.verify(receipt, commitment)
+    return run_witnessed_pilot(provider, output_dir, run_id, probabilities, custody_path,
+                               secret, tracked_submit, verify, witness.witness_id)
