@@ -56,6 +56,26 @@ class WitnessTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.invoke(self.receipt, lambda _: False)
             runner.assert_not_called()
+    def test_existing_sidecar_cannot_be_replaced(self):
+        sidecar = os.path.join(self.tmp.name, "pilot-run.witness.json")
+        with open(sidecar, "wb") as stream:
+            stream.write(b"original evidence")
+        with patch("custodied_pilot.run") as runner:
+            with self.assertRaises(FileExistsError):
+                self.invoke(self.receipt, lambda _: True)
+            runner.assert_not_called()
+        with open(sidecar, "rb") as stream:
+            self.assertEqual(stream.read(), b"original evidence")
+
+    def test_interrupted_publication_cannot_execute(self):
+        with patch("custodied_pilot.os.link", side_effect=OSError("simulated crash")), \\
+             patch("custodied_pilot.run") as runner:
+            with self.assertRaises(OSError):
+                self.invoke(self.receipt, lambda _: True)
+            runner.assert_not_called()
+        self.assertFalse(os.path.exists(os.path.join(self.tmp.name, "pilot-run.witness.json")))
+        self.assertFalse(any(name.endswith(".pending") for name in os.listdir(self.tmp.name)))
+
     def test_wrong_witness_identity(self):
         commitment = {"test": 1}
         receipt = self.receipt(commitment)
