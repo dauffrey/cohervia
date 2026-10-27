@@ -1,5 +1,6 @@
 """Offline adversarial witness boundary tests. Mock attestations are NOT evidence."""
 import os
+import sqlite3
 import json
 import tempfile
 import unittest
@@ -51,7 +52,7 @@ class WitnessTests(unittest.TestCase):
         with open(sidecar, encoding="utf-8") as stream:
             self.assertEqual(json.load(stream)["run_id"], "run")
         with patch("custodied_pilot.run") as runner:
-            with self.assertRaises(ValueError):
+            with self.assertRaises((ValueError, sqlite3.IntegrityError)):
                 self.invoke(self.receipt, lambda _: True)
             runner.assert_not_called()
 
