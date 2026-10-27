@@ -51,7 +51,7 @@ class RFC3161Witness:
 
     def submit(self, commitment):
         raw = canonical(commitment)
-        request = _openssl("ts", "-query", "-data", "/dev/stdin", "-sha256", "-cert", input_bytes=raw)
+        request = _openssl("ts", "-query", "-data", "-", "-sha256", "-cert", input_bytes=raw)
         http = Request(self.url, data=request, headers={"Content-Type": "application/timestamp-query",
                                                          "Accept": "application/timestamp-reply"}, method="POST")
         with urlopen(http, timeout=self.timeout) as reply:
