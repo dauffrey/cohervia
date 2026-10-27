@@ -5,6 +5,7 @@ model predictions. All commitments are durable before pilot acquisition starts.
 No live provider is constructed here and no external time claims are made.
 """
 import os
+import tempfile
 from pathlib import Path
 from cohervia_pilot.protocol import catalog
 from cohervia_pilot.runner import run
@@ -49,10 +50,26 @@ def run_witnessed_pilot(provider, output_dir, run_id, probabilities, custody_pat
     record = {"schema_version": "witness-evidence/0.1", "run_id": run_id,
               "witness_id": witness_id, "commitments": receipts, "attestations": witnessed}
     raw = canonical(record)
-    with sidecar.open("xb") as stream:
-        stream.write(raw)
-        stream.flush()
-        os.fsync(stream.fileno())
+    # Exclusive final publication: an interrupted temporary write never appears
+    # as a valid sidecar. Never replace evidence from an earlier run.
+    parent = sidecar.parent
+    if sidecar.exists():
+        raise FileExistsError("witness evidence already exists")
+    fd, temporary = tempfile.mkstemp(prefix="." + sidecar.name + ".", suffix=".pending", dir=parent)
+    try:
+        with os.fdopen(fd, "wb") as stream:
+            stream.write(raw)
+            stream.flush()
+            os.fsync(stream.fileno())
+        # Hard-link is atomic and fails if the final evidence already exists.
+        os.link(temporary, sidecar)
+        directory_fd = os.open(parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+        try:
+            os.fsync(directory_fd)
+        finally:
+            os.close(directory_fd)
+    finally:
+        os.unlink(temporary)
     bundle, report = run(CustodyGatedProvider(provider, custody_path, secret, run_id, receipts, probabilities), output_dir, run_id)
     return bundle, report, receipts, witnessed
 
