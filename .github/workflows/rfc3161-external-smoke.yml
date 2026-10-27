@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/rfc3161-external-smoke.yml'
+      - 'research_dev/rfc3161_witness.py'
   workflow_dispatch:
     inputs:
       tsa_url:
