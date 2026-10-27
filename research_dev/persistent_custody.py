@@ -44,11 +44,14 @@ class PersistentCustody:
 
     def _audit(self):
         previous = "0" * 64
-        rows = self.db.execute("SELECT seq,trial,prediction,previous,receipt,attempted FROM commitments ORDER BY seq").fetchall()
-        for index, (seq, trial, prediction, prev, receipt, attempted) in enumerate(rows, 1):
+        rows = self.db.execute("SELECT seq,trial,prediction,previous,receipt,attempted,consumption_mac FROM commitments ORDER BY seq").fetchall()
+        for index, (seq, trial, prediction, prev, receipt, attempted, consumption_mac) in enumerate(rows, 1):
             payload = {"sequence": seq, "trial_id": trial, "prediction_digest": prediction, "previous_digest": prev}
             if seq != index or prev != previous or not hmac.compare_digest(receipt, self._mac(payload)) or attempted not in (0, 1):
                 raise ValueError("custody integrity failure")
+            expected_consumption = self._mac({"consumed_receipt": receipt, "trial_id": trial, "sequence": seq})
+            if (attempted == 0 and consumption_mac is not None) or (attempted == 1 and (type(consumption_mac) is not str or not hmac.compare_digest(consumption_mac, expected_consumption))):
+                raise ValueError("custody consumption integrity failure")
             previous = receipt
         return previous
 
