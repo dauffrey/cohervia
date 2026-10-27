@@ -1,5 +1,6 @@
 """Offline adversarial witness boundary tests. Mock attestations are NOT evidence."""
 import os
+import json
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
@@ -24,12 +25,16 @@ class WitnessTests(unittest.TestCase):
                 "commitment_sha256": digest(commitment), "observed_at": "2026-10-27T04:00:00Z",
                 "signature": "offline-fixture-not-real-signature"}
     def invoke(self, submit, verify):
-        return run_witnessed_pilot(self.provider, "unused", "run", self.predictions,
+        return run_witnessed_pilot(self.provider, os.path.join(self.tmp.name, "pilot-run"), "run", self.predictions,
                                    self.path, self.secret, submit, verify, "independent-fixture")
     def test_valid_mock_witness_before_runner(self):
         with patch("custodied_pilot.run", return_value=({}, "offline")) as runner:
             self.invoke(self.receipt, lambda _: True)
             runner.assert_called_once()
+            sidecar = os.path.join(self.tmp.name, "pilot-run.witness.json")
+            with open(sidecar, encoding="utf-8") as stream:
+                evidence = json.load(stream)
+            self.assertEqual(set(evidence["attestations"]), set(self.predictions))
         self.provider.complete.assert_not_called()
     def test_missing_witness_blocks_execution(self):
         with patch("custodied_pilot.run") as runner:
