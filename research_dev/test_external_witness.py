@@ -68,7 +68,7 @@ class WitnessTests(unittest.TestCase):
             self.assertEqual(stream.read(), b"original evidence")
 
     def test_interrupted_publication_cannot_execute(self):
-        with patch("custodied_pilot.os.link", side_effect=OSError("simulated crash")), \\
+        with patch("custodied_pilot.os.link", side_effect=OSError("simulated crash")), \
              patch("custodied_pilot.run") as runner:
             with self.assertRaises(OSError):
                 self.invoke(self.receipt, lambda _: True)
