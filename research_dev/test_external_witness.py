@@ -36,6 +36,25 @@ class WitnessTests(unittest.TestCase):
                 evidence = json.load(stream)
             self.assertEqual(set(evidence["attestations"]), set(self.predictions))
         self.provider.complete.assert_not_called()
+    def test_evidence_is_durable_before_runner_and_survives_failure(self):
+        sidecar = os.path.join(self.tmp.name, "pilot-run.witness.json")
+        def interrupted_runner(*args, **kwargs):
+            with open(sidecar, encoding="utf-8") as stream:
+                evidence = json.load(stream)
+            self.assertEqual(evidence["schema_version"], "witness-evidence/0.2")
+            self.assertEqual(set(evidence["predictions"]), set(self.predictions))
+            raise RuntimeError("simulated provider interruption")
+        with patch("custodied_pilot.run", side_effect=interrupted_runner) as runner:
+            with self.assertRaisesRegex(RuntimeError, "simulated provider interruption"):
+                self.invoke(self.receipt, lambda _: True)
+            runner.assert_called_once()
+        with open(sidecar, encoding="utf-8") as stream:
+            self.assertEqual(json.load(stream)["run_id"], "run")
+        with patch("custodied_pilot.run") as runner:
+            with self.assertRaises(ValueError):
+                self.invoke(self.receipt, lambda _: True)
+            runner.assert_not_called()
+
     def test_missing_witness_blocks_execution(self):
         with patch("custodied_pilot.run") as runner:
             with self.assertRaises(ValueError):
