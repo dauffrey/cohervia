@@ -7,7 +7,7 @@ from cohervia.canonical import parse_canonical
 from cohervia_pilot.runner import replay_bundle
 from cohervia_pilot.protocol import catalog, outcomes
 from capability_assessment import make_record, validate, digest
-from persistent_custody import PersistentCustody
+from persistent_custody import PersistentCustody, digest as custody_digest
 
 def assess_pilot_bundle(bundle, predictions):
     """Return development-only calibration rows after independently replaying pilot evidence.
@@ -62,7 +62,7 @@ def assess_custodied_pilot_bundle(bundle, predictions, custody_path, coordinator
             prediction = {"trial_id": trial_id, "task_hash": digest(task),
                           "model": plan["requested_model"], "probability": entry["probability"]}
             receipt = entry["checkpoint"]
-            if receipt.get("trial_id") != trial_id or receipt.get("prediction_digest") != digest(prediction):
+            if receipt.get("trial_id") != trial_id or receipt.get("prediction_digest") != custody_digest(prediction):
                 raise ValueError("custody identity mismatch")
             row = custody.db.execute("SELECT seq,prediction,previous,receipt,attempted FROM commitments WHERE trial=?", (trial_id,)).fetchone()
             if row is None or row != (receipt.get("sequence"), receipt.get("prediction_digest"),
