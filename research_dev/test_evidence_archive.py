@@ -2,8 +2,9 @@
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
-from evidence_archive import export_evidence, verify_archive
+from evidence_archive import export_evidence, verify_archive, verify_archived_pilot
 
 class EvidenceArchiveTests(unittest.TestCase):
     def setUp(self):
@@ -33,6 +34,21 @@ class EvidenceArchiveTests(unittest.TestCase):
         (self.archive / "bundle.json").write_text('{"tampered":true}')
         with self.assertRaisesRegex(ValueError, "digest mismatch"):
             verify_archive(self.archive)
+
+    def test_archive_requires_independent_replay(self):
+        export_evidence(self.bundle, self.witness, self.archive)
+        with patch("witnessed_replay.verify_rfc3161_pilot_evidence", return_value={"independent_timestamp_verified": True}) as verifier:
+            result = verify_archived_pilot(self.archive, "https://example.invalid/tsr", self.witness)
+        self.assertTrue(result["independent_timestamp_verified"])
+        verifier.assert_called_once()
+
+    def test_tampered_archive_blocks_replay(self):
+        export_evidence(self.bundle, self.witness, self.archive)
+        (self.archive / "witness.json").write_text('{"tampered":true}')
+        with patch("witnessed_replay.verify_rfc3161_pilot_evidence") as verifier:
+            with self.assertRaises(ValueError):
+                verify_archived_pilot(self.archive, "https://example.invalid/tsr", self.witness)
+            verifier.assert_not_called()
 
     def test_existing_archive_not_replaced(self):
         export_evidence(self.bundle, self.witness, self.archive)
