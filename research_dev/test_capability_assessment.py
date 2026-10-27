@@ -44,6 +44,23 @@ class ContractTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             make_record("x", "task", "model", 0.5, None, False)
 
+    def test_completed_without_response_rejected_even_with_valid_hashes(self):
+        record = copy.deepcopy(self.record)
+        record["attempt"]["response"] = None
+        record["verdict"]["attempt_hash"] = digest(record["attempt"])
+        with self.assertRaises(ValueError):
+            validate(record)
+
+    def test_numeric_verdict_lookalikes_rejected(self):
+        for value in (0, 1, 0.0, 1.0):
+            with self.subTest(value=value):
+                record = copy.deepcopy(self.record)
+                record["verdict"]["outcome"] = value
+                with self.assertRaises(ValueError):
+                    validate(record)
+                with self.assertRaises(ValueError):
+                    make_record("x", "task", "model", 0.5, "response", value)
+
     def test_unexpected_fields(self):
         record = copy.deepcopy(self.record)
         record["prediction"]["answer_key"] = "leak"
