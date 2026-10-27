@@ -16,23 +16,34 @@ def verify_rfc3161_pilot_evidence(bundle, sidecar_path, tsa_url, pinned_ca_file)
     path = Path(sidecar_path)
     evidence = json.loads(path.read_text(encoding="utf-8"))
     if type(evidence) is not dict or set(evidence) != {
-        "schema_version", "run_id", "witness_id", "commitments", "attestations"
+        "schema_version", "run_id", "witness_id", "commitments", "predictions", "attestations"
     }:
         raise ValueError("invalid witness evidence schema")
-    if evidence["schema_version"] != "witness-evidence/0.1" or evidence["run_id"] != bundle["run_id"]:
+    if evidence["schema_version"] != "witness-evidence/0.2" or evidence["run_id"] != bundle["run_id"]:
         raise ValueError("witness evidence run mismatch")
     witness = RFC3161Witness(tsa_url, pinned_ca_file)
     if evidence["witness_id"] != witness.witness_id:
         raise ValueError("witness identity mismatch")
     tasks = catalog()
     expected = {task["id"] for task in tasks}
-    commitments, attestations = evidence["commitments"], evidence["attestations"]
-    if type(commitments) is not dict or type(attestations) is not dict or set(commitments) != expected or set(attestations) != expected:
+    commitments, attestations, predictions = evidence["commitments"], evidence["attestations"], evidence["predictions"]
+    if type(commitments) is not dict or type(attestations) is not dict or type(predictions) is not dict or set(commitments) != expected or set(attestations) != expected or set(predictions) != expected:
         raise ValueError("incomplete witness evidence")
     seen_sequences = set()
     for task in tasks:
         task_id = task["id"]
         commitment = commitments[task_id]
+        prediction = predictions[task_id]
+        if type(prediction) is not dict or set(prediction) != {"trial_id", "task_hash", "model", "probability"}:
+            raise ValueError("invalid prospective prediction schema")
+        if (prediction["trial_id"] != bundle["run_id"] + ":" + task_id
+                or prediction["task_hash"] != digest(task)
+                or prediction["model"] != bundle["inputs"]["configuration"]["requested_model"]
+                or type(prediction["probability"]) not in (int, float)
+                or not 0 <= prediction["probability"] <= 1):
+            raise ValueError("prospective prediction mismatch")
+        if digest(prediction) != commitment["prediction_digest"]:
+            raise ValueError("prediction content does not match witnessed commitment")
         if type(commitment) is not dict or set(commitment) != {
             "trial_id", "prediction_digest", "previous_digest", "sequence", "receipt"
         }:
@@ -55,5 +66,5 @@ def verify_rfc3161_pilot_evidence(bundle, sidecar_path, tsa_url, pinned_ca_file)
         "independent_timestamp_verified": True,
         "task_count": len(tasks),
         "provider_execution_time_independently_proven": False,
-        "prediction_contents_authenticated": False,
+        "prediction_contents_authenticated": True,
     }
