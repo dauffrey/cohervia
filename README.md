@@ -71,6 +71,18 @@ See the provenance documentation for the full lineage and constraints: [docs/pro
 
 Cohervia is in foundation/consolidation status. It contains no validated production governor, no validated general safety capability, and no claim that inherited constructs are validated simply because they were selected for a successor project.
 
+## Current capabilities and validation boundaries (October 2026)
+
+Following merge of PR #15, Cohervia has **development-stage evidence custody and verification infrastructure**, not a deployed independent custody service or a validated autonomous governor.
+
+- **Implemented research tools:** bounded Scientist proposal/critique workflows, structured observation validation, provenance-aware SQLite audit records and deterministic replay, and a public-task pilot runner that requires a separately configured model provider for live execution.
+- **Implemented development evidence controls:** prediction/attempt/verdict records and scoring, cryptographic commitments, receipt and timestamp verification utilities, portable archive integrity checks, replay and adversarial regression tests, and offline custodian/S3 configuration validation. Passing offline tests establishes behavior under tested fixtures, not independent scientific validation.
+- **Not yet demonstrated:** independently authenticated provider execution chronology; operational long-term custody under a genuinely independent custodian with verified signed acceptance and retrieval; end-to-end live scientific validation; or effective real-agent authority governance.
+- **Deployment posture:** AWS-compatible custody support is **offline only**. No AWS account, Object Lock retention policy, live custody transfer, or paid cloud service is activated by merging PR #15. Production activation requires a separate custodian, retention and jurisdiction decisions, cost review, and explicit deployment authorization.
+- **Research posture:** COH-EXP-0001 remains proposed/unexecuted. No capability-emergence or general AI-safety claim follows from the merged implementation.
+
+**Next milestones:** arrange and test independent evidence custody; establish externally trustworthy execution attestations; complete security review of timestamp/certificate and archival verification; then conduct separately authorized, preregistered, bounded live experiments with independent evaluation. Do not treat green CI as scientific evidence.
+
 ## Prospective independent understanding and oversight track
 
 The [scalable oversight and interpretability research program](docs/research/SCALABLE_OVERSIGHT_AND_INTERPRETABILITY_PROGRAM.md) defines what would have to be independently demonstrated to understand and govern increasingly capable AI. The new `core/cohervia.shadow_evidence` module is a read-only, untrusted EFGM evidence-summary diagnostic; it never authenticates evidence, controls agents, grants permissions, or changes Cohervia's existing scientific status. No universal or 100% solution is claimed.
