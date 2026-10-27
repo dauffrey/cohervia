@@ -27,7 +27,8 @@ class PersistentCustody:
         self.db.execute("""CREATE TABLE IF NOT EXISTS commitments (
             seq INTEGER PRIMARY KEY AUTOINCREMENT, trial TEXT NOT NULL UNIQUE,
             prediction TEXT NOT NULL, previous TEXT NOT NULL, receipt TEXT NOT NULL,
-            attempted INTEGER NOT NULL DEFAULT 0 CHECK(attempted IN (0,1)),\n            consumption_mac TEXT)""")
+            attempted INTEGER NOT NULL DEFAULT 0 CHECK(attempted IN (0,1)),
+            consumption_mac TEXT)""")
 
     def close(self):
         self.db.close()
@@ -88,7 +89,8 @@ class PersistentCustody:
                 raise ValueError("missing, altered or consumed commitment")
             if not hmac.compare_digest(receipt["receipt"], self._mac({k: receipt[k] for k in ("sequence", "trial_id", "prediction_digest", "previous_digest")})):
                 raise ValueError("invalid receipt signature")
-            consumption_mac = self._mac({"consumed_receipt": receipt["receipt"], "trial_id": receipt["trial_id"], "sequence": receipt["sequence"]})\n            self.db.execute("UPDATE commitments SET attempted=1, consumption_mac=? WHERE trial=?", (consumption_mac, receipt["trial_id"]))
+            consumption_mac = self._mac({"consumed_receipt": receipt["receipt"], "trial_id": receipt["trial_id"], "sequence": receipt["sequence"]})
+            self.db.execute("UPDATE commitments SET attempted=1, consumption_mac=? WHERE trial=?", (consumption_mac, receipt["trial_id"]))
             self.db.execute("COMMIT")
             return True
         except BaseException:
