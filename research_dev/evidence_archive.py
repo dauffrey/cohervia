@@ -7,6 +7,7 @@ independent custodian; the manifest alone cannot defeat coordinated replacement.
 import hashlib
 import json
 import os
+import stat
 from pathlib import Path
 from persistent_custody import canonical
 
@@ -54,8 +55,13 @@ def export_evidence(bundle_path, witness_path, destination):
 def verify_archive(destination):
     """Verify byte-level integrity; separately run RFC3161 replay for authenticity."""
     destination = Path(destination)
+    if destination.is_symlink() or not destination.is_dir():
+        raise ValueError("archive directory must not be a symlink")
     if {p.name for p in destination.iterdir()} != FILES | {"manifest.json"}:
         raise ValueError("archive contains missing or unexpected files")
+    for name in FILES | {"manifest.json"}:
+        if not stat.S_ISREG((destination / name).lstat().st_mode):
+            raise ValueError("archive entries must be regular files: " + name)
     manifest = json.loads((destination / "manifest.json").read_bytes())
     if (type(manifest) is not dict or set(manifest) != {"schema_version", "files"}
             or manifest["schema_version"] != "evidence-archive/0.1"
