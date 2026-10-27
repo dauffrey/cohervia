@@ -21,7 +21,7 @@ def _openssl(*args, input_bytes=None):
     return result.stdout
 
 def _time_from_response(response):
-    output = _openssl("ts", "-reply", "-text", input_bytes=response).decode("utf-8")
+    output = _openssl("ts", "-reply", "-in", "/dev/stdin", "-text", input_bytes=response).decode("utf-8")
     match = re.search(r"^Time stamp:\s*(.+)$", output, re.MULTILINE)
     if not match:
         raise ValueError("missing signed TSA generation time")
