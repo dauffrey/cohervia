@@ -96,6 +96,18 @@ class ReplayAdversarialTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.verify(changed)
 
+    def test_missing_commitment_field_rejected(self):
+        changed = copy.deepcopy(self.evidence)
+        changed["commitments"][self.tasks[0]["id"]].pop("prediction_digest")
+        with self.assertRaisesRegex(ValueError, "invalid commitment schema"):
+            self.verify(changed)
+
+    def test_nonfinite_probability_rejected(self):
+        changed = copy.deepcopy(self.evidence)
+        changed["predictions"][self.tasks[0]["id"]]["probability"] = float("nan")
+        with self.assertRaisesRegex(ValueError, "prospective prediction mismatch"):
+            self.verify(changed)
+
     def test_duplicate_custody_sequence(self):
         changed = copy.deepcopy(self.evidence)
         a, b = self.tasks[0]["id"], self.tasks[1]["id"]
